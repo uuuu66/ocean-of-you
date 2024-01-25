@@ -45,3 +45,10 @@ export const Warning: Story = {
     children: "Button",
   },
 };
+export const InlineStyledButton: Story = {
+  args: {
+    style: { width: "calc(100vw - 50px)" },
+    children: "예시",
+    defaultAnimation: "trembling",
+  },
+};
