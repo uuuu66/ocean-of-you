@@ -29,25 +29,28 @@ const Button: React.FC<Partial<ButtonProps>> = ({
   const getPurseColor = (buttonType?: ButtonType) => {
     switch (buttonType) {
       case "primary":
-        return theme.colors.primary5;
+        return theme.colors.primary6;
       case "secondary":
-        return theme.colors.secondary5;
+        return theme.colors.secondary6;
       case "green":
-        return theme.colors.green5;
+        return theme.colors.green6;
       case "warning":
-        return theme.colors.red5;
+        return theme.colors.red6;
     }
   };
-  const getPurseSecondaryColor = (buttonType?: ButtonType) => {
+  const getPurseSecondaryColor = (
+    buttonType?: ButtonType,
+    stage: number = 0
+  ) => {
     switch (buttonType) {
       case "primary":
-        return theme.colors.primary2;
+        return theme.colors.primaries[stage];
       case "secondary":
-        return theme.colors.secondary2;
+        return theme.colors.secondaries[stage];
       case "green":
-        return theme.colors.green2;
+        return theme.colors.greens[stage + 1];
       case "warning":
-        return theme.colors.red2;
+        return theme.colors.reds[stage];
     }
   };
   return (
@@ -60,15 +63,40 @@ const Button: React.FC<Partial<ButtonProps>> = ({
       pressAnimation={pressAnimation}
       theme={{
         purseColor: getPurseColor(buttonType),
+        purseBlurLength: "25px",
+        purseSecondaryColor: getPurseSecondaryColor(buttonType, 4),
       }}
       {...props}
     >
       {children}
       {(defaultAnimation === "purse" || pressAnimation === "purse") && (
         <PurseAnimationSecondary
-          theme={{ purseSecondaryColor: getPurseSecondaryColor(buttonType) }}
+          theme={{
+            purseSecondaryColor: getPurseSecondaryColor(buttonType, 4),
+            purseSpreadLength: "16px",
+            purseBlurLength: "16px",
+            purseScale: 1,
+          }}
           buttonType={buttonType}
           variant={variant}
+          className="purse-animation-secondary"
+          defaultAnimation={defaultAnimation}
+          pressAnimation={pressAnimation}
+        />
+      )}
+
+      {(defaultAnimation === "purse" || pressAnimation === "purse") && (
+        <PurseAnimationSecondary
+          theme={{
+            purseSecondaryColor: getPurseSecondaryColor(buttonType, 3),
+            purseSpreadLength: "8px",
+            purseBlurLength: "8px",
+            purseScale: 1,
+          }}
+          buttonType={buttonType}
+          variant={variant}
+          style={{ zIndex: -1 }}
+          className="purse-animation-fill"
           defaultAnimation={defaultAnimation}
           pressAnimation={pressAnimation}
         />
@@ -90,19 +118,13 @@ const PurseAnimationSecondary = styled.div<
   top: 0;
   left: 0;
   border-radius: 12px;
-  z-index: -3;
+  z-index: -4;
 
-  ${({ defaultAnimation, pressAnimation }) => {
-    if (!!defaultAnimation) {
+  ${({ defaultAnimation }) => {
+    if (defaultAnimation !== "none" && !!defaultAnimation) {
       return css`
         ${animations.purseSecondary};
         animation-iteration-count: infinite;
-      `;
-    }
-    if (!!pressAnimation) {
-      return css`
-        ${animations.purseSecondary};
-        animation-fill-mode: backwards;
       `;
     }
   }}
@@ -192,38 +214,57 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
       default:
         return css``;
     }
-  }}
-  ${({ pressAnimation }) => {
-    switch (pressAnimation) {
-      case "purse":
-        return css`
-          ${animations.purse};
-          animation-fill-mode: backwards;
-        `;
-      case "progress":
-        return css``;
-      case "error":
-        return css``;
-      case "none":
-      default:
-        return css``;
-    }
-  }}
+  }};
+  &:active {
+    ${({ pressAnimation, buttonType }) => {
+      switch (pressAnimation) {
+        case "purse":
+          return css`
+            transition: box-shadow 1.5s;
+            box-shadow: 0px 0px 0px 25px ${({ theme }) => theme.purseColor};
+            ${animations.trembling};
+            & > .purse-animation-secondary {
+              transition: box-shadow 1.5s;
+              box-shadow: 0px 0px 0px 12px
+                ${({ theme }) => theme.purseSecondaryColor};
+              background-color: transparent;
+            }
+            & {
+              background-color: transparent;
+              overflow: hidden;
+            }
+            & > .purse-animation-fill {
+              transform: translateY(100%);
+              background-color: ${({}) => getColor(buttonType)};
+              z-index: 1;
+              ${animations.fillBottomToTopFrames};
+            }
+          `;
+        case "progress":
+          return css``;
+        case "error":
+          return css``;
+        case "none":
+        default:
+          return css``;
+      }
+    }}
+  }
 `;
+const getColor = (buttonType?: ButtonType) => {
+  switch (buttonType) {
+    case "green":
+      return theme.colors.mainGreen;
+    case "primary":
+      return theme.colors.mainPrimary;
+    case "secondary":
+      return theme.colors.mainSecondary;
+    case "warning":
+    default:
+      return theme.colors.mainRed;
+  }
+};
 const buttonVariantCss = (buttonType?: ButtonType, variant?: ButtonVariant) => {
-  const getColor = (buttonType?: ButtonType) => {
-    switch (buttonType) {
-      case "green":
-        return theme.colors.mainGreen;
-      case "primary":
-        return theme.colors.mainPrimary;
-      case "secondary":
-        return theme.colors.mainSecondary;
-      case "warning":
-      default:
-        return theme.colors.mainRed;
-    }
-  };
   switch (variant) {
     case "default":
       return css`
