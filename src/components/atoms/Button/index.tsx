@@ -1,7 +1,7 @@
 "use client";
 import React, { ButtonHTMLAttributes } from "react";
 import animations from "@/styles/animations";
-import { theme } from "@/styles/theme";
+import { getComponentTypeColor, theme } from "@/styles/theme";
 import Image from "next/image";
 import styled, { css } from "styled-components";
 import { iconPaths } from "../../../../public/icons";
@@ -42,7 +42,7 @@ const Button: React.FC<Partial<ButtonProps>> = ({
       $pressAnimation={$pressAnimation}
       $isLoading={$isLoading}
       theme={{
-        purseColor: getButtonTypeColor($buttonType, 5),
+        purseColor: getComponentTypeColor($buttonType, 5),
         purseBlurLength: "12px",
         purseSpreadLength: "12px",
       }}
@@ -51,7 +51,7 @@ const Button: React.FC<Partial<ButtonProps>> = ({
       {($isLoading || $defaultAnimation !== "none") && (
         <AnimationComponent
           theme={{
-            purseColor: getButtonTypeColor($buttonType, 4),
+            purseColor: getComponentTypeColor($buttonType, 4),
             purseSpreadLength: "10px",
             purseBlurLength: "10px",
             purseScale: 1,
@@ -67,7 +67,7 @@ const Button: React.FC<Partial<ButtonProps>> = ({
       {($isLoading || $defaultAnimation !== "none") && (
         <AnimationComponent
           theme={{
-            purseColor: getButtonTypeColor($buttonType, 3),
+            purseColor: getComponentTypeColor($buttonType, 3),
             purseSpreadLength: "8px",
             purseBlurLength: "6px",
             purseScale: 1,
@@ -215,13 +215,13 @@ ${({ $buttonType, variant, $isLoading }) => {
         cursor: not-allowed;
         overflow: hidden;
         min-width: 80px;
-        border-color: ${getButtonTypeColor($buttonType, 5)};
+        border-color: ${getComponentTypeColor($buttonType, 5)};
         transition: 0;
         & > .animation-component-1 {
           animation-name: none;
           background-color: ${variant !== "default"
             ? "transparent"
-            : getButtonTypeColor($buttonType, 0)};
+            : getComponentTypeColor($buttonType, 0)};
 
           width: calc(100% - 8px);
           height: calc(100% - 8px);
@@ -249,10 +249,10 @@ ${({ $buttonType, variant, $isLoading }) => {
 
           background: ${variant !== "default"
             ? "transparent"
-            : getButtonTypeColor($buttonType, 4)};
+            : getComponentTypeColor($buttonType, 4)};
           box-shadow: ${variant !== "default"
             ? "none"
-            : `0 0 50px 10px ${getButtonTypeColor($buttonType, 4)}`};
+            : `0 0 50px 10px ${getComponentTypeColor($buttonType, 4)}`};
           opacity: 0.7;
         }
         svg {
@@ -263,13 +263,13 @@ ${({ $buttonType, variant, $isLoading }) => {
           cursor: not-allowed;
           overflow: hidden;
           min-width: 80px;
-          border-color: ${getButtonTypeColor($buttonType, 5)};
+          border-color: ${getComponentTypeColor($buttonType, 5)};
           ${animations.tremblingX};
           & > .animation-component-1 {
             animation-name: none;
             background-color: ${variant !== "default"
               ? "transparent"
-              : getButtonTypeColor($buttonType, 0)};
+              : getComponentTypeColor($buttonType, 0)};
 
             width: calc(100% - 12px);
             height: calc(100% - 12px);
@@ -295,10 +295,10 @@ ${({ $buttonType, variant, $isLoading }) => {
             top: -7px;
             background: ${variant !== "default"
               ? "transparent"
-              : getButtonTypeColor($buttonType, 4)};
+              : getComponentTypeColor($buttonType, 4)};
             box-shadow: ${variant !== "default"
               ? "none"
-              : `0 0 50px 10px ${getButtonTypeColor($buttonType, 4)}`};
+              : `0 0 50px 10px ${getComponentTypeColor($buttonType, 4)}`};
             opacity: 0.7;
           }
           & > span > svg {
@@ -348,7 +348,8 @@ ${({ $buttonType, variant, $isLoading }) => {
             }
             & > .animation-component-fill {
               transform: translateY(0%) scale(1.3);
-              background-color: ${({}) => getButtonTypeColor($buttonType, 3)};
+              background-color: ${({}) =>
+                getComponentTypeColor($buttonType, 3)};
               z-index: 1;
               border-radius: 0px;
             }
@@ -405,29 +406,17 @@ const getButtonTypeMainColor = (buttonType?: ButtonType) => {
   }
 };
 
-const getButtonTypeColor = (buttonType?: ButtonType, stage: number = 0) => {
-  switch (buttonType) {
-    case "primary":
-      return theme.colors.primaries[stage];
-    case "secondary":
-      return theme.colors.secondaries[stage];
-    case "green":
-      return theme.colors.greens[stage];
-    case "red":
-      return theme.colors.reds[stage];
-  }
-};
 const getSvgStrokeColor = (
   buttonType?: ButtonType,
   variant?: ButtonVariant
 ) => {
   switch (variant) {
     case "default":
-      return getButtonTypeColor(buttonType, 3);
+      return getComponentTypeColor(buttonType, 3);
     case "ghost":
-      return getButtonTypeColor(buttonType, 3);
+      return getComponentTypeColor(buttonType, 3);
     case "outline":
-      return getButtonTypeColor(buttonType, 3);
+      return getComponentTypeColor(buttonType, 3);
     default:
   }
 };
