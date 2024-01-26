@@ -21,27 +21,27 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Primary: Story = {
   args: {
-    buttonType: "primary",
+    $buttonType: "primary",
     children: "Button",
   },
 };
 
 export const Secondary: Story = {
   args: {
-    buttonType: "secondary",
+    $buttonType: "secondary",
     children: "Button",
   },
 };
 
 export const Green: Story = {
   args: {
-    buttonType: "green",
+    $buttonType: "green",
     children: "Button",
   },
 };
 export const Warning: Story = {
   args: {
-    buttonType: "warning",
+    $buttonType: "warning",
     children: "Button",
   },
 };
@@ -49,6 +49,6 @@ export const InlineStyledButton: Story = {
   args: {
     style: { width: "calc(100vw - 50px)" },
     children: "예시",
-    defaultAnimation: "trembling",
+    $defaultAnimation: "trembling",
   },
 };
