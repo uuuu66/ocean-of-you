@@ -215,7 +215,7 @@ ${({ $buttonType, variant, $isLoading }) => {
         overflow: hidden;
         min-width: 80px;
         border-color: ${getButtonTypeColor($buttonType, 5)};
-
+        transition: 0;
         & > .animation-component-1 {
           animation-name: none;
           background-color: ${variant !== "default"
@@ -233,7 +233,7 @@ ${({ $buttonType, variant, $isLoading }) => {
           background-color: ${variant !== "default"
             ? "transparent"
             : getButtonTypeColor($buttonType, 3)};
-
+          transform: translate(-50%, 50%) rotate(90deg) scaleY(100);
           ${animations.rotateProgress};
         }
         & > span > svg {
@@ -263,7 +263,7 @@ ${({ $buttonType, variant, $isLoading }) => {
             background-color: ${variant !== "default"
               ? "transparent"
               : getButtonTypeColor($buttonType, 3)};
-
+            transform: translate(-50%, 50%) rotate(90deg) scaleY(100);
             ${animations.rotateProgress};
           }
           & > span > svg {

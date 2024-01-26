@@ -57,13 +57,14 @@ const golightLeftFrames = (fromX: string, toX: string) => keyframes`
       transform: translateX(${toX || "-100px"})  rotate(-25deg) scaleY(2);
     }
 `;
-const rotateProgressFrames = () => keyframes`
+const rotateProgressFrames = (shadowColor: string) => keyframes`
   from {
     transform:translate(-50%,50%) rotate(90deg) scaleY(100) ;
     transform-origin: 100% 0%;
+  
   }
   to{
-    transform:translate(-50%,50%)  rotate(450deg) ;  
+    transform:translate(-50%,50%)  rotate(450deg) scaleY(100);  
     transform-origin: 100% 0%;
   }
 `;
@@ -150,16 +151,20 @@ const animations = {
     animation-iteration-count: infinite;
   `,
   rotateProgress: css`
-    animation-name: ${rotateProgressFrames};
+    animation-name: ${(props) =>
+      rotateProgressFrames(props.theme.progressColor)};
     animation-duration: 2s;
     animation-timing-function: linear;
+
     animation-iteration-count: infinite;
   `,
   rotate: css`
     animation-name: ${rotateFrames};
     animation-duration: 2s;
     animation-timing-function: linear;
+    animation-fill-mode: forwards;
     animation-iteration-count: infinite;
+    /* animation-iteration-count: infinite; */
   `,
 };
 export default animations;
