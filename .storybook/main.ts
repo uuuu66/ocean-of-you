@@ -22,12 +22,25 @@ const config: StorybookConfig = {
     autodocs: "tag",
   },
   webpackFinal: async (config) => {
+    if (!config.module || !config.module.rules) {
+      return config;
+    }
+
     if (config.resolve) {
       config.resolve.alias = {
         ...config.resolve.alias,
         "@": path.resolve(__dirname, "../src"),
       };
     }
+    //기존 svg
+    const fileLoaderRule = config.module.rules.find(
+      (rule) =>
+        (rule as { test: any }).test &&
+        (rule as { test: any })?.test.test(".svg")
+    );
+    (fileLoaderRule as { exclude: any }).exclude = /\.svg$/;
+    config.module.rules.push({ test: /\.svg$/, use: ["@svgr/webpack"] });
+
     return config;
   },
 };

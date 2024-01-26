@@ -1,4 +1,4 @@
-import LoadingWhite from "./loading-white.svg";
+import Loading from "./loading.svg";
 export const iconPaths = {
-  LoadingWhite,
+  Loading,
 };
