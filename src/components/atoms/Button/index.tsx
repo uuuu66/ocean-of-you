@@ -43,7 +43,8 @@ const Button: React.FC<Partial<ButtonProps>> = ({
       $isLoading={$isLoading}
       theme={{
         purseColor: getButtonTypeColor($buttonType, 5),
-        purseBlurLength: "25px",
+        purseBlurLength: "12px",
+        purseSpreadLength: "12px",
       }}
       {...props}
     >
@@ -51,8 +52,8 @@ const Button: React.FC<Partial<ButtonProps>> = ({
         <AnimationComponent
           theme={{
             purseColor: getButtonTypeColor($buttonType, 4),
-            purseSpreadLength: "16px",
-            purseBlurLength: "16px",
+            purseSpreadLength: "10px",
+            purseBlurLength: "10px",
             purseScale: 1,
             fromX: "-100px",
             toX: "100vw",
@@ -249,7 +250,9 @@ ${({ $buttonType, variant, $isLoading }) => {
           background: ${variant !== "default"
             ? "transparent"
             : getButtonTypeColor($buttonType, 4)};
-          box-shadow: 0 0 50px 10px ${getButtonTypeColor($buttonType, 4)};
+          box-shadow: ${variant !== "default"
+            ? "none"
+            : `0 0 50px 10px ${getButtonTypeColor($buttonType, 4)}`};
           opacity: 0.7;
         }
         svg {
@@ -293,7 +296,9 @@ ${({ $buttonType, variant, $isLoading }) => {
             background: ${variant !== "default"
               ? "transparent"
               : getButtonTypeColor($buttonType, 4)};
-            box-shadow: 0 0 50px 10px ${getButtonTypeColor($buttonType, 4)};
+            box-shadow: ${variant !== "default"
+              ? "none"
+              : `0 0 50px 10px ${getButtonTypeColor($buttonType, 4)}`};
             opacity: 0.7;
           }
           & > span > svg {

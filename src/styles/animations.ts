@@ -108,7 +108,7 @@ const animations = {
         props.theme.purseSpreadLength,
         props.theme.purseScale
       )};
-    animation-duration: 1.5s;
+    animation-duration: 2s;
     animation-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
   `,
 
