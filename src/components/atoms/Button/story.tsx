@@ -49,8 +49,15 @@ export const Red: Story = {
   },
 };
 export const InlineStyledButton: Story = {
+  decorators: (Story) => {
+    return (
+      <div className="w-[500px]">
+        <Story />
+      </div>
+    );
+  },
   args: {
-    style: { width: "calc(100vw - 50px)" },
+    style: { width: "100%" },
     children: "예시",
     $defaultAnimation: "trembling",
   },

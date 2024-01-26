@@ -227,17 +227,33 @@ ${({ $buttonType, variant, $isLoading }) => {
           top: 4px;
           left: 4px;
           z-index: 0;
+          /* opacity: 0; */
         }
         & > .animation-component-2 {
           animation-name: none;
-          background-color: ${variant !== "default"
-            ? "transparent"
-            : getButtonTypeColor($buttonType, 3)};
-          transform: translate(-50%, 50%) rotate(90deg) scaleY(100);
+          background-color: transparent;
+          transform: translate(-50%, 50%) rotate(450deg) scaleY(1);
+          transform-origin: 100% 0%;
+          border-radius: 0%;
+
           ${animations.rotateProgress};
         }
-        & > span > svg {
-          ${animations.rotate}
+        & > .animation-component-2::after {
+          content: " ";
+          position: absolute;
+          width: 100%;
+          height: 30%;
+          left: 0;
+          top: -7px;
+
+          background: ${variant !== "default"
+            ? "transparent"
+            : getButtonTypeColor($buttonType, 4)};
+          box-shadow: 0 0 50px 10px ${getButtonTypeColor($buttonType, 4)};
+          opacity: 0.7;
+        }
+        svg {
+          ${animations.rotate};
         }
 
         &:active {
@@ -252,19 +268,33 @@ ${({ $buttonType, variant, $isLoading }) => {
               ? "transparent"
               : getButtonTypeColor($buttonType, 0)};
 
-            width: calc(100% - 8px);
-            height: calc(100% - 8px);
-            top: 4px;
-            left: 4px;
+            width: calc(100% - 12px);
+            height: calc(100% - 12px);
+            top: 6px;
+            left: 6px;
             z-index: 0;
           }
           & > .animation-component-2 {
             animation-name: none;
-            background-color: ${variant !== "default"
-              ? "transparent"
-              : getButtonTypeColor($buttonType, 3)};
-            transform: translate(-50%, 50%) rotate(90deg) scaleY(100);
+            background-color: transparent;
+            transform: translate(-50%, 50%) rotate(450deg) scaleY(1);
+            transform-origin: 100% 0%;
+            border-radius: 0%;
+
             ${animations.rotateProgress};
+          }
+          & > .animation-component-2::after {
+            content: " ";
+            position: absolute;
+            width: 100%;
+            height: 30%;
+            left: 0;
+            top: -7px;
+            background: ${variant !== "default"
+              ? "transparent"
+              : getButtonTypeColor($buttonType, 4)};
+            box-shadow: 0 0 50px 10px ${getButtonTypeColor($buttonType, 4)};
+            opacity: 0.7;
           }
           & > span > svg {
             ${animations.rotate}
@@ -285,9 +315,9 @@ ${({ $buttonType, variant, $isLoading }) => {
         return css`
           ${animations.tremblingX}
           animation-duration: 0.3;
-          & > .animation-component {
+          /* & > .animation-component {
             animation-name: none;
-          }
+          } */
         `;
       case "none":
       default:
@@ -313,7 +343,7 @@ ${({ $buttonType, variant, $isLoading }) => {
             }
             & > .animation-component-fill {
               transform: translateY(0%) scale(1.3);
-              background-color: ${({}) => getButtonTypeColor($buttonType, 4)};
+              background-color: ${({}) => getButtonTypeColor($buttonType, 3)};
               z-index: 1;
               border-radius: 0px;
             }

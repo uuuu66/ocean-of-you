@@ -59,12 +59,12 @@ const golightLeftFrames = (fromX: string, toX: string) => keyframes`
 `;
 const rotateProgressFrames = (shadowColor: string) => keyframes`
   from {
-    transform:translate(-50%,50%) rotate(90deg) scaleY(100) ;
+    transform:translate(-50%,50%) rotate(60deg) scaleY(1) ;
     transform-origin: 100% 0%;
   
   }
   to{
-    transform:translate(-50%,50%)  rotate(450deg) scaleY(100);  
+    transform:translate(-50%,50%)  rotate(420deg) scaleY(1);  
     transform-origin: 100% 0%;
   }
 `;
@@ -155,7 +155,6 @@ const animations = {
       rotateProgressFrames(props.theme.progressColor)};
     animation-duration: 2s;
     animation-timing-function: linear;
-
     animation-iteration-count: infinite;
   `,
   rotate: css`
