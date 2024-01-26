@@ -6,7 +6,7 @@ import Image from "next/image";
 import styled, { css } from "styled-components";
 import { iconPaths } from "../../../../public/icons";
 
-export type ButtonType = "primary" | "secondary" | "green" | "warning";
+export type ButtonType = "primary" | "secondary" | "green" | "red";
 export type ButtonVariant = "default" | "outline" | "ghost";
 export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 export type ButtonDefaultAnimation = "trembling" | "purse" | "none";
@@ -90,7 +90,10 @@ const Button: React.FC<Partial<ButtonProps>> = ({
       )}{" "}
       <span>
         {$isLoading ? (
-          <iconPaths.Loading stroke={getSvgStrokeColor($buttonType, variant)} />
+          <iconPaths.Loading
+            stroke={getSvgStrokeColor($buttonType, variant)}
+            fill={getSvgStrokeColor($buttonType, variant)}
+          />
         ) : (
           children
         )}
@@ -361,7 +364,7 @@ const getButtonTypeMainColor = (buttonType?: ButtonType) => {
       return theme.colors.mainPrimary;
     case "secondary":
       return theme.colors.mainSecondary;
-    case "warning":
+    case "red":
     default:
       return theme.colors.mainRed;
   }
@@ -375,7 +378,7 @@ const getButtonTypeColor = (buttonType?: ButtonType, stage: number = 0) => {
       return theme.colors.secondaries[stage];
     case "green":
       return theme.colors.greens[stage];
-    case "warning":
+    case "red":
       return theme.colors.reds[stage];
   }
 };
@@ -385,11 +388,11 @@ const getSvgStrokeColor = (
 ) => {
   switch (variant) {
     case "default":
-      return getButtonTypeColor(buttonType, 5);
+      return getButtonTypeColor(buttonType, 3);
     case "ghost":
-      return getButtonTypeColor(buttonType, 5);
+      return getButtonTypeColor(buttonType, 3);
     case "outline":
-      return getButtonTypeColor(buttonType, 5);
+      return getButtonTypeColor(buttonType, 3);
     default:
   }
 };

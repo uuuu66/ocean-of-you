@@ -42,9 +42,9 @@ export const Green: Story = {
     children: "Button",
   },
 };
-export const Warning: Story = {
+export const Red: Story = {
   args: {
-    $buttonType: "warning",
+    $buttonType: "red",
     children: "Button",
   },
 };
