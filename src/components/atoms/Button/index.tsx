@@ -9,14 +9,15 @@ import { iconPaths } from "../../../../public/icons";
 export type ButtonType = "primary" | "secondary" | "green" | "warning";
 export type ButtonVariant = "default" | "outline" | "ghost";
 export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
-export type ButtonAnimation = "trembling" | "purse" | "none";
+export type ButtonDefaultAnimation = "trembling" | "purse" | "none";
+export type ButtonPressAnimation = "trembling" | "fill" | "none";
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   $buttonType: ButtonType;
   variant: ButtonVariant;
   size: ButtonSize;
   $fullWidth: boolean;
-  $defaultAnimation: ButtonAnimation;
-  $pressAnimation: ButtonAnimation;
+  $defaultAnimation: ButtonDefaultAnimation;
+  $pressAnimation: ButtonPressAnimation;
   $isLoading: boolean;
 }
 
@@ -87,7 +88,13 @@ const Button: React.FC<Partial<ButtonProps>> = ({
           $pressAnimation={$pressAnimation}
         />
       )}{" "}
-      <span>{$isLoading ? <iconPaths.LoadingWhite /> : children}</span>
+      <span>
+        {$isLoading ? (
+          <iconPaths.Loading stroke={getSvgStrokeColor($buttonType, variant)} />
+        ) : (
+          children
+        )}
+      </span>
     </StyledComponent>
   );
 };
@@ -116,9 +123,7 @@ const AnimationComponent = styled.div<
     }
   }}
 `;
-const StyledComponent = styled.button.withConfig({
-  shouldForwardProp: (props) => !!props,
-})<Partial<ButtonProps>>`
+const StyledComponent = styled.button<Partial<ButtonProps>>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -290,7 +295,7 @@ ${({ $buttonType, variant, $isLoading }) => {
   &:active {
     ${({ $pressAnimation, $buttonType }) => {
       switch ($pressAnimation) {
-        case "purse":
+        case "fill":
           return css`
             animation-name: none;
             & > .animation-component {
@@ -326,19 +331,6 @@ ${({ $buttonType, variant, $isLoading }) => {
     }};
   }
 `;
-const getButtonTypeMainColor = (buttonType?: ButtonType) => {
-  switch (buttonType) {
-    case "green":
-      return theme.colors.mainGreen;
-    case "primary":
-      return theme.colors.mainPrimary;
-    case "secondary":
-      return theme.colors.mainSecondary;
-    case "warning":
-    default:
-      return theme.colors.mainRed;
-  }
-};
 const buttonVariantCss = (buttonType?: ButtonType, variant?: ButtonVariant) => {
   switch (variant) {
     case "default":
@@ -361,6 +353,20 @@ const buttonVariantCss = (buttonType?: ButtonType, variant?: ButtonVariant) => {
   }
 };
 
+const getButtonTypeMainColor = (buttonType?: ButtonType) => {
+  switch (buttonType) {
+    case "green":
+      return theme.colors.mainGreen;
+    case "primary":
+      return theme.colors.mainPrimary;
+    case "secondary":
+      return theme.colors.mainSecondary;
+    case "warning":
+    default:
+      return theme.colors.mainRed;
+  }
+};
+
 const getButtonTypeColor = (buttonType?: ButtonType, stage: number = 0) => {
   switch (buttonType) {
     case "primary":
@@ -371,5 +377,19 @@ const getButtonTypeColor = (buttonType?: ButtonType, stage: number = 0) => {
       return theme.colors.greens[stage];
     case "warning":
       return theme.colors.reds[stage];
+  }
+};
+const getSvgStrokeColor = (
+  buttonType?: ButtonType,
+  variant?: ButtonVariant
+) => {
+  switch (variant) {
+    case "default":
+      return getButtonTypeColor(buttonType, 5);
+    case "ghost":
+      return getButtonTypeColor(buttonType, 5);
+    case "outline":
+      return getButtonTypeColor(buttonType, 5);
+    default:
   }
 };

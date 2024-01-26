@@ -21,7 +21,10 @@ const Colors: React.FC<Props> = (props) => {
             <div
               className="flex items-center  p-3 h-2 shadow-2xl border border-solid border-gray3"
               style={{
-                backgroundColor: color[1],
+                backgroundColor:
+                  typeof color?.[1] === "string"
+                    ? color?.[1] || "black"
+                    : "black",
               }}
             >
               {color[1]}
