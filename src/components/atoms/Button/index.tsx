@@ -2,7 +2,6 @@
 import React, { ButtonHTMLAttributes } from "react";
 import animations from "@/styles/animations";
 import { getComponentTypeColor, theme } from "@/styles/theme";
-import Image from "next/image";
 import styled, { css } from "styled-components";
 import { iconPaths } from "../../../../public/icons";
 
