@@ -34,19 +34,11 @@ export const Primary: Story = {
     placeholder: "placeholder",
     Icon: MagnifyingGlassIcon,
     $isIconOpenButton: true,
-    $iconProps: {
-      stroke: getComponentTypeColor("primary", 2),
-      fill: "transparent",
-      activeProps: {
-        stroke: getComponentTypeColor("primary", 5),
-        fill: "transparent",
-      },
-    },
+
     $submitButton: {
       Icon: CheckIcon,
-      iconAnimationType: "fly",
       iconProps: {
-        fill: getComponentTypeColor("primary", 2),
+        fill: getComponentTypeColor("primary", 1),
         stroke: getComponentTypeColor("primary", 2),
       },
     },
@@ -56,7 +48,7 @@ export const Secondary: Story = {
   args: {
     children: "Input",
     placeholder: "placeholder",
-    Icon: iconPaths.Search,
+    Icon: MagnifyingGlassIcon,
     $inputType: "secondary",
     $isIconOpenButton: true,
     $iconProps: {
@@ -70,7 +62,7 @@ export const Secondary: Story = {
     $submitButton: {
       Icon: CheckIcon,
       iconProps: {
-        fill: getComponentTypeColor("secondary", 2),
+        fill: getComponentTypeColor("secondary", 0),
         stroke: getComponentTypeColor("secondary", 2),
       },
     },
@@ -80,7 +72,7 @@ export const Green: Story = {
   args: {
     children: "Input",
     placeholder: "placeholder",
-    Icon: iconPaths.Search,
+    Icon: MagnifyingGlassIcon,
     $inputType: "green",
     $isIconOpenButton: true,
     $iconProps: {
@@ -94,7 +86,7 @@ export const Green: Story = {
     $submitButton: {
       Icon: CheckIcon,
       iconProps: {
-        fill: getComponentTypeColor("green", 2),
+        fill: getComponentTypeColor("green", 0),
         stroke: getComponentTypeColor("green", 2),
       },
     },
@@ -105,7 +97,7 @@ export const Red: Story = {
     children: "Input",
     placeholder: "placeholder",
     $inputType: "red",
-    Icon: iconPaths.Search,
+    Icon: MagnifyingGlassIcon,
     $isIconOpenButton: true,
     $iconProps: {
       stroke: getComponentTypeColor("red", 2),
@@ -118,7 +110,7 @@ export const Red: Story = {
     $submitButton: {
       Icon: CheckIcon,
       iconProps: {
-        fill: getComponentTypeColor("red", 2),
+        fill: getComponentTypeColor("red", 0),
         stroke: getComponentTypeColor("red", 2),
       },
     },

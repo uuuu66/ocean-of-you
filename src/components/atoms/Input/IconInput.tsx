@@ -70,7 +70,7 @@ const IconInput: React.FC<Partial<InputProps>> = ({
           <Icon
             width={iconSizes[$inputSize]}
             height={iconSizes[$inputSize]}
-            {...$iconProps}
+            // {...$iconProps}
           />
         )}
       </IconWrapper>
@@ -88,10 +88,13 @@ const IconInput: React.FC<Partial<InputProps>> = ({
         {$submitButton && (
           <>
             <SubmitButton
-              {...$submitButton}
+              iconButtonType={$inputType || "primary"}
               $inputSize={$inputSize}
+              size={$inputSize}
               $isIconLeft={$isIconLeft}
+              iconProps={$submitButton.iconProps}
               open={open}
+              {...$submitButton}
             />
           </>
         )}
@@ -110,11 +113,13 @@ const Wrapper = styled.div<Pick<StyledInputProps, "$isIconLeft">>`
   transform: ${({ $isIconLeft }) =>
     $isIconLeft ? `rotateY(0deg)` : `rotateY(180deg)`};
 `;
-const SubmitButton = styled(IconButton)<{
-  open: boolean;
-  $isIconLeft: boolean;
-  $inputSize: InputSize;
-}>`
+const SubmitButton = styled(IconButton)<
+  IconButtonProps & {
+    open: boolean;
+    $isIconLeft: boolean;
+    $inputSize: InputSize;
+  }
+>`
   position: absolute;
   rotate: ${({ $isIconLeft }) => ($isIconLeft ? "0deg" : "y 180deg")};
 

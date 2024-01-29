@@ -1,30 +1,49 @@
 import { Sizes, ComponentTypes } from "@/lib/types";
-import { getComponentTypeColor, theme } from "@/styles/theme";
+import { getComponentTypeColor } from "@/styles/theme";
 import React, { InputHTMLAttributes } from "react";
-import styled, { css } from "styled-components";
-import { iconPaths } from "../../../../public/icons";
+import { CrossCircledIcon } from "@radix-ui/react-icons";
+import { Wrapper, StyledComponent } from "@/components/atoms/Input/styles";
+import PasswordInput from "@/components/atoms/Input/PasswordInput";
+import ResetInput from "@/components/atoms/Input/ResetInput";
 export type InputSize = Sizes;
 export type InputType = ComponentTypes;
-interface Props extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   inputType: InputType;
   inputSize: InputSize;
   isError: boolean;
-  hasResetButton: boolean;
+  isPassword: boolean;
+  suffix: React.ReactNode;
+  prefixComp: React.ReactNode;
+  handleClickReset: React.MouseEventHandler;
 }
-const inputSizes: { [key in InputSize]: number } = {
-  xl: 64,
-  lg: 56,
-  md: 48,
-  sm: 40,
-  xs: 32,
-};
-const Input: React.FC<Partial<Props>> = ({ hasResetButton, ...props }) => {
+
+const Input: React.FC<Partial<InputProps>> = ({
+  prefixComp,
+  suffix,
+  isPassword,
+  handleClickReset,
+  ...props
+}) => {
+  if (handleClickReset)
+    return (
+      <ResetInput
+        prefixComp={prefixComp}
+        handleClickReset={handleClickReset}
+        {...props}
+      />
+    );
+  if (isPassword) return <PasswordInput prefixComp={prefixComp} {...props} />;
   return (
-    <Wrapper {...props} hasResetButton={hasResetButton}>
-      <StyledComponent {...props} />
-      {hasResetButton && (
+    <Wrapper {...props} hasSuffix={!!suffix} hasPrefix={!!prefixComp}>
+      {prefixComp && (
         <span className="w-6 h-full flex justify-center items-center ">
-          <iconPaths.Delete className="cursor-pointer" />
+          {prefixComp}
+        </span>
+      )}
+      <StyledComponent {...props} />
+      {suffix && (
+        <span className="w-6 h-full flex justify-center items-center ">
+          {suffix}
         </span>
       )}
     </Wrapper>
@@ -32,46 +51,3 @@ const Input: React.FC<Partial<Props>> = ({ hasResetButton, ...props }) => {
 };
 
 export default Input;
-const Wrapper = styled.span.withConfig({
-  shouldForwardProp: (props) => {
-    return (
-      props !== "inputType" &&
-      props !== "inputSize" &&
-      props !== "isError" &&
-      props !== "hasResetButton"
-    );
-  },
-})<Partial<Props>>`
-  ${({ isError, inputType = "gray", inputSize = "md", hasResetButton }) => {
-    return css`
-      display: flex;
-      flex-direction: row;
-      overflow: hidden;
-      padding-right: ${hasResetButton ? "8px" : "0px"};
-      width: 100%;
-      box-shadow: ${isError ? `0px 0px 1px 1px ${theme.colors.red5}` : "none"};
-      border-radius: 12px;
-      height: ${inputSizes[inputSize]}px;
-      border: 1px solid
-        ${isError
-          ? getComponentTypeColor("red", 3)
-          : getComponentTypeColor(inputType, 4)};
-    `;
-  }}
-`;
-const StyledComponent = styled.input.withConfig({
-  shouldForwardProp: (props) => {
-    return (
-      props !== "inputType" && props !== "inputSize" && props !== "isError"
-    );
-  },
-})<Partial<Props>>`
-  ${({ inputSize = "md" }) => {
-    return css`
-      flex-grow: 1;
-      padding: 6px ${inputSizes[inputSize] / 4}px;
-      outline: none;
-      font-size: ${inputSizes[inputSize] / 4 + 4}px;
-    `;
-  }}
-`;
