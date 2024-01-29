@@ -91,6 +91,8 @@ const Button: React.FC<Partial<ButtonProps>> = ({
       <span>
         {$isLoading ? (
           <iconPaths.Loading
+            width={24}
+            height={24}
             stroke={getSvgStrokeColor($buttonType, variant)}
             fill={getSvgStrokeColor($buttonType, variant)}
           />
