@@ -24,6 +24,6 @@ export const getComponentTypeColor = (
       return theme.colors.reds[stage];
     case "gray":
     default:
-      theme.colors.grays[stage];
+      return theme.colors.grays[stage];
   }
 };
