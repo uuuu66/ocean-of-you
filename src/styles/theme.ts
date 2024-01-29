@@ -1,6 +1,5 @@
 import colorTheme from "@/datas/color.json";
 import { ComponentTypes } from "@/lib/types";
-
 export type ColorThemeType = typeof colorTheme;
 
 export interface ThemeType {
@@ -23,5 +22,8 @@ export const getComponentTypeColor = (
       return theme.colors.greens[stage];
     case "red":
       return theme.colors.reds[stage];
+    case "gray":
+    default:
+      theme.colors.grays[stage];
   }
 };
