@@ -2,7 +2,9 @@
 import IconButton, {
   IconButtonProps,
 } from "@/components/atoms/Button/IconButton";
-import { ComponentTypes, Sizes } from "@/lib/types";
+import { InputSize, InputType } from "@/components/atoms/Input";
+import { SvgIconProps } from "@/lib/interfaces";
+
 import { getComponentTypeColor, theme } from "@/styles/theme";
 import React, { InputHTMLAttributes, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
@@ -14,18 +16,25 @@ const inputSizes: { [key in InputSize]: number } = {
   sm: 40,
   xs: 32,
 };
+const iconSizes: { [key in InputSize]: number } = {
+  xl: 32,
+  lg: 28,
+  md: 24,
+  sm: 16,
+  xs: 14,
+};
 const circleGap = 6;
-export type InputSize = Sizes;
-export type InputType = ComponentTypes;
-export type IconAnimationType = "scaleUp" | "rotate" | "none";
+
+export type IconAnimationType = "scaleDown" | "rotate" | "none";
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   $isError: boolean;
   $inputSize?: InputSize;
   $inputType?: InputType;
   $isIconOpenButton?: boolean;
-  $iconAnimationType?: IconAnimationType;
+  iconAnimationType?: IconAnimationType;
   $isIconLeft?: boolean;
-  Icon?: React.FC<React.SVGProps<SVGSVGElement>>;
+  $iconProps?: SvgIconProps;
+  Icon?: React.FC<SvgIconProps>;
   $submitButton?: IconButtonProps;
 }
 interface StyledInputProps extends Partial<InputProps> {
@@ -36,9 +45,10 @@ const IconInput: React.FC<Partial<InputProps>> = ({
   $inputSize = "md",
   $inputType = "primary",
   $isIconOpenButton = true,
-  $iconAnimationType = "none",
+  iconAnimationType = "none",
   $isIconLeft = true,
   $submitButton,
+  $iconProps,
   Icon,
   children,
   ...props
@@ -51,14 +61,16 @@ const IconInput: React.FC<Partial<InputProps>> = ({
     <Wrapper $isIconLeft={$isIconLeft}>
       <IconWrapper
         $inputType={$inputType}
-        $iconAnimationType={$iconAnimationType}
+        $iconProps={$iconProps}
+        iconAnimationType={iconAnimationType}
         onClick={handleIconWrapperClick}
         open={open}
       >
         {Icon && (
           <Icon
-            stroke={getComponentTypeColor($inputType, open ? 5 : 3)}
-            fill={getComponentTypeColor($inputType, open ? 5 : 3)}
+            width={iconSizes[$inputSize]}
+            height={iconSizes[$inputSize]}
+            {...$iconProps}
           />
         )}
       </IconWrapper>
@@ -74,12 +86,14 @@ const IconInput: React.FC<Partial<InputProps>> = ({
           />
         }
         {$submitButton && (
-          <SubmitButton
-            {...$submitButton}
-            $inputSize={$inputSize}
-            $isIconLeft={$isIconLeft}
-            open={open}
-          />
+          <>
+            <SubmitButton
+              {...$submitButton}
+              $inputSize={$inputSize}
+              $isIconLeft={$isIconLeft}
+              open={open}
+            />
+          </>
         )}
       </InputWrapper>
     </Wrapper>
@@ -92,6 +106,7 @@ const Wrapper = styled.div<Pick<StyledInputProps, "$isIconLeft">>`
   float: left;
   display: flex;
   align-items: center;
+  width: 100%;
   transform: ${({ $isIconLeft }) =>
     $isIconLeft ? `rotateY(0deg)` : `rotateY(180deg)`};
 `;
@@ -101,12 +116,15 @@ const SubmitButton = styled(IconButton)<{
   $inputSize: InputSize;
 }>`
   position: absolute;
+  rotate: 90deg;
   z-index: 0;
   right: ${circleGap}px;
-  transition: display 0s 1s;
   height: ${({ $inputSize }) => inputSizes[$inputSize] - circleGap * 2}px;
 `;
-const IconWrapper = styled.div<Partial<StyledInputProps>>`
+const IconWrapper = styled.div.withConfig({
+  shouldForwardProp: (props) =>
+    props !== "iconAnimationType" && props !== "iconProps",
+})<Partial<StyledInputProps>>`
   position: absolute;
   left: ${`${circleGap}px`};
   min-height: calc(100% - ${circleGap * 2}px);
@@ -119,28 +137,46 @@ const IconWrapper = styled.div<Partial<StyledInputProps>>`
   transition: transform 1.3s;
   z-index: 1;
   cursor: pointer;
-  ${({ $iconAnimationType, open }) => {
-    switch ($iconAnimationType) {
-      case "rotate":
-        return css`
-          transform: ${open ? `rotate(180deg)` : "unset"};
-        `;
-      case "scaleUp":
-        return css`
-          svg {
-            transition: transform 1.3s;
-            transform: ${open ? `scale(1.3)` : "unset"};
-          }
-        `;
-      case "none":
-      default:
-        return css`
-          transform: unset;
-        `;
+  svg,
+  path {
+    stroke: ${({ $inputType, $iconProps }) =>
+      $iconProps?.stroke || getComponentTypeColor($inputType, 1)};
+    fill: ${({ $inputType, $iconProps }) =>
+      $iconProps?.fill || getComponentTypeColor($inputType, 1)};
+  }
+  &:active {
+    svg,
+    path {
+      stroke: ${({ $inputType, $iconProps }) =>
+        $iconProps?.activeProps?.stroke ||
+        getComponentTypeColor($inputType, 3)};
+      fill: ${({ $inputType, $iconProps }) =>
+        $iconProps?.activeProps?.fill || getComponentTypeColor($inputType, 3)};
     }
-  }}
+    ${({ iconAnimationType, open }) => {
+      switch (iconAnimationType) {
+        case "rotate":
+          return css`
+            transform: ${open ? `rotate(180deg)` : "unset"};
+          `;
+        case "scaleDown":
+          return css`
+            svg {
+              transition: transform 1.3s;
+              transform: ${open ? `scale(0.9)` : "unset"};
+            }
+          `;
+        case "none":
+        default:
+          return css`
+            transform: unset;
+          `;
+      }
+    }};
+  }
 `;
 const InputWrapper = styled.div<StyledInputProps>`
+  will-change: auto;
   position: relative;
   width: ${({ open, $inputSize = "md" }) =>
     open ? "100%" : `${inputSizes[$inputSize]}px`};
@@ -151,17 +187,16 @@ const InputWrapper = styled.div<StyledInputProps>`
   transition: width 0.5s;
 `;
 const StyledInput = styled.input<StyledInputProps>`
-  will-change: auto;
   width: 100%;
   height: ${({ $inputSize = "md" }) => inputSizes[$inputSize]}px;
   outline: none;
-  z-index: -1;
+
   border-radius: 8px;
-  transition: all 0.3s;
+  transition: all 0.5s;
   transform: ${({ $isIconLeft }) =>
     $isIconLeft ? `rotateY(0deg)` : `rotateY(180deg)`};
   background-color: ${({ $inputType }) =>
-    getComponentTypeColor($inputType, 5) || "white"};
+    getComponentTypeColor($inputType, 4) || "white"};
   color: ${({ $inputType }) => getComponentTypeColor($inputType, 0) || "white"};
   &::placeholder {
     color: ${({ $inputType }) =>
@@ -223,5 +258,5 @@ const StyledInput = styled.input<StyledInputProps>`
       return css`
         box-shadow: unset;
       `;
-  }}
+  }};
 `;
