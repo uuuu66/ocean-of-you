@@ -116,7 +116,8 @@ const SubmitButton = styled(IconButton)<{
   $inputSize: InputSize;
 }>`
   position: absolute;
-  rotate: 90deg;
+  rotate: ${({ $isIconLeft }) => ($isIconLeft ? "0deg" : "y 180deg")};
+
   z-index: 0;
   right: ${circleGap}px;
   height: ${({ $inputSize }) => inputSizes[$inputSize] - circleGap * 2}px;
