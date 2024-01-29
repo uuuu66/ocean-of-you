@@ -35,6 +35,7 @@ const IconButton: React.FC<IconButtonProps> = (props) => {
     <IconWrapper
       iconAnimationType={iconAnimationType}
       iconButtonType={iconButtonType}
+      iconProps={iconProps}
       {...rest}
     >
       {Icon && (
@@ -47,7 +48,9 @@ const IconButton: React.FC<IconButtonProps> = (props) => {
 export default IconButton;
 const IconWrapper = styled.button.withConfig({
   shouldForwardProp: (props) =>
-    props !== "iconAnimationType" && props !== "iconButtonType",
+    props !== "iconAnimationType" &&
+    props !== "iconButtonType" &&
+    props !== "iconProps",
 })<Pick<IconButtonProps, "iconAnimationType" | "iconButtonType" | "iconProps">>`
   min-height: calc(100% - ${circleGap * 2}px);
   aspect-ratio: 1;
