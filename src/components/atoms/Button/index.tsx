@@ -4,8 +4,9 @@ import animations from "@/styles/animations";
 import { getComponentTypeColor, theme } from "@/styles/theme";
 import styled, { css } from "styled-components";
 import { iconPaths } from "../../../../public/icons";
+import { ComponentTypes } from "@/lib/types";
 
-export type ButtonType = "primary" | "secondary" | "green" | "red";
+export type ButtonType = ComponentTypes;
 export type ButtonVariant = "default" | "outline" | "ghost";
 export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 export type ButtonDefaultAnimation = "trembling" | "purse" | "none";
