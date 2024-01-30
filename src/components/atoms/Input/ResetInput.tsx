@@ -24,8 +24,8 @@ const ResetInput: React.FC<Partial<InputProps>> = ({
       <StyledComponent {...props} />{" "}
       <span className="w-6 h-full flex justify-center items-center">
         <CrossCircledIcon
-          width={24}
-          height={24}
+          width={18}
+          height={18}
           className="cursor-pointer opacity-45 active:rotate-180 active:scale-90 transition-all"
           stroke={getComponentTypeColor(
             props.inputType,

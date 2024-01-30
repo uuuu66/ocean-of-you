@@ -43,7 +43,7 @@ const PasswordInput: React.FC<Partial<PasswordInputProps>> = ({
       <StyledComponent {...props} type={isVisible ? "" : "password"} />
       <span
         className={
-          "w-6 h-full flex justify-center items-center overflow-hidden cursor-pointer "
+          "w-11 h-full flex justify-center items-center overflow-hidden cursor-pointer "
         }
         onClick={handleClickIcon}
       >
