@@ -37,6 +37,8 @@ export const Reset: Story = {
     handleClickReset: () => {
       console.log("hi");
     },
+    maxLength: 10,
+    value: "12345678901",
   },
   decorators: (Story) => (
     <div className="w-[400px] flex justify-end">
@@ -47,6 +49,8 @@ export const Reset: Story = {
 export const Pwd: Story = {
   args: {
     isPassword: true,
+    maxLength: 10,
+    value: "1234901",
   },
   decorators: (Story) => (
     <div className="w-[400px] flex justify-end">

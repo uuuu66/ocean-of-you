@@ -17,7 +17,10 @@
   "gray3": "#383838",
   "gray4": "#555555",
   "gray5": "#858585",
-
+  "gray6": "#ADB5BD",
+  "gray7": "#CED4DA",
+  "gray8": "#DEE2E6",
+  "gray9": "#F1F3F5",
   "green1": "#3FB59C",
   "green2": "#44C28D",
   "green3": "#50E2A6",
@@ -35,6 +38,7 @@
   "mainSecondary": "#5971F7",
   "mainRed": "#F20F22",
   "mainGreen": "#50E2A6",
+  "mainGray": "#383838",
   "white": "#ffffff",
   "primaries": [
     "#6E4CC2",
@@ -54,5 +58,15 @@
   ],
   "greens": ["#3FB59C", "#44C28D", "#50E2A6", "#B9FFBA", "#C8FFBA", "#DBFFC7"],
   "reds": ["#B00404", "#D60404", "#F20F22", "#F26363", "#F2A7A7", "#FFE4FF"],
-  "grays": ["#000000", "#1F1F1F", "#383838", "#555555", "#858585"]
+  "grays": [
+    "#000000",
+    "#1F1F1F",
+    "#383838",
+    "#555555",
+    "#858585",
+    "#ADB5BD",
+    "#CED4DA",
+    "#DEE2E6",
+    "#F1F3F5"
+  ]
 }

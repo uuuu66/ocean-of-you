@@ -2,7 +2,11 @@ import { Sizes, ComponentTypes } from "@/lib/types";
 import { getComponentTypeColor } from "@/styles/theme";
 import React, { InputHTMLAttributes } from "react";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
-import { Wrapper, StyledComponent } from "@/components/atoms/Input/styles";
+import {
+  Wrapper,
+  StyledComponent,
+  LimitLengthSpan,
+} from "@/components/atoms/Input/styles";
 import PasswordInput from "@/components/atoms/Input/PasswordInput";
 import ResetInput from "@/components/atoms/Input/ResetInput";
 export type InputSize = Sizes;
@@ -12,39 +16,56 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   inputSize: InputSize;
   isError: boolean;
   isPassword: boolean;
-  suffix: React.ReactNode;
+  suffixComp: React.ReactNode;
   prefixComp: React.ReactNode;
   handleClickReset: React.MouseEventHandler;
 }
 
 const Input: React.FC<Partial<InputProps>> = ({
   prefixComp,
-  suffix,
+  suffixComp,
   isPassword,
+  maxLength = 0,
   handleClickReset,
   ...props
 }) => {
   if (handleClickReset)
     return (
       <ResetInput
+        maxLength={maxLength}
+        suffixComp={suffixComp}
         prefixComp={prefixComp}
         handleClickReset={handleClickReset}
         {...props}
       />
     );
-  if (isPassword) return <PasswordInput prefixComp={prefixComp} {...props} />;
+  if (isPassword)
+    return (
+      <PasswordInput
+        maxLength={maxLength}
+        suffixComp={suffixComp}
+        prefixComp={prefixComp}
+        {...props}
+      />
+    );
   return (
-    <Wrapper {...props} hasSuffix={!!suffix} hasPrefix={!!prefixComp}>
+    <Wrapper {...props} hasSuffix={!!suffixComp} hasPrefix={!!prefixComp}>
       {prefixComp && (
         <span className="w-6 h-full flex justify-center items-center ">
           {prefixComp}
         </span>
       )}
       <StyledComponent {...props} />
-      {suffix && (
+      {suffixComp && (
         <span className="w-6 h-full flex justify-center items-center ">
-          {suffix}
+          {suffixComp}
         </span>
+      )}
+      {maxLength > 0 && (
+        <LimitLengthSpan
+          length={props?.value?.toString()?.length}
+          maxLength={maxLength}
+        >{`${props.value?.toString()?.length}/${maxLength}`}</LimitLengthSpan>
       )}
     </Wrapper>
   );

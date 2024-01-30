@@ -31,11 +31,11 @@ export const Wrapper = styled.span.withConfig({
     hasPrefix,
   }) => {
     return css`
+      position: relative;
       display: flex;
       flex-direction: row;
-      overflow: hidden;
-      padding-right: ${hasSuffix ? "8px" : "0px"};
-      padding-left: ${hasPrefix ? "8px" : "0px"};
+      padding-right: ${hasSuffix ? "8px" : "8px"};
+      padding-left: ${hasPrefix ? "8px" : "8px"};
       width: 100%;
       box-shadow: ${isError ? `0px 0px 1px 1px ${theme.colors.red5}` : "none"};
       border-radius: 12px;
@@ -57,9 +57,24 @@ export const StyledComponent = styled.input.withConfig({
   ${({ inputSize = "md" }) => {
     return css`
       flex-grow: 1;
-      padding: 6px ${inputSizes[inputSize] / 4}px;
+      padding: 6px ${inputSizes[inputSize] / 8}px;
       outline: none;
       font-size: ${inputSizes[inputSize] / 4 + 4}px;
     `;
   }}
+`;
+export const LimitLengthSpan = styled.span<{
+  maxLength?: number;
+  length?: number;
+}>`
+  position: absolute;
+  top: 0px;
+  right: 8px;
+  font-size: 10px;
+  transform: scale(0.9) translateY(-14px);
+  opacity: 0.7;
+  color: ${({ length, maxLength }) =>
+    (length || 1) > (maxLength || 0)
+      ? theme.colors.mainRed
+      : theme.colors.gray3};
 `;

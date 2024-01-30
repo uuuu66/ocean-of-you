@@ -1,11 +1,17 @@
 import { InputProps } from "@/components/atoms/Input";
-import { Wrapper, StyledComponent } from "@/components/atoms/Input/styles";
+import {
+  Wrapper,
+  StyledComponent,
+  LimitLengthSpan,
+} from "@/components/atoms/Input/styles";
 import { getComponentTypeColor } from "@/styles/theme";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
 
 const ResetInput: React.FC<Partial<InputProps>> = ({
   prefixComp,
-  suffix,
+  suffixComp,
+  handleClickReset,
+  maxLength = 0,
   ...props
 }) => {
   return (
@@ -25,8 +31,15 @@ const ResetInput: React.FC<Partial<InputProps>> = ({
             props.inputType,
             props.inputType === "green" ? 1 : 2
           )}
+          onClick={handleClickReset}
         />{" "}
       </span>
+      {maxLength > 0 && (
+        <LimitLengthSpan
+          maxLength={maxLength}
+          length={props.value?.toString()?.length}
+        >{`${props.value?.toString()?.length}/${maxLength}`}</LimitLengthSpan>
+      )}
     </Wrapper>
   );
 };

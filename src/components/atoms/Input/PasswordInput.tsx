@@ -1,5 +1,9 @@
 import { InputProps } from "@/components/atoms/Input";
-import { Wrapper, StyledComponent } from "@/components/atoms/Input/styles";
+import {
+  Wrapper,
+  StyledComponent,
+  LimitLengthSpan,
+} from "@/components/atoms/Input/styles";
 import { getComponentTypeColor } from "@/styles/theme";
 import { EyeClosedIcon, EyeNoneIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
@@ -7,7 +11,9 @@ import { iconPaths } from "../../../../public/icons";
 
 const PasswordInput: React.FC<Partial<InputProps>> = ({
   prefixComp,
-  suffix,
+  suffixComp,
+  maxLength = 0,
+
   ...props
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -22,7 +28,6 @@ const PasswordInput: React.FC<Partial<InputProps>> = ({
           {prefixComp}
         </span>
       )}
-
       <StyledComponent {...props} type={isVisible ? "" : "password"} />
       <span className="w-6 h-full flex justify-center items-center ">
         {!isVisible ? (
@@ -50,7 +55,13 @@ const PasswordInput: React.FC<Partial<InputProps>> = ({
             fill={"transparent"}
           />
         )}
-      </span>
+      </span>{" "}
+      {maxLength > 0 && (
+        <LimitLengthSpan
+          maxLength={maxLength}
+          length={props.value?.toString()?.length}
+        >{`${props.value?.toString()?.length}/${maxLength}`}</LimitLengthSpan>
+      )}
     </Wrapper>
   );
 };
