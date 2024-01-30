@@ -172,13 +172,13 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
         `;
       case "md":
         return css`
-          padding: 16px 20px;
+          padding: 14px 20px;
           ${theme.fonts.button[size]};
           border-radius: 12px;
         `;
       case "sm":
         return css`
-          padding: 14px 18px;
+          padding: 12px 18px;
           ${theme.fonts.button[size]};
           border-radius: 12px;
         `;
