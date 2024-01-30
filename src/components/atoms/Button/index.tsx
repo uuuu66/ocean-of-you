@@ -10,7 +10,7 @@ export type ButtonType = ComponentTypes;
 export type ButtonVariant = "default" | "outline" | "ghost";
 export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 export type ButtonDefaultAnimation = "trembling" | "purse" | "none";
-export type ButtonPressAnimation = "trembling" | "fill" | "none";
+export type ButtonPressAnimation = "trembling" | "fill" | "scaleDown" | "none";
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   $buttonType: ButtonType;
   variant: ButtonVariant;
@@ -28,7 +28,7 @@ const Button: React.FC<Partial<ButtonProps>> = ({
   size = "md",
   $fullWidth = false,
   $defaultAnimation = "none",
-  $pressAnimation = "none",
+  $pressAnimation = "scaleDown",
   children,
   $isLoading,
   ...props
@@ -136,8 +136,8 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
   align-items: center;
   position: relative;
   z-index: 3;
-  transition: all 0.5s;
-
+  transition: all 0.5s padding 0;
+  min-width: 90px;
   & > span {
     position: relative;
     z-index: 1;
@@ -146,11 +146,21 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
     transform: translateY(100%) scaleY(0);
     transition: transform 1.5s;
   }
-  ${({ size }) => {
+  ${({ $fullWidth }) => {
+    if ($fullWidth)
+      return css`
+        width: 100%;
+      `;
+    else
+      return css`
+        width: unset;
+      `;
+  }}
+  ${({ size, $isLoading }) => {
     switch (size) {
       case "xl":
         return css`
-          padding: 16px 24px;
+          padding: ${$isLoading ? `18px 24px` : "14px 24px"};
           ${theme.fonts.button5};
           border-radius: 12px;
         `;
@@ -186,16 +196,7 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
         `;
     }
   }}
-  ${({ $fullWidth }) => {
-    if ($fullWidth)
-      return css`
-        width: 100%;
-      `;
-    else
-      return css`
-        width: unset;
-      `;
-  }}
+
    ${({ $buttonType, variant }) => {
     return buttonVariantCss($buttonType, variant);
   }}
@@ -205,7 +206,6 @@ ${({ $buttonType, variant, $isLoading }) => {
       return css`
         cursor: not-allowed;
         overflow: hidden;
-        min-width: 80px;
         border-color: ${getComponentTypeColor($buttonType, 5)};
         transition: 0;
         & > .animation-component-1 {
@@ -249,21 +249,13 @@ ${({ $buttonType, variant, $isLoading }) => {
         svg {
           ${animations.rotate};
         }
-
         &:active {
           ${animations.tremblingX};
-          & > .animation-component-1 {
-          }
-          & > .animation-component-2 {
-          }
-          & > .animation-component-2::after {
-          }
-          & > span > svg {
-          }
         }
       `;
     }
-  }}
+  }} 
+
   ${({ $defaultAnimation }) => {
     switch ($defaultAnimation) {
       case "purse":
@@ -315,7 +307,21 @@ ${({ $buttonType, variant, $isLoading }) => {
           return css`
             ${animations.tremblingX}
             animation-duration: 0.3;
+            & > .animation-component-2 {
+              animation-name: ${$isLoading
+                ? animations.rotateProgress
+                : "none"};
+            }
+          `;
+        case "scaleDown":
+          return css`
+            animation-name: none;
+            transition: transform 0.5s;
+            transform: scaleY(0.95);
 
+            & > .animation-component-1 {
+              animation-name: none;
+            }
             & > .animation-component-2 {
               animation-name: ${$isLoading
                 ? animations.rotateProgress
