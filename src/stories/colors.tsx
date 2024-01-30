@@ -9,7 +9,7 @@ const Colors: React.FC<Props> = (props) => {
   }, []);
   return (
     <div className="flex flex-col gap-3">
-      {colors.map((color) => {
+      {colors?.map((color) => {
         return (
           <div
             key={color[0]}

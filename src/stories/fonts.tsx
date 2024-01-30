@@ -11,7 +11,7 @@ const fonts: React.FC<Props> = (props) => {
   );
   return (
     <div className="w-[1300px] flex flex-col gap-3 items-start">
-      {fontArray.map((font) => (
+      {fontArray?.map((font) => (
         <span className="flex flex-row gap-3" key={font[0]}>
           <Typo type={font[0] as keyof FontThemeType} typoColor={"gray1"}>
             {font[0]}
