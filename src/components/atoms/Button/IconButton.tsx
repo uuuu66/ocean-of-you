@@ -17,7 +17,7 @@ export interface IconButtonProps
   iconAnimationType?: IconAnimationType;
   iconButtonType?: ButtonType;
   size?: ButtonSize;
-  Icon?: React.FC<SvgIconProps>;
+  Icon: React.FC<SvgIconProps>;
   iconProps?: SvgIconProps;
 }
 const circleGap = 6;
