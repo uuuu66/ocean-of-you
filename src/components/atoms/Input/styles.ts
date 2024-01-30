@@ -70,7 +70,7 @@ export const LimitLengthSpan = styled.span<{
   position: absolute;
   top: 0px;
   right: 8px;
-  ${theme.fonts.small1};
+  ${theme.fonts.small.xs};
   transform: scale(0.9) translateY(-18px);
   opacity: 0.7;
   color: ${({ length, maxLength }) =>

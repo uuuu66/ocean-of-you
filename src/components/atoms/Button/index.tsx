@@ -161,37 +161,37 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
       case "xl":
         return css`
           padding: ${$isLoading ? `18px 24px` : "14px 24px"};
-          ${theme.fonts.button5};
+          ${theme.fonts.button[size]};
           border-radius: 12px;
         `;
       case "lg":
         return css`
           padding: 16px 22px;
-          ${theme.fonts.button4};
+          ${theme.fonts.button[size]};
           border-radius: 12px;
         `;
       case "md":
         return css`
           padding: 16px 20px;
-          ${theme.fonts.button3};
+          ${theme.fonts.button[size]};
           border-radius: 12px;
         `;
       case "sm":
         return css`
           padding: 14px 18px;
-          ${theme.fonts.button2};
+          ${theme.fonts.button[size]};
           border-radius: 12px;
         `;
       case "xs":
         return css`
           padding: 8px 12px;
-          ${theme.fonts.button1};
+          ${theme.fonts.button[size]};
           border-radius: 8px;
         `;
       default:
         return css`
           padding: 20px 16px;
-          ${theme.fonts.button3}
+          ${theme.fonts.button["md"]};
           border-radius: 6px;
         `;
     }

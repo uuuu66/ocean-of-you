@@ -1,9 +1,4 @@
 {
-  "button1": "font-size:24px; font-weight:700;line-height:100%;",
-  "button2": "font-size:24px; font-weight:700;line-height:100%;",
-  "button3": "font-size:24px; font-weight:700;line-height:100%;",
-  "button4": "font-size:24px; font-weight:700;line-height:100%;",
-  "button5": "font-size:32px; font-weight:700;line-height:100%;",
   "button": {
     "xs": "font-size:24px; font-weight:700;line-height:100%;",
     "sm": "font-size:24px; font-weight:700;line-height:100%;",
@@ -11,11 +6,7 @@
     "lg": "font-size:24px; font-weight:700;line-height:100%;",
     "xl": "font-size:32px; font-weight:700;line-height:100%;"
   },
-  "title1": "font-size:24px; font-weight:600;line-height:150%;",
-  "title2": "font-size:32px; font-weight:600;line-height:150%;",
-  "title3": "font-size:40px; font-weight:600;line-height:150%;",
-  "title4": "font-size:48px; font-weight:600;line-height:150%;",
-  "title5": "font-size:56px; font-weight:600;line-height:150%;",
+
   "title": {
     "xs": "font-size:24px; font-weight:600;line-height:150%;",
     "sm": "font-size:32px; font-weight:600;line-height:150%;",
@@ -23,11 +14,7 @@
     "lg": "font-size:48px; font-weight:600;line-height:150%;",
     "xl": "font-size:56px; font-weight:600;line-height:150%;"
   },
-  "article1": "font-size:20px; font-weight:500;line-height:100%;",
-  "article2": "font-size:24px; font-weight:500;line-height:100%;",
-  "article3": "font-size:28px; font-weight:500;line-height:100%;",
-  "article4": "font-size:32px; font-weight:500;line-height:100%;",
-  "article5": "font-size:36px; font-weight:500;line-height:100%;",
+
   "article": {
     "xs": "font-size:20px; font-weight:500;line-height:100%;",
     "sm": "font-size:24px; font-weight:500;line-height:100%;",
@@ -35,11 +22,7 @@
     "lg": "font-size:32px; font-weight:500;line-height:100%;",
     "xl": "font-size:36px; font-weight:500;line-height:100%;"
   },
-  "small1": "font-size:16px; font-weight:400;line-height:100%;",
-  "small2": "font-size:18px; font-weight:400;line-height:100%;",
-  "small3": "font-size:20px; font-weight:400;line-height:100%;",
-  "small4": "font-size:22px; font-weight:400;line-height:100%;",
-  "small5": "font-size:24px; font-weight:400;line-height:100%;",
+
   "small": {
     "xs": "font-size:18px; font-weight:300;line-height:100%;",
     "sm": "font-size:20px; font-weight:300;line-height:100%;",
