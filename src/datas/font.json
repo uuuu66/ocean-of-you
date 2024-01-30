@@ -15,13 +15,13 @@
   "title2": "font-size:32px; font-weight:600;line-height:150%;",
   "title3": "font-size:40px; font-weight:600;line-height:150%;",
   "title4": "font-size:48px; font-weight:600;line-height:150%;",
-  "title5": "font-size'56px; font-weight:600;line-height:150%;",
+  "title5": "font-size:56px; font-weight:600;line-height:150%;",
   "title": {
     "xs": "font-size:24px; font-weight:600;line-height:150%;",
     "sm": "font-size:32px; font-weight:600;line-height:150%;",
     "md": "font-size:40px; font-weight:600;line-height:150%;",
     "lg": "font-size:48px; font-weight:600;line-height:150%;",
-    "xl": "font-size'56px; font-weight:600;line-height:150%;"
+    "xl": "font-size:56px; font-weight:600;line-height:150%;"
   },
   "article1": "font-size:20px; font-weight:500;line-height:100%;",
   "article2": "font-size:24px; font-weight:500;line-height:100%;",
