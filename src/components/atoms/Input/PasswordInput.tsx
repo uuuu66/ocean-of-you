@@ -52,11 +52,8 @@ const PasswordInput: React.FC<Partial<PasswordInputProps>> = ({
           animationData={lotties["CatDown"]}
           lottieRef={lottieRef}
           loop={false}
-          onEnded={(e) => {
-            console.log(e);
-          }}
         />
-      </span>{" "}
+      </span>
       {maxLength > 0 && (
         <LimitLengthSpan
           maxLength={maxLength}
