@@ -1,4 +1,4 @@
-import { InputProps, InputSize } from "@/components/atoms/Input";
+import { InputProps, InputSize, InputType } from "@/components/atoms/Input";
 import { theme, getComponentTypeColor } from "@/styles/theme";
 import { css, styled } from "styled-components";
 interface StyledProps extends InputProps {
@@ -63,16 +63,25 @@ export const StyledComponent = styled.input.withConfig({
     `;
   }}
 `;
-export const LimitLengthSpan = styled.span<{
+export const LimitLengthSpan = styled.span.withConfig({
+  shouldForwardProp: (props) => props !== "inputType",
+})<{
   maxLength?: number;
   length?: number;
+  inputType?: InputType;
 }>`
   position: absolute;
-  top: 0px;
+  border: 2px solid
+    ${({ inputType }) =>
+      getComponentTypeColor(inputType, inputType === "green" ? 2 : 4)};
+  border-bottom: none;
+  padding: 0px 1px;
+  border-radius: 7px 7px 0px 0px;
+  top: -4px;
   right: 8px;
   ${theme.fonts.small.xs};
   transform: scale(0.9) translateY(-18px);
-  opacity: 0.7;
+  opacity: 1;
   color: ${({ length, maxLength }) =>
     (length || 1) > (maxLength || 0)
       ? theme.colors.mainRed

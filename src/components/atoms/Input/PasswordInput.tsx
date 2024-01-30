@@ -56,6 +56,7 @@ const PasswordInput: React.FC<Partial<PasswordInputProps>> = ({
       </span>
       {maxLength > 0 && (
         <LimitLengthSpan
+          inputType={props.inputType}
           maxLength={maxLength}
           length={props.value?.toString()?.length}
         >{`${props.value?.toString()?.length}/${maxLength}`}</LimitLengthSpan>
