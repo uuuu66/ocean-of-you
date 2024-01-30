@@ -1,7 +1,7 @@
 import Button from "@/components/atoms/Button";
-import IconButton from "@/components/atoms/Button/IconButton";
+import IconButton from "@/components/atoms/Button/IconButton/IconButton";
 import Input from "@/components/atoms/Input";
-import IconInput from "@/components/atoms/Input/IconInput";
+import IconInput from "@/components/atoms/Input/IconInput/IconInput";
 import TextArea from "@/components/atoms/TextArea";
 export const atoms = {
   Button,

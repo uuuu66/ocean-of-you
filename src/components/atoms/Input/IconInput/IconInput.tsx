@@ -1,7 +1,7 @@
 "use client";
 import IconButton, {
   IconButtonProps,
-} from "@/components/atoms/Button/IconButton";
+} from "@/components/atoms/Button/IconButton/IconButton";
 import { InputSize, InputType } from "@/components/atoms/Input";
 import { SvgIconProps } from "@/lib/interfaces";
 

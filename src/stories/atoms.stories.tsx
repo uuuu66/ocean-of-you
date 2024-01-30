@@ -5,8 +5,10 @@ import { iconPaths } from "../../public/icons";
 import { useState } from "react";
 import { ButtonProps } from "@/components/atoms/Button";
 import { InputProps } from "@/components/atoms/Input";
-import IconInput, { IconInputProps } from "@/components/atoms/Input/IconInput";
-import { IconButtonProps } from "@/components/atoms/Button/IconButton";
+import IconInput, {
+  IconInputProps,
+} from "@/components/atoms/Input/IconInput/IconInput";
+import { IconButtonProps } from "@/components/atoms/Button/IconButton/IconButton";
 import { TextAreaProps } from "@/components/atoms/TextArea";
 
 interface Props {
