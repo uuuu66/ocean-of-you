@@ -83,7 +83,7 @@ const Wrapper = styled.span.withConfig({
     box-shadow:${
       textAreaVariant === "LINE"
         ? "none"
-        : `0px 5px 0px 3px
+        : `-2px 5px 0px 3px
       ${
         isError
           ? getComponentTypeColor("red", 3)
