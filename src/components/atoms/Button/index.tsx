@@ -20,7 +20,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   $pressAnimation: ButtonPressAnimation;
   $isLoading: boolean;
 }
-
+const loadingButtonAnimationSize = 6;
 const Button: React.FC<Partial<ButtonProps>> = ({
   $buttonType = "primary",
   variant = "default",
@@ -225,10 +225,10 @@ ${({ $buttonType, variant, $isLoading }) => {
             ? "transparent"
             : getComponentTypeColor($buttonType, 0)};
 
-          width: calc(100% - 8px);
-          height: calc(100% - 8px);
-          top: 4px;
-          left: 4px;
+          width: calc(100% - ${loadingButtonAnimationSize * 2}px);
+          height: calc(100% - ${loadingButtonAnimationSize * 2}px);
+          top: ${loadingButtonAnimationSize}px;
+          left: ${loadingButtonAnimationSize}px;
           z-index: 0;
           /* opacity: 0; */
         }
@@ -262,49 +262,14 @@ ${({ $buttonType, variant, $isLoading }) => {
         }
 
         &:active {
-          cursor: not-allowed;
-          overflow: hidden;
-          min-width: 80px;
-          border-color: ${getComponentTypeColor($buttonType, 5)};
           ${animations.tremblingX};
           & > .animation-component-1 {
-            animation-name: none;
-            background-color: ${variant !== "default"
-              ? "transparent"
-              : getComponentTypeColor($buttonType, 0)};
-
-            width: calc(100% - 12px);
-            height: calc(100% - 12px);
-            top: 6px;
-            left: 6px;
-            z-index: 0;
           }
           & > .animation-component-2 {
-            animation-name: none;
-            background-color: transparent;
-            transform: translate(-50%, 50%) rotate(450deg) scaleY(1);
-            transform-origin: 100% 0%;
-            border-radius: 0%;
-
-            ${animations.rotateProgress};
           }
           & > .animation-component-2::after {
-            content: " ";
-            position: absolute;
-            width: 100%;
-            height: 30%;
-            left: 0;
-            top: -7px;
-            background: ${variant !== "default"
-              ? "transparent"
-              : getComponentTypeColor($buttonType, 4)};
-            box-shadow: ${variant !== "default"
-              ? "none"
-              : `0 0 50px 10px ${getComponentTypeColor($buttonType, 4)}`};
-            opacity: 0.7;
           }
           & > span > svg {
-            ${animations.rotate}
           }
         }
       `;
@@ -322,9 +287,6 @@ ${({ $buttonType, variant, $isLoading }) => {
         return css`
           ${animations.tremblingX}
           animation-duration: 0.3;
-          /* & > .animation-component {
-            animation-name: none;
-          } */
         `;
       case "none":
       default:
@@ -333,14 +295,12 @@ ${({ $buttonType, variant, $isLoading }) => {
   }};
 
   &:active {
-    ${({ $pressAnimation, $buttonType }) => {
+    ${({ $pressAnimation, $buttonType, $isLoading }) => {
       switch ($pressAnimation) {
         case "fill":
           return css`
             animation-name: none;
-            & > .animation-component {
-              animation-name: none;
-            }
+
             transition: box-shadow 1.5s cubic-bezier(0.215, 0.61, 0.355, 1);
             box-shadow: 0px 0px 50px 25px ${({ theme }) => theme.purseColor};
             ${animations.trembling};
@@ -355,14 +315,22 @@ ${({ $buttonType, variant, $isLoading }) => {
               z-index: 1;
               border-radius: 0px;
             }
+            & > .animation-component-2 {
+              animation-name: ${$isLoading
+                ? animations.rotateProgress
+                : "none"};
+            }
           `;
 
         case "trembling":
           return css`
             ${animations.tremblingX}
             animation-duration: 0.3;
-            & > .animation-component {
-              animation-name: none;
+
+            & > .animation-component-2 {
+              animation-name: ${$isLoading
+                ? animations.rotateProgress
+                : "none"};
             }
           `;
         case "none":
@@ -385,7 +353,7 @@ const buttonVariantCss = (buttonType?: ButtonType, variant?: ButtonVariant) => {
       `;
     case "outline":
       return css`
-        border: 1px;
+        border: 3px;
         border-style: solid;
         border-color: ${getButtonTypeMainColor(buttonType)};
         background-color: none;
@@ -403,8 +371,10 @@ const getButtonTypeMainColor = (buttonType?: ButtonType) => {
     case "secondary":
       return theme.colors.mainSecondary;
     case "red":
-    default:
       return theme.colors.mainRed;
+    case "gray":
+    default:
+      return theme.colors.mainGray;
   }
 };
 
