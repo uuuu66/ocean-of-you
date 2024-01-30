@@ -26,7 +26,7 @@ export default function Home() {
           $isIconLeft
           $submitButton={{
             Icon: iconPaths.Loading,
-            $iconAnimationType: "rotate",
+            iconAnimationType: "rotate",
           }}
         />
         <IconInput
