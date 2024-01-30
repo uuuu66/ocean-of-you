@@ -26,21 +26,21 @@ const iconSizes: { [key in InputSize]: number } = {
 const circleGap = 6;
 
 export type IconAnimationType = "scaleDown" | "rotate" | "none";
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  $isError: boolean;
+export interface IconInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  $isError?: boolean;
   $inputSize?: InputSize;
   $inputType?: InputType;
   $isIconOpenButton?: boolean;
   iconAnimationType?: IconAnimationType;
   $isIconLeft?: boolean;
   $iconProps?: SvgIconProps;
-  Icon?: React.FC<SvgIconProps>;
+  Icon: React.FC<SvgIconProps>;
   $submitButton?: IconButtonProps;
 }
-interface StyledInputProps extends Partial<InputProps> {
+interface StyledInputProps extends Partial<IconInputProps> {
   open?: boolean;
 }
-const IconInput: React.FC<Partial<InputProps>> = ({
+const IconInput: React.FC<Partial<IconInputProps>> = ({
   $isError = false,
   $inputSize = "md",
   $inputType = "primary",
