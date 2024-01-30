@@ -5,7 +5,7 @@ import { getComponentTypeColor, theme } from "@/styles/theme";
 import styled, { css } from "styled-components";
 import { iconPaths } from "../../../../public/icons";
 import { ComponentTypes } from "@/lib/types";
-
+import { Dongle } from "next/font/google";
 export type ButtonType = ComponentTypes;
 export type ButtonVariant = "default" | "outline" | "ghost";
 export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
@@ -20,6 +20,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   $pressAnimation: ButtonPressAnimation;
   $isLoading: boolean;
 }
+const buttonFont = Dongle({ weight: "400", subsets: ["latin"] });
 const loadingButtonAnimationSize = 6;
 const Button: React.FC<Partial<ButtonProps>> = ({
   $buttonType = "primary",
@@ -89,7 +90,7 @@ const Button: React.FC<Partial<ButtonProps>> = ({
           $pressAnimation={$pressAnimation}
         />
       )}{" "}
-      <span>
+      <span className={buttonFont.className}>
         {$isLoading ? (
           <iconPaths.Loading
             width={24}
@@ -150,49 +151,37 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
       case "xl":
         return css`
           padding: 16px 24px;
-          font-size: 24px;
-          line-height: 150%;
-          font-weight: 700;
+          ${theme.fonts.button5};
           border-radius: 12px;
         `;
       case "lg":
         return css`
           padding: 16px 22px;
-          font-size: 20px;
-          line-height: 150%;
-          font-weight: 700;
+          ${theme.fonts.button4};
           border-radius: 12px;
         `;
       case "md":
         return css`
           padding: 16px 20px;
-          font-size: 18px;
-          line-height: 150%;
-          font-weight: 700;
+          ${theme.fonts.button3};
           border-radius: 12px;
         `;
       case "sm":
         return css`
           padding: 14px 18px;
-          font-size: 16px;
-          line-height: 150%;
-          font-weight: 700;
+          ${theme.fonts.button2};
           border-radius: 12px;
         `;
       case "xs":
         return css`
           padding: 8px 12px;
-          font-size: 14px;
-          line-height: 150%;
-          font-weight: 700;
+          ${theme.fonts.button1};
           border-radius: 8px;
         `;
       default:
         return css`
           padding: 20px 16px;
-          font-size: 16px;
-          line-height: 16px;
-          font-weight: 700;
+          ${theme.fonts.button3}
           border-radius: 6px;
         `;
     }

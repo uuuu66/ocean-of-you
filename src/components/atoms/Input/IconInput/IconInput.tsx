@@ -209,40 +209,11 @@ const StyledInput = styled.input<StyledInputProps>`
       getComponentTypeColor($inputType, 0) || "white"};
   }
 
-  ${({ $inputSize }) => {
-    switch ($inputSize) {
-      case "xl":
-        return css`
-          padding: 0px 6px;
-          font-size: 20px;
-          border-radius: 999px;
-        `;
-      case "lg":
-        return css`
-          padding: 0px 6px;
-          font-size: 18px;
-          border-radius: 999px;
-        `;
-      case "md":
-      default:
-        return css`
-          padding: 0px 6px;
-          font-size: 16px;
-          border-radius: 999px;
-        `;
-      case "sm":
-        return css`
-          padding: 0px 6px;
-          font-size: 12px;
-          border-radius: 999px;
-        `;
-      case "xs":
-        return css`
-          padding: 0px 6px;
-          font-size: 10px;
-          border-radius: 8px;
-        `;
-    }
+  ${({ $inputSize = "md" }) => {
+    return css`
+      padding: 6px 0px;
+      ${theme.fonts.small[$inputSize]};
+    `;
   }}
   padding-left:${({ $inputSize = "md", $isIconLeft, open }) =>
     `${

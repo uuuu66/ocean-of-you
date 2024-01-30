@@ -144,9 +144,7 @@ const StyledComponent = styled.textarea.withConfig({
 
       border-radius: ${textAreaVariant === "DEFAULT" ? "8px" : "0px"};
       padding: 8px 8px;
-      line-height: 20px;
-      font-size: 14px;
-
+      ${theme.fonts.article4};
       resize: ${isResizeEnabled ? "both" : "none"};
       min-width: calc(100% - 2px);
       max-width: calc(100% - 2px);
@@ -167,7 +165,7 @@ const LimitLengthSpan = styled.span.withConfig({
   bottom: ${({ textAreaVariant }) =>
     textAreaVariant === "DEFAULT" ? "-3px" : "-36px"};
   right: 8px;
-  font-size: 10px;
+  ${theme.fonts.small1};
   text-shadow: 0em -1px ${theme.colors.gray1};
   transform: scale(1) translateY(-14px);
   opacity: 0.7;

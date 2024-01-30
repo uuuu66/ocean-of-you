@@ -59,7 +59,7 @@ export const StyledComponent = styled.input.withConfig({
       flex-grow: 1;
       padding: 6px ${inputSizes[inputSize] / 8}px;
       outline: none;
-      font-size: ${inputSizes[inputSize] / 4 + 4}px;
+      ${theme.fonts.article[inputSize]};
     `;
   }}
 `;
@@ -70,8 +70,8 @@ export const LimitLengthSpan = styled.span<{
   position: absolute;
   top: 0px;
   right: 8px;
-  font-size: 10px;
-  transform: scale(0.9) translateY(-14px);
+  ${theme.fonts.small1};
+  transform: scale(0.9) translateY(-18px);
   opacity: 0.7;
   color: ${({ length, maxLength }) =>
     (length || 1) > (maxLength || 0)
