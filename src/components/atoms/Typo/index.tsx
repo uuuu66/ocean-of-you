@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 
 export interface TypoProps extends HTMLAttributes<HTMLSpanElement> {
   type: keyof FontThemeType;
-  $color?: ColorThemeType;
+  typoColor?: keyof ColorThemeType;
 }
 
 const Typo: React.FC<TypoProps> = (props) => {
@@ -12,11 +12,13 @@ const Typo: React.FC<TypoProps> = (props) => {
 };
 
 export default Typo;
-const StyledComponent = styled.span<TypoProps>`
-  ${({ type, $color }) => {
+const StyledComponent = styled.span.withConfig({
+  shouldForwardProp: (props) => props !== "typoColor",
+})<TypoProps>`
+  ${({ type, typoColor }) => {
     return css`
       ${theme.fonts[type]};
-      color: ${$color};
+      color: ${!typoColor ? theme.colors.gray1 : theme.colors[typoColor]};
     `;
   }}
 `;
