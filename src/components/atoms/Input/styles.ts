@@ -37,7 +37,12 @@ export const Wrapper = styled.span.withConfig({
       padding-right: ${hasSuffix ? "8px" : "8px"};
       padding-left: ${hasPrefix ? "8px" : "8px"};
       width: 100%;
-      box-shadow: ${isError ? `0px 0px 1px 1px ${theme.colors.red5}` : "none"};
+      box-shadow: ${isError
+        ? `-3px 3px 0px 3px ${theme.colors.red5}`
+        : `-3px 3px 0px 3px ${getComponentTypeColor(
+            inputType,
+            inputType === "green" ? 2 : 4
+          )}`};
       border-radius: 12px;
       height: ${inputSizes[inputSize]}px;
       border: 2px solid
