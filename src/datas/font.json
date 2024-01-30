@@ -1,15 +1,15 @@
 {
-  "button1": "font-size:20px; font-weight:700;line-height:100%;",
+  "button1": "font-size:24px; font-weight:700;line-height:100%;",
   "button2": "font-size:24px; font-weight:700;line-height:100%;",
-  "button3": "font-size:28px; font-weight:700;line-height:100%;",
-  "button4": "font-size:32px; font-weight:700;line-height:100%;",
-  "button5": "font-size:36px; font-weight:700;line-height:100%;",
+  "button3": "font-size:24px; font-weight:700;line-height:100%;",
+  "button4": "font-size:24px; font-weight:700;line-height:100%;",
+  "button5": "font-size:32px; font-weight:700;line-height:100%;",
   "button": {
-    "xs": "font-size:20px; font-weight:700;line-height:100%;",
+    "xs": "font-size:24px; font-weight:700;line-height:100%;",
     "sm": "font-size:24px; font-weight:700;line-height:100%;",
-    "md": "font-size:28px; font-weight:700;line-height:100%;",
-    "lg": "font-size:32px; font-weight:700;line-height:100%;",
-    "xl": "font-size:36px; font-weight:700;line-height:100%;"
+    "md": "font-size:24px; font-weight:700;line-height:100%;",
+    "lg": "font-size:24px; font-weight:700;line-height:100%;",
+    "xl": "font-size:32px; font-weight:700;line-height:100%;"
   },
   "title1": "font-size:24px; font-weight:600;line-height:150%;",
   "title2": "font-size:32px; font-weight:600;line-height:150%;",
