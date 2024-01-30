@@ -4,12 +4,13 @@ import {
   StyledComponent,
   LimitLengthSpan,
 } from "@/components/atoms/Input/styles";
-import { getComponentTypeColor } from "@/styles/theme";
-import { EyeClosedIcon, EyeNoneIcon } from "@radix-ui/react-icons";
-import { useState } from "react";
-import { iconPaths } from "../../../../public/icons";
+import { useEffect, useRef, useState } from "react";
 
-const PasswordInput: React.FC<Partial<InputProps>> = ({
+import { lotties } from "../../../../public/lotties";
+import Lottie, { LottieRefCurrentProps } from "lottie-react";
+interface PasswordInputProps extends InputProps {}
+
+const PasswordInput: React.FC<Partial<PasswordInputProps>> = ({
   prefixComp,
   suffixComp,
   maxLength = 0,
@@ -17,9 +18,20 @@ const PasswordInput: React.FC<Partial<InputProps>> = ({
   ...props
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
   const handleClickIcon = () => {
     setIsVisible(!isVisible);
   };
+  useEffect(() => {
+    lottieRef.current?.setSpeed(10);
+    if (!isVisible) {
+      lottieRef.current?.setDirection(-1);
+      lottieRef.current?.play();
+    } else {
+      lottieRef.current?.setDirection(1);
+      lottieRef.current?.play();
+    }
+  }, [isVisible]);
 
   return (
     <Wrapper {...props} hasSuffix={true} hasPrefix={!!prefixComp}>
@@ -29,32 +41,21 @@ const PasswordInput: React.FC<Partial<InputProps>> = ({
         </span>
       )}
       <StyledComponent {...props} type={isVisible ? "" : "password"} />
-      <span className="w-6 h-full flex justify-center items-center ">
-        {!isVisible ? (
-          <EyeClosedIcon
-            width={20}
-            height={20}
-            onClick={handleClickIcon}
-            className="cursor-pointer opacity-25 "
-            stroke={getComponentTypeColor(
-              props.inputType,
-              props.inputType === "green" ? 0 : 1
-            )}
-            fill={"transparent"}
-          />
-        ) : (
-          <iconPaths.EyeOpen
-            width={24}
-            height={24}
-            onClick={handleClickIcon}
-            className="cursor-pointer opacity-25"
-            stroke={getComponentTypeColor(
-              props.inputType,
-              props.inputType === "green" ? 0 : 1
-            )}
-            fill={"transparent"}
-          />
-        )}
+      <span
+        className={
+          "w-6 h-full flex justify-center items-center overflow-hidden cursor-pointer "
+        }
+        onClick={handleClickIcon}
+      >
+        <Lottie
+          className="h-full aspect-square absolute bottom-0 right-1 pt-1 pb-0"
+          animationData={lotties["CatDown"]}
+          lottieRef={lottieRef}
+          loop={false}
+          onEnded={(e) => {
+            console.log(e);
+          }}
+        />
       </span>{" "}
       {maxLength > 0 && (
         <LimitLengthSpan
