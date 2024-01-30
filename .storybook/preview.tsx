@@ -1,8 +1,8 @@
 import type { Preview } from "@storybook/react";
-import { Noto_Sans_KR } from "next/font/google";
+import { Cute_Font } from "next/font/google";
 import "../src/app/globals.css";
 import React from "react";
-const notoSans = Noto_Sans_KR({ subsets: ["latin"] });
+const cuteFont = Cute_Font({ weight: "400", subsets: ["latin"] });
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
@@ -15,7 +15,7 @@ const preview: Preview = {
   },
   decorators: [
     (Story) => (
-      <div className={notoSans.className}>
+      <div className={cuteFont.className}>
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
         <Story />
       </div>
