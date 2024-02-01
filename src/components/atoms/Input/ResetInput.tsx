@@ -36,10 +36,15 @@ const ResetInput: React.FC<Partial<InputProps>> = ({
       </span>
       {maxLength > 0 && (
         <LimitLengthSpan
+          isError={props.isError}
           inputType={props.inputType}
           maxLength={maxLength}
           length={props.value?.toString()?.length}
-        >{`${props.value?.toString()?.length}/${maxLength}`}</LimitLengthSpan>
+        >
+          {props?.isError
+            ? "Error!"
+            : `${props.value?.toString()?.length}/${maxLength}`}
+        </LimitLengthSpan>
       )}
     </Wrapper>
   );

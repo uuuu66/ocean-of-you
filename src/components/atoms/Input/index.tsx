@@ -63,10 +63,16 @@ const Input: React.FC<Partial<InputProps>> = ({
       )}
       {maxLength > 0 && (
         <LimitLengthSpan
+          isError={props.isError}
           inputType={props.inputType}
           length={props?.value?.toString()?.length}
           maxLength={maxLength}
-        >{`${props.value?.toString()?.length}/${maxLength}`}</LimitLengthSpan>
+        >
+          {" "}
+          {props.isError
+            ? "Error!"
+            : `${props.value?.toString()?.length}/${maxLength}`}
+        </LimitLengthSpan>
       )}
     </Wrapper>
   );
