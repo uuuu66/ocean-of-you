@@ -1,34 +1,34 @@
-import { Sizes } from "@/lib/types";
+import { ComponentSize } from "@/lib/types";
 import { theme } from "@/styles/theme";
 import React, { ButtonHTMLAttributes } from "react";
 import styled, { css } from "styled-components";
 
 interface HamburgerButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  size: Sizes;
+  size: ComponentSize;
   isOpen: boolean;
 }
-const hamburgerButtonSize: { [key in Sizes]: number } = {
+const hamburgerButtonSize: { [key in ComponentSize]: number } = {
   xl: 72,
   lg: 66,
   md: 56,
   sm: 52,
   xs: 48,
 };
-const hambugerButtonLineHeight: { [key in Sizes]: number } = {
+const hambugerButtonLineHeight: { [key in ComponentSize]: number } = {
   xl: 4,
   lg: 4,
   md: 4,
   sm: 4,
   xs: 4,
 };
-const hambugerButtonPaddingY: { [key in Sizes]: number } = {
+const hambugerButtonPaddingY: { [key in ComponentSize]: number } = {
   xl: 18,
   lg: 16,
   md: 14,
   sm: 12,
   xs: 10,
 };
-const hambugerButtonPaddingX: { [key in Sizes]: number } = {
+const hambugerButtonPaddingX: { [key in ComponentSize]: number } = {
   xl: 24,
   lg: 22,
   md: 22,

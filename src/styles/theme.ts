@@ -1,6 +1,6 @@
 import colorTheme from "@/datas/color.json";
 import fontTheme from "@/datas/font.json";
-import { ComponentTypes } from "@/lib/types";
+import { ComponentType } from "@/lib/types";
 export type ColorThemeType = typeof colorTheme;
 export type FontThemeType = typeof fontTheme;
 
@@ -14,10 +14,10 @@ export const theme: ThemeType = {
   fonts: fontTheme,
 };
 export const getComponentTypeColor = (
-  componentTypes?: ComponentTypes,
+  ComponentType?: ComponentType,
   stage: number = 0
 ) => {
-  switch (componentTypes) {
+  switch (ComponentType) {
     case "primary":
       return theme.colors.primaries[stage];
     case "secondary":

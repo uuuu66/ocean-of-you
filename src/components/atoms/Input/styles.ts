@@ -5,7 +5,7 @@ interface StyledProps extends InputProps {
   hasSuffix: boolean;
   hasPrefix: boolean;
 }
-const inputSizes: { [key in InputSize]: number } = {
+const inputComponentSize: { [key in InputSize]: number } = {
   xl: 64,
   lg: 56,
   md: 48,
@@ -44,7 +44,7 @@ export const Wrapper = styled.span.withConfig({
             inputType === "green" ? 2 : 4
           )}`};
       border-radius: 12px;
-      height: ${inputSizes[inputSize]}px;
+      height: ${inputComponentSize[inputSize]}px;
       border: 2px solid
         ${isError
           ? getComponentTypeColor("red", 3)
@@ -62,7 +62,7 @@ export const StyledComponent = styled.input.withConfig({
   ${({ inputSize = "md" }) => {
     return css`
       flex-grow: 1;
-      padding: 6px ${inputSizes[inputSize] / 8}px;
+      padding: 6px ${inputComponentSize[inputSize] / 8}px;
       outline: none;
       ${theme.fonts.article[inputSize]};
     `;

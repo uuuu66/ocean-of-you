@@ -1,4 +1,4 @@
-import { ComponentTypes } from "@/lib/types";
+import { ComponentType } from "@/lib/types";
 import animations from "@/styles/animations";
 import { getComponentTypeColor, theme } from "@/styles/theme";
 import React, {
@@ -14,7 +14,7 @@ export interface TextAreaProps
   extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   isError: boolean;
   isResizeEnabled: boolean;
-  textAreaType: ComponentTypes;
+  textAreaType: ComponentType;
   textAreaVariant: TextAreaVariant;
 }
 

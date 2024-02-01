@@ -1,5 +1,5 @@
 import Typo from "@/components/atoms/Typo";
-import { Sizes } from "@/lib/types";
+import { ComponentSize } from "@/lib/types";
 import { FontThemeType, theme } from "@/styles/theme";
 import React from "react";
 
@@ -9,11 +9,11 @@ const fonts: React.FC<Props> = (props) => {
   const {} = props;
   ["button", {}];
   const fontArray = Object.entries(theme.fonts).reduce<
-    [string, Sizes, string][]
+    [string, ComponentSize, string][]
   >((prev, next) => {
-    const array: [string, Sizes, string][] = [...prev];
+    const array: [string, ComponentSize, string][] = [...prev];
     Object.entries<string>(next[1]).forEach((value) => {
-      array.push([next[0], value[0] as Sizes, value[1]]);
+      array.push([next[0], value[0] as ComponentSize, value[1]]);
     });
 
     return array;
