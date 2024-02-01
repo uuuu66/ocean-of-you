@@ -9,14 +9,14 @@ import { getComponentTypeColor, theme } from "@/styles/theme";
 import React, { InputHTMLAttributes, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
-const inputSizes: { [key in InputSize]: number } = {
+const inputComponentSize: { [key in InputSize]: number } = {
   xl: 64,
   lg: 56,
   md: 48,
   sm: 40,
   xs: 32,
 };
-const iconSizes: { [key in InputSize]: number } = {
+const iconComponentSize: { [key in InputSize]: number } = {
   xl: 32,
   lg: 28,
   md: 24,
@@ -68,8 +68,8 @@ const IconInput: React.FC<Partial<IconInputProps>> = ({
       >
         {Icon && (
           <Icon
-            width={iconSizes[$inputSize]}
-            height={iconSizes[$inputSize]}
+            width={iconComponentSize[$inputSize]}
+            height={iconComponentSize[$inputSize]}
             // {...$iconProps}
           />
         )}
@@ -125,7 +125,8 @@ const SubmitButton = styled(IconButton)<
 
   z-index: 0;
   right: ${circleGap}px;
-  height: ${({ $inputSize }) => inputSizes[$inputSize] - circleGap * 2}px;
+  height: ${({ $inputSize }) =>
+    inputComponentSize[$inputSize] - circleGap * 2}px;
 `;
 const IconWrapper = styled.div.withConfig({
   shouldForwardProp: (props) =>
@@ -185,7 +186,7 @@ const InputWrapper = styled.div<StyledInputProps>`
   will-change: auto;
   position: relative;
   width: ${({ open, $inputSize = "md" }) =>
-    open ? "100%" : `${inputSizes[$inputSize]}px`};
+    open ? "100%" : `${inputComponentSize[$inputSize]}px`};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -194,7 +195,7 @@ const InputWrapper = styled.div<StyledInputProps>`
 `;
 const StyledInput = styled.input<StyledInputProps>`
   width: 100%;
-  height: ${({ $inputSize = "md" }) => inputSizes[$inputSize]}px;
+  height: ${({ $inputSize = "md" }) => inputComponentSize[$inputSize]}px;
   outline: none;
 
   border-radius: 8px;
@@ -217,13 +218,13 @@ const StyledInput = styled.input<StyledInputProps>`
   }}
   padding-left:${({ $inputSize = "md", $isIconLeft, open }) =>
     `${
-      inputSizes[$inputSize] -
-      (open ? -6 : !$isIconLeft ? inputSizes[$inputSize] - 6 : 6)
+      inputComponentSize[$inputSize] -
+      (open ? -6 : !$isIconLeft ? inputComponentSize[$inputSize] - 6 : 6)
     }px`};
   padding-right: ${({ $inputSize = "md", $isIconLeft, open }) =>
     `${
-      inputSizes[$inputSize] -
-      (open ? -6 : $isIconLeft ? inputSizes[$inputSize] - 6 : 6)
+      inputComponentSize[$inputSize] -
+      (open ? -6 : $isIconLeft ? inputComponentSize[$inputSize] - 6 : 6)
     }px`};
 
   ${({ $isError }) => {

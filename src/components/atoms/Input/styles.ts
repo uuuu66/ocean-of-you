@@ -1,11 +1,11 @@
-import { InputProps, InputSize } from "@/components/atoms/Input";
+import { InputProps, InputSize, InputType } from "@/components/atoms/Input";
 import { theme, getComponentTypeColor } from "@/styles/theme";
 import { css, styled } from "styled-components";
 interface StyledProps extends InputProps {
   hasSuffix: boolean;
   hasPrefix: boolean;
 }
-const inputSizes: { [key in InputSize]: number } = {
+const inputComponentSize: { [key in InputSize]: number } = {
   xl: 64,
   lg: 56,
   md: 48,
@@ -37,9 +37,14 @@ export const Wrapper = styled.span.withConfig({
       padding-right: ${hasSuffix ? "8px" : "8px"};
       padding-left: ${hasPrefix ? "8px" : "8px"};
       width: 100%;
-      box-shadow: ${isError ? `0px 0px 1px 1px ${theme.colors.red5}` : "none"};
+      box-shadow: ${isError
+        ? `-3px 3px 0px 3px ${theme.colors.red3}`
+        : `-3px 3px 0px 3px ${getComponentTypeColor(
+            inputType,
+            inputType === "green" ? 2 : 4
+          )}`};
       border-radius: 12px;
-      height: ${inputSizes[inputSize]}px;
+      height: ${inputComponentSize[inputSize]}px;
       border: 2px solid
         ${isError
           ? getComponentTypeColor("red", 3)
@@ -57,24 +62,38 @@ export const StyledComponent = styled.input.withConfig({
   ${({ inputSize = "md" }) => {
     return css`
       flex-grow: 1;
-      padding: 6px ${inputSizes[inputSize] / 8}px;
+      padding: 6px ${inputComponentSize[inputSize] / 8}px;
       outline: none;
       ${theme.fonts.article[inputSize]};
     `;
   }}
 `;
-export const LimitLengthSpan = styled.span<{
+export const LimitLengthSpan = styled.span.withConfig({
+  shouldForwardProp: (props) => props !== "inputType" && props !== "isError",
+})<{
+  isError?: boolean;
   maxLength?: number;
   length?: number;
+  inputType?: InputType;
 }>`
   position: absolute;
-  top: 0px;
+  border: 2px solid
+    ${({ inputType, isError }) =>
+      isError
+        ? getComponentTypeColor("red", 3)
+        : getComponentTypeColor(inputType, inputType === "green" ? 2 : 4)};
+  border-bottom: none;
+  padding: 0px 1px;
+  border-radius: 7px 7px 0px 0px;
+  top: -4px;
   right: 8px;
   ${theme.fonts.small.xs};
   transform: scale(0.9) translateY(-18px);
-  opacity: 0.7;
-  color: ${({ length, maxLength }) =>
-    (length || 1) > (maxLength || 0)
+  opacity: 1;
+  color: ${({ length, maxLength, isError }) =>
+    isError
+      ? theme.colors.mainRed
+      : (length || 1) > (maxLength || 0)
       ? theme.colors.mainRed
       : theme.colors.gray3};
 `;

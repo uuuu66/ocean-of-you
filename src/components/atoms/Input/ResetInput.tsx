@@ -4,7 +4,7 @@ import {
   StyledComponent,
   LimitLengthSpan,
 } from "@/components/atoms/Input/styles";
-import { getComponentTypeColor } from "@/styles/theme";
+import { getComponentTypeColor, theme } from "@/styles/theme";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
 
 const ResetInput: React.FC<Partial<InputProps>> = ({
@@ -27,18 +27,28 @@ const ResetInput: React.FC<Partial<InputProps>> = ({
           width={18}
           height={18}
           className="cursor-pointer opacity-45 active:rotate-180 active:scale-90 transition-all"
-          stroke={getComponentTypeColor(
-            props.inputType,
-            props.inputType === "green" ? 1 : 2
-          )}
+          stroke={
+            props.isError
+              ? theme.colors.mainRed
+              : getComponentTypeColor(
+                  props.inputType,
+                  props.inputType === "green" ? 1 : 2
+                )
+          }
           onClick={handleClickReset}
         />{" "}
       </span>
       {maxLength > 0 && (
         <LimitLengthSpan
+          isError={props.isError}
+          inputType={props.inputType}
           maxLength={maxLength}
           length={props.value?.toString()?.length}
-        >{`${props.value?.toString()?.length}/${maxLength}`}</LimitLengthSpan>
+        >
+          {props?.isError
+            ? "Error!"
+            : `${props.value?.toString()?.length}/${maxLength}`}
+        </LimitLengthSpan>
       )}
     </Wrapper>
   );

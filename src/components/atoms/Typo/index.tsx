@@ -1,11 +1,11 @@
-import { Sizes } from "@/lib/types";
+import { ComponentSize } from "@/lib/types";
 import { ColorThemeType, FontThemeType, theme } from "@/styles/theme";
 import React, { HTMLAttributes } from "react";
 import styled, { css } from "styled-components";
 
 export interface TypoProps extends HTMLAttributes<HTMLSpanElement> {
   type: keyof FontThemeType;
-  typoSize: Sizes;
+  typoSize: ComponentSize;
   typoColor?: keyof ColorThemeType;
 }
 

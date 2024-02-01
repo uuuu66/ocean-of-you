@@ -1,10 +1,10 @@
 {
   "button": {
     "xs": "font-size:24px; font-weight:700;line-height:100%;",
-    "sm": "font-size:24px; font-weight:700;line-height:100%;",
-    "md": "font-size:24px; font-weight:700;line-height:100%;",
-    "lg": "font-size:24px; font-weight:700;line-height:100%;",
-    "xl": "font-size:32px; font-weight:700;line-height:100%;"
+    "sm": "font-size:26px; font-weight:700;line-height:100%;",
+    "md": "font-size:28px; font-weight:700;line-height:100%;",
+    "lg": "font-size:30px; font-weight:700;line-height:100%;",
+    "xl": "font-size:36px; font-weight:700;line-height:100%;"
   },
 
   "title": {
@@ -16,11 +16,11 @@
   },
 
   "article": {
-    "xs": "font-size:20px; font-weight:500;line-height:100%;",
-    "sm": "font-size:24px; font-weight:500;line-height:100%;",
-    "md": "font-size:28px; font-weight:500;line-height:100%;",
-    "lg": "font-size:32px; font-weight:500;line-height:100%;",
-    "xl": "font-size:36px; font-weight:500;line-height:100%;"
+    "xs": "font-size:18px; font-weight:500;line-height:100%;",
+    "sm": "font-size:22px; font-weight:500;line-height:100%;",
+    "md": "font-size:26px; font-weight:500;line-height:100%;",
+    "lg": "font-size:30px; font-weight:500;line-height:100%;",
+    "xl": "font-size:34px; font-weight:500;line-height:100%;"
   },
 
   "small": {

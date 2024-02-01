@@ -3,7 +3,7 @@ import { SvgIconProps } from "@/lib/interfaces";
 import { getComponentTypeColor } from "@/styles/theme";
 import React, { ButtonHTMLAttributes } from "react";
 import { css, styled } from "styled-components";
-const iconSizes: { [key in ButtonSize]: number } = {
+const iconComponentSize: { [key in ButtonSize]: number } = {
   xl: 24,
   lg: 24,
   md: 24,
@@ -39,7 +39,11 @@ const IconButton: React.FC<IconButtonProps> = (props) => {
       {...rest}
     >
       {Icon && (
-        <Icon width={iconSizes[size]} height={iconSizes[size]} {...iconProps} />
+        <Icon
+          width={iconComponentSize[size]}
+          height={iconComponentSize[size]}
+          {...iconProps}
+        />
       )}
     </IconWrapper>
   );

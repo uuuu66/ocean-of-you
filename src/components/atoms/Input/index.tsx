@@ -1,4 +1,4 @@
-import { Sizes, ComponentTypes } from "@/lib/types";
+import { ComponentSize, ComponentType } from "@/lib/types";
 import { getComponentTypeColor } from "@/styles/theme";
 import React, { InputHTMLAttributes } from "react";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
@@ -9,8 +9,8 @@ import {
 } from "@/components/atoms/Input/styles";
 import PasswordInput from "@/components/atoms/Input/PasswordInput";
 import ResetInput from "@/components/atoms/Input/ResetInput";
-export type InputSize = Sizes;
-export type InputType = ComponentTypes;
+export type InputSize = ComponentSize;
+export type InputType = ComponentType;
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   inputType: InputType;
   inputSize: InputSize;
@@ -63,9 +63,16 @@ const Input: React.FC<Partial<InputProps>> = ({
       )}
       {maxLength > 0 && (
         <LimitLengthSpan
+          isError={props.isError}
+          inputType={props.inputType}
           length={props?.value?.toString()?.length}
           maxLength={maxLength}
-        >{`${props.value?.toString()?.length}/${maxLength}`}</LimitLengthSpan>
+        >
+          {" "}
+          {props.isError
+            ? "Error!"
+            : `${props.value?.toString()?.length}/${maxLength}`}
+        </LimitLengthSpan>
       )}
     </Wrapper>
   );

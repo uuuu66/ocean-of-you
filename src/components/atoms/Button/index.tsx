@@ -4,9 +4,9 @@ import animations from "@/styles/animations";
 import { getComponentTypeColor, theme } from "@/styles/theme";
 import styled, { css } from "styled-components";
 import { iconPaths } from "../../../../public/icons";
-import { ComponentTypes } from "@/lib/types";
+import { ComponentType, ComponentSize } from "@/lib/types";
 import { Dongle } from "next/font/google";
-export type ButtonType = ComponentTypes;
+export type ButtonType = ComponentType;
 export type ButtonVariant = "default" | "outline" | "ghost";
 export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 export type ButtonDefaultAnimation = "trembling" | "purse" | "none";
@@ -20,7 +20,23 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   $pressAnimation: ButtonPressAnimation;
   $isLoading: boolean;
 }
+
 const buttonFont = Dongle({ weight: "400", subsets: ["latin"] });
+const buttonHeight: { [key in ComponentSize]: number } = {
+  xl: 72,
+  lg: 64,
+  md: 56,
+  sm: 48,
+  xs: 40,
+};
+const buttonRadius: { [key in ComponentSize]: number } = {
+  xl: 12,
+  lg: 12,
+  md: 12,
+  sm: 8,
+  xs: 8,
+};
+
 const loadingButtonAnimationSize = 6;
 const Button: React.FC<Partial<ButtonProps>> = ({
   $buttonType = "primary",
@@ -156,45 +172,14 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
         width: unset;
       `;
   }}
-  ${({ size, $isLoading }) => {
-    switch (size) {
-      case "xl":
-        return css`
-          padding: ${$isLoading ? `18px 24px` : "14px 24px"};
-          ${theme.fonts.button[size]};
-          border-radius: 12px;
-        `;
-      case "lg":
-        return css`
-          padding: 16px 22px;
-          ${theme.fonts.button[size]};
-          border-radius: 12px;
-        `;
-      case "md":
-        return css`
-          padding: 16px 20px;
-          ${theme.fonts.button[size]};
-          border-radius: 12px;
-        `;
-      case "sm":
-        return css`
-          padding: 14px 18px;
-          ${theme.fonts.button[size]};
-          border-radius: 12px;
-        `;
-      case "xs":
-        return css`
-          padding: 8px 12px;
-          ${theme.fonts.button[size]};
-          border-radius: 8px;
-        `;
-      default:
-        return css`
-          padding: 20px 16px;
-          ${theme.fonts.button["md"]};
-          border-radius: 6px;
-        `;
-    }
+  ${({ size = "md", $isLoading }) => {
+    return css`
+      height: ${buttonHeight[size]}px;
+      min-height: ${buttonHeight[size]}px;
+      border-radius: ${buttonRadius[size]}px;
+      padding: 0px 12px;
+      ${theme.fonts.button[size]};
+    `;
   }}
 
    ${({ $buttonType, variant }) => {
