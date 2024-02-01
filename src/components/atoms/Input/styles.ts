@@ -38,7 +38,7 @@ export const Wrapper = styled.span.withConfig({
       padding-left: ${hasPrefix ? "8px" : "8px"};
       width: 100%;
       box-shadow: ${isError
-        ? `-3px 3px 0px 3px ${theme.colors.red5}`
+        ? `-3px 3px 0px 3px ${theme.colors.red3}`
         : `-3px 3px 0px 3px ${getComponentTypeColor(
             inputType,
             inputType === "green" ? 2 : 4
@@ -69,8 +69,9 @@ export const StyledComponent = styled.input.withConfig({
   }}
 `;
 export const LimitLengthSpan = styled.span.withConfig({
-  shouldForwardProp: (props) => props !== "inputType",
+  shouldForwardProp: (props) => props !== "inputType" && props !== "isError",
 })<{
+  isError?: boolean;
   maxLength?: number;
   length?: number;
   inputType?: InputType;
