@@ -78,8 +78,10 @@ export const LimitLengthSpan = styled.span.withConfig({
 }>`
   position: absolute;
   border: 2px solid
-    ${({ inputType }) =>
-      getComponentTypeColor(inputType, inputType === "green" ? 2 : 4)};
+    ${({ inputType, isError }) =>
+      isError
+        ? getComponentTypeColor("red", 3)
+        : getComponentTypeColor(inputType, inputType === "green" ? 2 : 4)};
   border-bottom: none;
   padding: 0px 1px;
   border-radius: 7px 7px 0px 0px;
@@ -88,8 +90,10 @@ export const LimitLengthSpan = styled.span.withConfig({
   ${theme.fonts.small.xs};
   transform: scale(0.9) translateY(-18px);
   opacity: 1;
-  color: ${({ length, maxLength }) =>
-    (length || 1) > (maxLength || 0)
+  color: ${({ length, maxLength, isError }) =>
+    isError
+      ? theme.colors.mainRed
+      : (length || 1) > (maxLength || 0)
       ? theme.colors.mainRed
       : theme.colors.gray3};
 `;
