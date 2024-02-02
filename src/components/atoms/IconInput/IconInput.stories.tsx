@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import IconInput from "./IconInput";
-import { iconPaths } from "../../../../../public/icons";
+import { iconPaths } from "../../../../public/icons";
 import { getComponentTypeColor } from "@/styles/theme";
 import { CheckIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 

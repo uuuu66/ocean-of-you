@@ -7,8 +7,8 @@ import { ButtonProps } from "@/components/atoms/Button";
 import { InputProps } from "@/components/atoms/Input";
 import IconInput, {
   IconInputProps,
-} from "@/components/atoms/Input/IconInput/IconInput";
-import { IconButtonProps } from "@/components/atoms/Button/IconButton/IconButton";
+} from "@/components/atoms/IconInput/IconInput";
+import { IconButtonProps } from "@/components/atoms/IconButton/IconButton";
 import { TextAreaProps } from "@/components/atoms/TextArea";
 
 interface Props {
