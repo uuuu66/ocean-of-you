@@ -111,8 +111,8 @@ const Button: React.FC<Partial<ButtonProps>> = ({
           <iconPaths.Loading
             width={24}
             height={24}
-            stroke={getSvgStrokeColor($buttonType, variant)}
-            fill={getSvgStrokeColor($buttonType, variant)}
+            stroke={getSvgStrokeColor($buttonType)}
+            fill={getSvgStrokeColor($buttonType)}
           />
         ) : (
           children
@@ -172,7 +172,7 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
         width: unset;
       `;
   }}
-  ${({ size = "md", $isLoading }) => {
+  ${({ size = "md" }) => {
     return css`
       height: ${buttonHeight[size]}px;
       min-height: ${buttonHeight[size]}px;
@@ -358,17 +358,6 @@ const getButtonTypeMainColor = (buttonType?: ButtonType) => {
   }
 };
 
-const getSvgStrokeColor = (
-  buttonType?: ButtonType,
-  variant?: ButtonVariant
-) => {
-  switch (variant) {
-    case "default":
-      return getComponentTypeColor(buttonType, 3);
-    case "ghost":
-      return getComponentTypeColor(buttonType, 3);
-    case "outline":
-      return getComponentTypeColor(buttonType, 3);
-    default:
-  }
+const getSvgStrokeColor = (buttonType?: ButtonType) => {
+  return getComponentTypeColor(buttonType, 3);
 };

@@ -21,13 +21,7 @@ const hambugerButtonLineHeight: { [key in ComponentSize]: number } = {
   sm: 4,
   xs: 4,
 };
-const hambugerButtonPaddingY: { [key in ComponentSize]: number } = {
-  xl: 18,
-  lg: 16,
-  md: 14,
-  sm: 12,
-  xs: 10,
-};
+
 const hambugerButtonPaddingX: { [key in ComponentSize]: number } = {
   xl: 24,
   lg: 22,
@@ -92,8 +86,6 @@ export const StyledComponent = styled.button.withConfig({
     }
     ${isOpen &&
     css`
-      & > span {
-      }
       & > span:nth-child(1) {
         transition: transform 0.5s 1s background-color 0.5s;
         transform: translateY(0) rotate(225deg);

@@ -141,7 +141,6 @@ const StyledComponent = styled.textarea.withConfig({
     return css`
       outline: none;
       transition: all 0.2s;
-
       border-radius: ${textAreaVariant === "DEFAULT" ? "8px" : "0px"};
       padding: 8px 8px;
       ${theme.fonts.article["lg"]};
