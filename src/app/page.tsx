@@ -1,5 +1,5 @@
 "use client";
-import IconInput from "@/components/atoms/IconInput/IconInput";
+import IconInput from "@/components/molecures/IconInput/IconInput";
 import Image from "next/image";
 import { iconPaths } from "../../public/icons";
 

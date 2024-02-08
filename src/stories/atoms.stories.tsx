@@ -5,16 +5,17 @@ import { iconPaths } from "../../public/icons";
 import { useState } from "react";
 import { ButtonProps } from "@/components/atoms/Button";
 import { InputProps } from "@/components/atoms/Input";
-import IconInput, {
-  IconInputProps,
-} from "@/components/atoms/IconInput/IconInput";
+
 import { IconButtonProps } from "@/components/atoms/IconButton/IconButton";
 import { TextAreaProps } from "@/components/atoms/TextArea";
+import Dropdown from "@/components/atoms/Dropdown";
+import DropdownTrigger from "@/components/atoms/Dropdown/DropdownTrigger";
+import DropdownMenu from "@/components/atoms/Dropdown/DropdownMenu";
 
 interface Props {
   buttonProps: Partial<ButtonProps>;
   inputProps: Partial<InputProps>;
-  iconInputProps: IconInputProps;
+
   iconButtonProps: IconButtonProps;
   textAreaProps: Partial<TextAreaProps>;
 }
@@ -22,13 +23,7 @@ const Ex: React.FC<Props> = (props) => {
   const [input, setInput] = useState("인풋");
   const [iconInput, setIconInput] = useState("아이콘 인풋");
   const [textArea, setTextArea] = useState("텍스트 에어리어");
-  const {
-    buttonProps,
-    iconButtonProps,
-    iconInputProps,
-    inputProps,
-    textAreaProps,
-  } = props;
+  const { buttonProps, iconButtonProps, inputProps, textAreaProps } = props;
   return (
     <div className="w-[700px] flex flex-col gap-5">
       <atoms.Button {...buttonProps}>버튼</atoms.Button>{" "}
@@ -58,15 +53,6 @@ const Ex: React.FC<Props> = (props) => {
         </div>
         icon button
       </div>
-      <IconInput
-        {...iconInputProps}
-        Icon={iconPaths.NaviArrow}
-        value={iconInput}
-        $submitButton={{ Icon: iconPaths.EyeOpen }}
-        onChange={(e) => {
-          setIconInput(e.target.value);
-        }}
-      />
       <atoms.Input
         value={input}
         onChange={(e) => {
@@ -83,6 +69,12 @@ const Ex: React.FC<Props> = (props) => {
         maxLength={60}
         {...textAreaProps}
       />
+      <Dropdown value={iconInput}>
+        <DropdownTrigger>
+          <div>hu</div>
+        </DropdownTrigger>
+        <DropdownMenu></DropdownMenu>
+      </Dropdown>
     </div>
   );
 };
@@ -106,7 +98,6 @@ type Story = StoryObj<typeof meta>;
 export const ATOMS: Story = {
   args: {
     iconButtonProps: { Icon: iconPaths.NaviArrow },
-    iconInputProps: { Icon: iconPaths.NaviArrow },
     inputProps: {},
     textAreaProps: {},
     buttonProps: {},
