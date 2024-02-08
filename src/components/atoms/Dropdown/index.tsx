@@ -1,6 +1,7 @@
 import {
   PropsWithChildren,
   createContext,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -18,27 +19,26 @@ interface Props extends PropsWithChildren {
 }
 const DropdownContext = createContext<DropdownContextValue | null>(null);
 
-const Dropdown: React.FC<Props> = ({
+const Dropdown: React.FC<Partial<Props>> = ({
   value,
   defaultOpen,
   onChange,
   children,
 }) => {
   const isMount = useRef<boolean>(false);
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  const [selectedValue, setSelectedValue] = useState(value);
+  const [isOpen, setIsOpen] = useState(defaultOpen ?? false);
+  const [selectedValue, setSelectedValue] = useState(value ?? "");
   const handleClickTrigger = () => {
     setIsOpen(!isOpen);
   };
   const handleChangeValue = (value: string) => {
-    onChange(value);
+    if (onChange) onChange(value);
     setSelectedValue(value);
     setIsOpen(false);
   };
-
   useEffect(() => {
     if (!isMount.current) {
-      setSelectedValue(value);
+      if (value) setSelectedValue(value);
       isMount.current = true;
     }
   }, [value]);
@@ -51,4 +51,13 @@ const Dropdown: React.FC<Props> = ({
   );
 };
 
+export const useDropdownContext = () => {
+  const context = useContext(DropdownContext);
+  if (context === null) {
+    throw new Error(
+      "useDropdownContext must be used within a DropdownProvider"
+    );
+  }
+  return context;
+};
 export default Dropdown;
