@@ -1,6 +1,6 @@
 import { ButtonSize, ButtonType } from "@/components/common/Button";
 import { SvgIconProps } from "@/lib/interfaces";
-import { getComponentTypeColor } from "@/styles/theme";
+import { getComponentTypeColor } from "@/lib/utils/style";
 import React, { ButtonHTMLAttributes } from "react";
 import { css, styled } from "styled-components";
 const iconComponentSize: { [key in ButtonSize]: number } = {

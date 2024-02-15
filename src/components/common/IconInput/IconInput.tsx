@@ -4,8 +4,8 @@ import IconButton, {
 } from "@/components/common/IconButton/IconButton";
 import { InputSize, InputType } from "@/components/common/Input";
 import { SvgIconProps } from "@/lib/interfaces";
-
-import { getComponentTypeColor, theme } from "@/styles/theme";
+import { theme } from "@/styles/theme";
+import { getComponentTypeColor } from "@/lib/utils/style";
 import React, { InputHTMLAttributes, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 

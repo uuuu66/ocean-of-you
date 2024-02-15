@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
 import IconInput from "./IconInput";
-import { iconPaths } from "../../../../public/icons";
-import { getComponentTypeColor } from "@/styles/theme";
+import { getComponentTypeColor } from "@/lib/utils/style";
 import { CheckIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export

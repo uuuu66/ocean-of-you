@@ -1,7 +1,8 @@
 "use client";
 import React, { ButtonHTMLAttributes } from "react";
 import animations from "@/styles/animations";
-import { getComponentTypeColor, theme } from "@/styles/theme";
+import { theme } from "@/styles/theme";
+import { getComponentTypeColor } from "@/lib/utils/style";
 import styled, { css } from "styled-components";
 import { iconPaths } from "../../../../public/icons";
 import { ComponentType, ComponentSize } from "@/lib/types";
@@ -123,7 +124,14 @@ const Button: React.FC<Partial<ButtonProps>> = ({
 };
 
 export default Button;
-const AnimationComponent = styled.div<
+const AnimationComponent = styled.div.withConfig({
+  shouldForwardProp: (props) =>
+    props !== "buttonType" &&
+    props !== "defaultAnimation" &&
+    props !== "pressAnimation" &&
+    props !== "isLoading" &&
+    props !== "fullWidth",
+})<
   Pick<
     Partial<ButtonProps>,
     "variant" | "buttonType" | "defaultAnimation" | "pressAnimation"
@@ -146,7 +154,14 @@ const AnimationComponent = styled.div<
     }
   }}
 `;
-const StyledComponent = styled.button<Partial<ButtonProps>>`
+const StyledComponent = styled.button.withConfig({
+  shouldForwardProp: (props) =>
+    props !== "buttonType" &&
+    props !== "defaultAnimation" &&
+    props !== "pressAnimation" &&
+    props !== "isLoading" &&
+    props !== "fullWidth",
+})<Partial<ButtonProps>>`
   display: flex;
   justify-content: center;
   align-items: center;

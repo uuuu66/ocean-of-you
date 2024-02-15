@@ -4,7 +4,8 @@ import {
   StyledComponent,
   LimitLengthSpan,
 } from "@/components/common/Input/styles";
-import { getComponentTypeColor, theme } from "@/styles/theme";
+import { getComponentTypeColor } from "@/lib/utils/style";
+import { theme } from "@/styles/theme";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
 
 const ResetInput: React.FC<Partial<InputProps>> = ({

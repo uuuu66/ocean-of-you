@@ -1,5 +1,6 @@
 import { InputProps, InputSize, InputType } from "@/components/common/Input";
-import { theme, getComponentTypeColor } from "@/styles/theme";
+import { theme } from "@/styles/theme";
+import { getComponentTypeColor } from "@/lib/utils/style";
 import { css, styled } from "styled-components";
 interface StyledProps extends InputProps {
   hasSuffix: boolean;

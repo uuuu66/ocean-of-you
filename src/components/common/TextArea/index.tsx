@@ -1,6 +1,7 @@
 import { ComponentType } from "@/lib/types";
+import { getComponentTypeColor } from "@/lib/utils/style";
 import animations from "@/styles/animations";
-import { getComponentTypeColor, theme } from "@/styles/theme";
+import { theme } from "@/styles/theme";
 import React, {
   TextareaHTMLAttributes,
   useCallback,

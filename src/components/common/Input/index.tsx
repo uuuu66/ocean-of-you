@@ -1,7 +1,5 @@
 import { ComponentSize, ComponentType } from "@/lib/types";
-import { getComponentTypeColor } from "@/styles/theme";
 import React, { InputHTMLAttributes } from "react";
-import { CrossCircledIcon } from "@radix-ui/react-icons";
 import {
   Wrapper,
   StyledComponent,

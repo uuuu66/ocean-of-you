@@ -1,16 +1,16 @@
 import { useDropdownContext } from "@/components/headless/Dropdown";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
-interface Props {}
+interface Props extends PropsWithChildren {}
 
 const DropdownMenu: React.FC<Props> = (props) => {
-  const {} = props;
+  const { children } = props;
   const { isOpen } = useDropdownContext();
   return (
     <div
       className={`${!isOpen ? "hidden" : "flex"} absolute z-10 w-full min-h-10`}
     >
-      hi
+      {children}
     </div>
   );
 };
