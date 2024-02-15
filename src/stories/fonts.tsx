@@ -1,4 +1,4 @@
-import Typo from "@/components/atoms/Typo";
+import Typo from "@/components/common/Typo";
 import { ComponentSize } from "@/lib/types";
 import { FontThemeType, theme } from "@/styles/theme";
 import React from "react";

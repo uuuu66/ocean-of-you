@@ -6,9 +6,9 @@ import {
   Wrapper,
   StyledComponent,
   LimitLengthSpan,
-} from "@/components/atoms/Input/styles";
-import PasswordInput from "@/components/atoms/Input/PasswordInput";
-import ResetInput from "@/components/atoms/Input/ResetInput";
+} from "@/components/common/Input/styles";
+import PasswordInput from "@/components/common/Input/PasswordInput";
+import ResetInput from "@/components/common/Input/ResetInput";
 export type InputSize = ComponentSize;
 export type InputType = ComponentType;
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {

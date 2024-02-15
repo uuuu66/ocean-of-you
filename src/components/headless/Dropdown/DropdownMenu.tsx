@@ -1,4 +1,4 @@
-import { useDropdownContext } from "@/components/atoms/Dropdown";
+import { useDropdownContext } from "@/components/headless/Dropdown";
 import React from "react";
 
 interface Props {}

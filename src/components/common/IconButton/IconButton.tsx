@@ -1,4 +1,4 @@
-import { ButtonSize, ButtonType } from "@/components/atoms/Button";
+import { ButtonSize, ButtonType } from "@/components/common/Button";
 import { SvgIconProps } from "@/lib/interfaces";
 import { getComponentTypeColor } from "@/styles/theme";
 import React, { ButtonHTMLAttributes } from "react";

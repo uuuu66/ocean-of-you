@@ -33,9 +33,9 @@ export const Primary: Story = {
     children: "Input",
     placeholder: "placeholder",
     Icon: MagnifyingGlassIcon,
-    $isIconOpenButton: true,
+    isIconOpenButton: true,
 
-    $submitButton: {
+    submitButton: {
       Icon: CheckIcon,
       iconProps: {
         fill: getComponentTypeColor("primary", 1),
@@ -49,9 +49,9 @@ export const Secondary: Story = {
     children: "Input",
     placeholder: "placeholder",
     Icon: MagnifyingGlassIcon,
-    $inputType: "secondary",
-    $isIconOpenButton: true,
-    $iconProps: {
+    inputType: "secondary",
+    isIconOpenButton: true,
+    iconProps: {
       stroke: getComponentTypeColor("secondary", 2),
       fill: "transparent",
       activeProps: {
@@ -59,7 +59,7 @@ export const Secondary: Story = {
         fill: "transparent",
       },
     },
-    $submitButton: {
+    submitButton: {
       Icon: CheckIcon,
       iconProps: {
         fill: getComponentTypeColor("secondary", 0),
@@ -73,9 +73,9 @@ export const Green: Story = {
     children: "Input",
     placeholder: "placeholder",
     Icon: MagnifyingGlassIcon,
-    $inputType: "green",
-    $isIconOpenButton: true,
-    $iconProps: {
+    inputType: "green",
+    isIconOpenButton: true,
+    iconProps: {
       stroke: getComponentTypeColor("green", 2),
       fill: "transparent",
       activeProps: {
@@ -83,7 +83,7 @@ export const Green: Story = {
         fill: "transparent",
       },
     },
-    $submitButton: {
+    submitButton: {
       Icon: CheckIcon,
       iconProps: {
         fill: getComponentTypeColor("green", 0),
@@ -96,10 +96,10 @@ export const Red: Story = {
   args: {
     children: "Input",
     placeholder: "placeholder",
-    $inputType: "red",
+    inputType: "red",
     Icon: MagnifyingGlassIcon,
-    $isIconOpenButton: true,
-    $iconProps: {
+    isIconOpenButton: true,
+    iconProps: {
       stroke: getComponentTypeColor("red", 2),
       fill: "transparent",
       activeProps: {
@@ -107,7 +107,7 @@ export const Red: Story = {
         fill: "transparent",
       },
     },
-    $submitButton: {
+    submitButton: {
       Icon: CheckIcon,
       iconProps: {
         fill: getComponentTypeColor("red", 0),

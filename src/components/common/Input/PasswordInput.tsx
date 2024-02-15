@@ -1,9 +1,9 @@
-import { InputProps } from "@/components/atoms/Input";
+import { InputProps } from "@/components/common/Input";
 import {
   Wrapper,
   StyledComponent,
   LimitLengthSpan,
-} from "@/components/atoms/Input/styles";
+} from "@/components/common/Input/styles";
 import { useEffect, useRef, useState } from "react";
 
 import { lotties } from "../../../../public/lotties";

@@ -12,13 +12,13 @@ export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 export type ButtonDefaultAnimation = "trembling" | "purse" | "none";
 export type ButtonPressAnimation = "trembling" | "fill" | "scaleDown" | "none";
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  $buttonType: ButtonType;
+  buttonType: ButtonType;
   variant: ButtonVariant;
   size: ButtonSize;
-  $fullWidth: boolean;
-  $defaultAnimation: ButtonDefaultAnimation;
-  $pressAnimation: ButtonPressAnimation;
-  $isLoading: boolean;
+  fullWidth: boolean;
+  defaultAnimation: ButtonDefaultAnimation;
+  pressAnimation: ButtonPressAnimation;
+  isLoading: boolean;
 }
 
 const buttonFont = Dongle({ weight: "400", subsets: ["latin"] });
@@ -39,80 +39,80 @@ const buttonRadius: { [key in ComponentSize]: number } = {
 
 const loadingButtonAnimationSize = 6;
 const Button: React.FC<Partial<ButtonProps>> = ({
-  $buttonType = "primary",
+  buttonType = "primary",
   variant = "default",
   size = "md",
-  $fullWidth = false,
-  $defaultAnimation = "none",
-  $pressAnimation = "scaleDown",
+  fullWidth = false,
+  defaultAnimation = "none",
+  pressAnimation = "scaleDown",
   children,
-  $isLoading,
+  isLoading,
   ...props
 }) => {
   return (
     <StyledComponent
-      $buttonType={$buttonType}
+      buttonType={buttonType}
       variant={variant}
       size={size}
-      $fullWidth={$fullWidth}
-      $defaultAnimation={$defaultAnimation}
-      $pressAnimation={$pressAnimation}
-      $isLoading={$isLoading}
+      fullWidth={fullWidth}
+      defaultAnimation={defaultAnimation}
+      pressAnimation={pressAnimation}
+      isLoading={isLoading}
       theme={{
-        purseColor: getComponentTypeColor($buttonType, 5),
+        purseColor: getComponentTypeColor(buttonType, 5),
         purseBlurLength: "12px",
         purseSpreadLength: "12px",
       }}
       {...props}
     >
-      {($isLoading || $defaultAnimation !== "none") && (
+      {(isLoading || defaultAnimation !== "none") && (
         <AnimationComponent
           theme={{
-            purseColor: getComponentTypeColor($buttonType, 4),
+            purseColor: getComponentTypeColor(buttonType, 4),
             purseSpreadLength: "10px",
             purseBlurLength: "10px",
             purseScale: 1,
             fromX: "-100px",
             toX: "100vw",
           }}
-          $buttonType={$buttonType}
+          buttonType={buttonType}
           variant={variant}
           className="animation-component animation-component-1"
-          $defaultAnimation={$defaultAnimation}
+          defaultAnimation={defaultAnimation}
         />
       )}
-      {($isLoading || $defaultAnimation !== "none") && (
+      {(isLoading || defaultAnimation !== "none") && (
         <AnimationComponent
           theme={{
-            purseColor: getComponentTypeColor($buttonType, 3),
+            purseColor: getComponentTypeColor(buttonType, 3),
             purseSpreadLength: "8px",
             purseBlurLength: "6px",
             purseScale: 1,
             fromX: "3px",
             toX: "100vw",
           }}
-          $buttonType={$buttonType}
+          buttonType={buttonType}
           variant={variant}
           className="animation-component animation-component-2"
-          $defaultAnimation={$defaultAnimation}
+          defaultAnimation={defaultAnimation}
         />
       )}
-      {($isLoading || $pressAnimation !== "none") && (
+      {(isLoading || pressAnimation !== "none") && (
         <AnimationComponent
-          $buttonType={$buttonType}
+          buttonType={buttonType}
           variant={variant}
           style={{ zIndex: -1 }}
           className="animation-component-fill"
-          $pressAnimation={$pressAnimation}
+          pressAnimation={pressAnimation}
         />
       )}{" "}
       <span className={buttonFont.className}>
-        {$isLoading ? (
+        {isLoading ? (
           <iconPaths.Loading
             width={24}
             height={24}
-            stroke={getSvgStrokeColor($buttonType)}
-            fill={getSvgStrokeColor($buttonType)}
+            stroke={getSvgStrokeColor(buttonType)}
+            fill={getSvgStrokeColor(buttonType)}
           />
         ) : (
           children
@@ -126,7 +126,7 @@ export default Button;
 const AnimationComponent = styled.div<
   Pick<
     Partial<ButtonProps>,
-    "variant" | "$buttonType" | "$defaultAnimation" | "$pressAnimation"
+    "variant" | "buttonType" | "defaultAnimation" | "pressAnimation"
   >
 >`
   position: absolute;
@@ -137,8 +137,8 @@ const AnimationComponent = styled.div<
   border-radius: 12px;
   z-index: -4;
 
-  ${({ $defaultAnimation }) => {
-    if ($defaultAnimation !== "none" && !!$defaultAnimation) {
+  ${({ defaultAnimation }) => {
+    if (defaultAnimation !== "none" && !!defaultAnimation) {
       return css`
         ${animations.purse};
         animation-iteration-count: infinite;
@@ -162,8 +162,8 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
     transform: translateY(100%) scaleY(0);
     transition: transform 1.5s;
   }
-  ${({ $fullWidth }) => {
-    if ($fullWidth)
+  ${({ fullWidth }) => {
+    if (fullWidth)
       return css`
         width: 100%;
       `;
@@ -182,22 +182,22 @@ const StyledComponent = styled.button<Partial<ButtonProps>>`
     `;
   }}
 
-   ${({ $buttonType, variant }) => {
-    return buttonVariantCss($buttonType, variant);
+   ${({ buttonType, variant }) => {
+    return buttonVariantCss(buttonType, variant);
   }}
 
-${({ $buttonType, variant, $isLoading }) => {
-    if ($isLoading) {
+${({ buttonType, variant, isLoading }) => {
+    if (isLoading) {
       return css`
         cursor: not-allowed;
         overflow: hidden;
-        border-color: ${getComponentTypeColor($buttonType, 5)};
+        border-color: ${getComponentTypeColor(buttonType, 5)};
         transition: 0;
         & > .animation-component-1 {
           animation-name: none;
           background-color: ${variant !== "default"
             ? "transparent"
-            : getComponentTypeColor($buttonType, 0)};
+            : getComponentTypeColor(buttonType, 0)};
 
           width: calc(100% - ${loadingButtonAnimationSize * 2}px);
           height: calc(100% - ${loadingButtonAnimationSize * 2}px);
@@ -222,13 +222,12 @@ ${({ $buttonType, variant, $isLoading }) => {
           height: 30%;
           left: 0;
           top: -7px;
-
           background: ${variant !== "default"
             ? "transparent"
-            : getComponentTypeColor($buttonType, 4)};
+            : getComponentTypeColor(buttonType, 4)};
           box-shadow: ${variant !== "default"
             ? "none"
-            : `0 0 50px 10px ${getComponentTypeColor($buttonType, 4)}`};
+            : `0 0 50px 10px ${getComponentTypeColor(buttonType, 4)}`};
           opacity: 0.7;
         }
         svg {
@@ -241,8 +240,8 @@ ${({ $buttonType, variant, $isLoading }) => {
     }
   }} 
 
-  ${({ $defaultAnimation }) => {
-    switch ($defaultAnimation) {
+  ${({ defaultAnimation }) => {
+    switch (defaultAnimation) {
       case "purse":
         return css`
           ${animations.purse};
@@ -261,8 +260,8 @@ ${({ $buttonType, variant, $isLoading }) => {
   }};
 
   &:active {
-    ${({ $pressAnimation, $buttonType, $isLoading }) => {
-      switch ($pressAnimation) {
+    ${({ pressAnimation, buttonType, isLoading }) => {
+      switch (pressAnimation) {
         case "fill":
           return css`
             animation-name: none;
@@ -276,15 +275,12 @@ ${({ $buttonType, variant, $isLoading }) => {
             }
             & > .animation-component-fill {
               transform: translateY(0%) scale(1.3);
-              background-color: ${({}) =>
-                getComponentTypeColor($buttonType, 3)};
+              background-color: ${({}) => getComponentTypeColor(buttonType, 3)};
               z-index: 1;
               border-radius: 0px;
             }
             & > .animation-component-2 {
-              animation-name: ${$isLoading
-                ? animations.rotateProgress
-                : "none"};
+              animation-name: ${isLoading ? animations.rotateProgress : "none"};
             }
           `;
 
@@ -293,9 +289,7 @@ ${({ $buttonType, variant, $isLoading }) => {
             ${animations.tremblingX}
             animation-duration: 0.3;
             & > .animation-component-2 {
-              animation-name: ${$isLoading
-                ? animations.rotateProgress
-                : "none"};
+              animation-name: ${isLoading ? animations.rotateProgress : "none"};
             }
           `;
         case "scaleDown":
@@ -308,9 +302,7 @@ ${({ $buttonType, variant, $isLoading }) => {
               animation-name: none;
             }
             & > .animation-component-2 {
-              animation-name: ${$isLoading
-                ? animations.rotateProgress
-                : "none"};
+              animation-name: ${isLoading ? animations.rotateProgress : "none"};
             }
           `;
         case "none":

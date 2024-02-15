@@ -1,4 +1,4 @@
-import { InputProps, InputSize, InputType } from "@/components/atoms/Input";
+import { InputProps, InputSize, InputType } from "@/components/common/Input";
 import { theme, getComponentTypeColor } from "@/styles/theme";
 import { css, styled } from "styled-components";
 interface StyledProps extends InputProps {
