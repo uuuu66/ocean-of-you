@@ -2,11 +2,12 @@
 import React, { ButtonHTMLAttributes } from "react";
 import animations from "@/styles/animations";
 import { theme } from "@/styles/theme";
-import { getComponentTypeColor } from "@/lib/utils/style";
+import { getComponentTypeColor, shouldForwardProp } from "@/lib/utils/style";
 import styled, { css } from "styled-components";
 import { iconPaths } from "../../../../public/icons";
 import { ComponentType, ComponentSize } from "@/lib/types";
 import { Dongle } from "next/font/google";
+import { onlyLowerCase } from "@/lib/utils/string";
 export type ButtonType = ComponentType;
 export type ButtonVariant = "default" | "outline" | "ghost";
 export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
@@ -125,12 +126,7 @@ const Button: React.FC<Partial<ButtonProps>> = ({
 
 export default Button;
 const AnimationComponent = styled.div.withConfig({
-  shouldForwardProp: (props) =>
-    props !== "buttonType" &&
-    props !== "defaultAnimation" &&
-    props !== "pressAnimation" &&
-    props !== "isLoading" &&
-    props !== "fullWidth",
+  shouldForwardProp,
 })<
   Pick<
     Partial<ButtonProps>,
@@ -155,12 +151,7 @@ const AnimationComponent = styled.div.withConfig({
   }}
 `;
 const StyledComponent = styled.button.withConfig({
-  shouldForwardProp: (props) =>
-    props !== "buttonType" &&
-    props !== "defaultAnimation" &&
-    props !== "pressAnimation" &&
-    props !== "isLoading" &&
-    props !== "fullWidth",
+  shouldForwardProp,
 })<Partial<ButtonProps>>`
   display: flex;
   justify-content: center;

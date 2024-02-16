@@ -5,7 +5,7 @@ import IconButton, {
 import { InputSize, InputType } from "@/components/common/Input";
 import { SvgIconProps } from "@/lib/interfaces";
 import { theme } from "@/styles/theme";
-import { getComponentTypeColor } from "@/lib/utils/style";
+import { getComponentTypeColor, shouldForwardProp } from "@/lib/utils/style";
 import React, { InputHTMLAttributes, useCallback, useState } from "react";
 import styled, { css } from "styled-components";
 
@@ -105,7 +105,7 @@ const IconInput: React.FC<Partial<IconInputProps>> = ({
 
 export default IconInput;
 const Wrapper = styled.div.withConfig({
-  shouldForwardProp: (props) => props !== "isIconLeft",
+  shouldForwardProp,
 })<Pick<StyledInputProps, "isIconLeft">>`
   position: relative;
   float: left;
@@ -131,10 +131,7 @@ const SubmitButton = styled(IconButton)<
     inputComponentSize[$inputSize] - circleGap * 2}px;
 `;
 const IconWrapper = styled.button.withConfig({
-  shouldForwardProp: (props) =>
-    props !== "iconAnimationType" &&
-    props !== "iconProps" &&
-    props !== "inputType",
+  shouldForwardProp,
 })<Partial<StyledInputProps>>`
   position: absolute;
   left: ${`${circleGap}px`};
@@ -186,7 +183,7 @@ const IconWrapper = styled.button.withConfig({
   }
 `;
 const InputWrapper = styled.div.withConfig({
-  shouldForwardProp: (props) => props !== "inputSize",
+  shouldForwardProp,
 })<StyledInputProps>`
   will-change: auto;
   position: relative;
@@ -198,7 +195,9 @@ const InputWrapper = styled.div.withConfig({
   align-items: center;
   transition: width 0.5s;
 `;
-const StyledInput = styled.input<StyledInputProps>`
+const StyledInput = styled.input.withConfig({
+  shouldForwardProp,
+})<StyledInputProps>`
   width: 100%;
   height: ${({ inputSize = "md" }) => inputComponentSize[inputSize]}px;
   outline: none;
