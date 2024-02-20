@@ -39,7 +39,7 @@ export default function Editor() {
     }: InsertSpanAtNodeArgs) => {
       if (!node?.parentElement) return null;
       switch (node.parentElement?.tagName) {
-        case "DIV":
+        case "P":
           {
             const range = new Range();
             range.setStart(node, startOffset);
