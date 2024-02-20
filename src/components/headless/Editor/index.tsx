@@ -1,10 +1,4 @@
-import React, {
-  CSSProperties,
-  HTMLAttributes,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
+import React, { CSSProperties, useCallback, useRef } from "react";
 
 interface InsertSpanAtNodeArgs {
   styleKey?: keyof CSSStyleDeclaration;
@@ -18,7 +12,6 @@ export default function Editor() {
   const contentRef = useRef<HTMLDivElement>(null);
   const moveCursorToTargetNode = useCallback((targetNode: Node) => {
     const selection = window.getSelection();
-
     const targetRange = document.createRange();
     targetRange.selectNodeContents(targetNode);
     if (selection) {
@@ -62,34 +55,34 @@ export default function Editor() {
           }
           break;
         case "SPAN": {
-            const ranges = [new Range(), new Range(), new Range()];
-            ranges[0].setStart(node, 0);
-            ranges[0].setEnd(node, startOffset);
-            ranges[1].setStart(node, startOffset);
-            ranges[1].setEnd(node, endOffset);
-            ranges[2].setStart(node, endOffset);
-            ranges[2].setEnd(node, node.textContent?.length || 0);
+          const ranges = [new Range(), new Range(), new Range()];
+          ranges[0].setStart(node, 0);
+          ranges[0].setEnd(node, startOffset);
+          ranges[1].setStart(node, startOffset);
+          ranges[1].setEnd(node, endOffset);
+          ranges[2].setStart(node, endOffset);
+          ranges[2].setEnd(node, node.textContent?.length || 0);
 
-            if (node.parentNode) {
-              const precededContent = ranges[0].cloneContents();
-              const selectedContent = ranges[1].cloneContents();
-              const followedContent = ranges[2].cloneContents();
-              const precededSpan = document.createElement("span");
-              const selectedSpan = document.createElement("span");
-              const followedSpan = document.createElement("span");
+          if (node.parentNode) {
+            const precededContent = ranges[0].cloneContents();
+            const selectedContent = ranges[1].cloneContents();
+            const followedContent = ranges[2].cloneContents();
+            const precededSpan = document.createElement("span");
+            const selectedSpan = document.createElement("span");
+            const followedSpan = document.createElement("span");
             precededSpan.textContent = "";
             followedSpan.textContent = "";
-              precededSpan.appendChild(precededContent);
-              selectedSpan.appendChild(selectedContent);
-              followedSpan.appendChild(followedContent);
-              if (styleKey && styleValue) {
+            precededSpan.appendChild(precededContent);
+            selectedSpan.appendChild(selectedContent);
+            followedSpan.appendChild(followedContent);
+            if (styleKey && styleValue) {
               selectedSpan.style[styleKey as any] = styleValue;
               precededSpan.style[styleKey as any] =
                 node.parentElement.style[styleKey as any];
               followedSpan.style[styleKey as any] =
                 node.parentElement.style[styleKey as any];
             }
-              const fragment = document.createDocumentFragment();
+            const fragment = document.createDocumentFragment();
             if (!!precededSpan.textContent) fragment.appendChild(precededSpan);
             if (!!selectedSpan.textContent) fragment.appendChild(selectedSpan);
             if (!!followedSpan.textContent) fragment.appendChild(followedSpan);
@@ -112,7 +105,20 @@ export default function Editor() {
         if (range && selection && clonedRange) {
           const { anchorNode, anchorOffset, focusNode, focusOffset } =
             selection;
+
           if (focusNode && anchorNode) {
+            const newRange = new Range();
+            if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+              newRange.setEndBefore(anchorNode);
+              newRange.setStartAfter(focusNode);
+            } else {
+              newRange.setStartAfter(anchorNode);
+              newRange.setEndBefore(focusNode);
+            }
+            const c = newRange.cloneContents();
+            newRange.collapse(true);
+            newRange.insertNode(c);
+            newRange.deleteContents();
             //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
             if (anchorNode.isEqualNode(focusNode)) {
               if (anchorOffset < focusOffset)
@@ -133,6 +139,7 @@ export default function Editor() {
                 });
             } else {
               //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
+              //2 뒤에서 앞으로
               if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
                 insertSpanAtNode({
                   styleKey,
@@ -174,9 +181,15 @@ export default function Editor() {
     },
     [insertSpanAtNode]
   );
-  const handleClickButton = useCallback(
+  const handleClickRedButton = useCallback(
     (e: React.MouseEvent) => {
       insertSpanAtSelection("color", "red");
+    },
+    [insertSpanAtSelection]
+  );
+  const handleClickBlueButton = useCallback(
+    (e: React.MouseEvent) => {
+      insertSpanAtSelection("color", "blue");
     },
     [insertSpanAtSelection]
   );
@@ -201,7 +214,8 @@ export default function Editor() {
 
   return (
     <section aria-label="edtior">
-      <button onClick={handleClickButton}>button</button>
+      <button onClick={handleClickRedButton}>red</button>
+      <button onClick={handleClickBlueButton}>blue</button>
       <div>
         <div
           onKeyUp={handleKeyDown}
