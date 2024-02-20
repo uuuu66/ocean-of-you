@@ -37,8 +37,11 @@ export default function Editor() {
       startOffset,
       endOffset,
     }: InsertSpanAtNodeArgs) => {
-      if (!node?.parentElement) return null;
-      switch (node.parentElement?.tagName) {
+      if (!node) return null;
+      if (!node?.parentElement) {
+        return null;
+      }
+      switch (node?.parentElement?.tagName) {
         case "P":
           {
             const range = new Range();
@@ -58,8 +61,7 @@ export default function Editor() {
             range.insertNode(span);
           }
           break;
-        case "SPAN":
-          {
+        case "SPAN": {
             const ranges = [new Range(), new Range(), new Range()];
             ranges[0].setStart(node, 0);
             ranges[0].setEnd(node, startOffset);
@@ -67,6 +69,7 @@ export default function Editor() {
             ranges[1].setEnd(node, endOffset);
             ranges[2].setStart(node, endOffset);
             ranges[2].setEnd(node, node.textContent?.length || 0);
+
             if (node.parentNode) {
               const precededContent = ranges[0].cloneContents();
               const selectedContent = ranges[1].cloneContents();
@@ -74,25 +77,26 @@ export default function Editor() {
               const precededSpan = document.createElement("span");
               const selectedSpan = document.createElement("span");
               const followedSpan = document.createElement("span");
+            precededSpan.textContent = "";
+            followedSpan.textContent = "";
               precededSpan.appendChild(precededContent);
               selectedSpan.appendChild(selectedContent);
               followedSpan.appendChild(followedContent);
               if (styleKey && styleValue) {
-              }
-              const fragment = document.createDocumentFragment();
-              if (!!precededSpan.textContent)
-                fragment.appendChild(precededSpan);
-              if (!!selectedSpan.textContent)
-                fragment.appendChild(selectedSpan);
-              if (!!followedSpan.textContent)
-                fragment.appendChild(followedSpan);
-              node.parentNode.parentNode?.replaceChild(
-                fragment,
-                node.parentNode
-              );
+              selectedSpan.style[styleKey as any] = styleValue;
+              precededSpan.style[styleKey as any] =
+                node.parentElement.style[styleKey as any];
+              followedSpan.style[styleKey as any] =
+                node.parentElement.style[styleKey as any];
             }
+              const fragment = document.createDocumentFragment();
+            if (!!precededSpan.textContent) fragment.appendChild(precededSpan);
+            if (!!selectedSpan.textContent) fragment.appendChild(selectedSpan);
+            if (!!followedSpan.textContent) fragment.appendChild(followedSpan);
+            node.parentNode.parentNode?.replaceChild(fragment, node.parentNode);
           }
           break;
+        }
       }
     },
     []
