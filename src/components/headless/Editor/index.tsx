@@ -1,5 +1,19 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, {
+  CSSProperties,
+  HTMLAttributes,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 
+interface InsertSpanAtNodeArgs {
+  styleKey?: keyof CSSStyleDeclaration;
+  styleValue?: string;
+  spanStyle?: CSSProperties;
+  node: Node | null;
+  startOffset: number;
+  endOffset: number;
+}
 export default function Editor() {
   const contentRef = useRef<HTMLDivElement>(null);
   const moveCursorToTargetNode = useCallback((targetNode: Node) => {
@@ -15,8 +29,14 @@ export default function Editor() {
     }
     return targetRange;
   }, []);
-  const insertSpanToNodesInRange = useCallback(
-    (node: Node | null, startOffset: number = 0, endOffset: number = 0) => {
+  const insertSpanAtNode = useCallback(
+    ({
+      styleKey,
+      styleValue,
+      node,
+      startOffset,
+      endOffset,
+    }: InsertSpanAtNodeArgs) => {
       if (!node?.parentElement) return null;
       switch (node.parentElement?.tagName) {
         case "DIV":
@@ -28,61 +48,131 @@ export default function Editor() {
             range.deleteContents();
             const span = document.createElement("span");
             span.appendChild(clonedContents);
+            if (
+              styleKey &&
+              styleValue &&
+              styleKey !== "length" &&
+              styleKey !== "parentRule"
+            )
+              span.style[styleKey as any] = styleValue;
             range.insertNode(span);
           }
           break;
         case "SPAN":
           {
-            const range = new Range();
-            range.setStart(node, startOffset);
-            range.setEnd(node, endOffset);
-            const precededContent = range.cloneContents();
-
+            const ranges = [new Range(), new Range(), new Range()];
+            ranges[0].setStart(node, 0);
+            ranges[0].setEnd(node, startOffset);
+            ranges[1].setStart(node, startOffset);
+            ranges[1].setEnd(node, endOffset);
+            ranges[2].setStart(node, endOffset);
+            ranges[2].setEnd(node, node.textContent?.length || 0);
             if (node.parentNode) {
-              const targetRange = moveCursorToTargetNode(node.parentNode);
-              const span = document.createElement("span");
-              span.appendChild(precededContent);
-              targetRange.insertNode(span);
-              node.parentNode.removeChild(node);
+              const precededContent = ranges[0].cloneContents();
+              const selectedContent = ranges[1].cloneContents();
+              const followedContent = ranges[2].cloneContents();
+              const precededSpan = document.createElement("span");
+              const selectedSpan = document.createElement("span");
+              const followedSpan = document.createElement("span");
+              precededSpan.appendChild(precededContent);
+              selectedSpan.appendChild(selectedContent);
+              followedSpan.appendChild(followedContent);
+              if (styleKey && styleValue) {
+              }
+              const fragment = document.createDocumentFragment();
+              if (!!precededSpan.textContent)
+                fragment.appendChild(precededSpan);
+              if (!!selectedSpan.textContent)
+                fragment.appendChild(selectedSpan);
+              if (!!followedSpan.textContent)
+                fragment.appendChild(followedSpan);
+              node.parentNode.parentNode?.replaceChild(
+                fragment,
+                node.parentNode
+              );
             }
           }
           break;
       }
     },
-    [moveCursorToTargetNode]
+    []
   );
 
-  const handleClickButton = useCallback(
-    (e: React.MouseEvent) => {
+  const insertSpanAtSelection = useCallback(
+    (styleKey?: keyof CSSStyleDeclaration, styleValue?: string) => {
       const selection = window.getSelection();
+      //블록이 만들어진 곳이 있을 경우
+      if (selection?.rangeCount) {
       const range = selection?.getRangeAt(0);
       const clonedRange = range?.cloneRange();
       if (range && selection && clonedRange) {
-        const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+          const { anchorNode, anchorOffset, focusNode, focusOffset } =
+            selection;
         if (focusNode && anchorNode) {
           if (anchorNode.isEqualNode(focusNode)) {
-            insertSpanToNodesInRange(anchorNode, anchorOffset, focusOffset);
-          } else {
-            if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-              insertSpanToNodesInRange(anchorNode, 0, anchorOffset);
-              insertSpanToNodesInRange(
-                focusNode,
-                focusOffset,
-                focusNode.textContent?.length || 0
-              );
+              if (anchorOffset < focusOffset)
+                insertSpanAtNode({
+                  styleKey,
+                  styleValue,
+                  node: anchorNode,
+                  startOffset: anchorOffset,
+                  endOffset: focusOffset,
+                });
+              else
+                insertSpanAtNode({
+                  styleKey,
+                  styleValue,
+                  node: anchorNode,
+                  startOffset: focusOffset,
+                  endOffset: anchorOffset,
+                });
             } else {
-              insertSpanToNodesInRange(
-                anchorNode,
-                anchorOffset,
-                anchorNode.textContent?.length
-              );
-              insertSpanToNodesInRange(focusNode, 0, focusOffset);
-            }
+              if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+                insertSpanAtNode({
+                  styleKey,
+                  styleValue,
+                  node: anchorNode,
+                  startOffset: 0,
+                  endOffset: anchorOffset,
+                });
+                insertSpanAtNode({
+                  styleKey,
+                  styleValue,
+                  node: focusNode,
+                  startOffset: focusOffset,
+                  endOffset: focusNode.textContent?.length || 0,
+                });
+              } else {
+                insertSpanAtNode({
+                  styleKey,
+                  styleValue,
+                  node: anchorNode,
+                  startOffset: anchorOffset,
+                  endOffset: anchorNode.textContent?.length || 0,
+                });
+                insertSpanAtNode({
+                  styleKey,
+                  styleValue,
+                  node: focusNode,
+                  startOffset: 0,
+                  endOffset: focusOffset,
+                });
+              }
           }
         }
+          selection?.removeAllRanges();
+        }
+      } //없을 경우
+      else {
       }
     },
-    [insertSpanToNodesInRange]
+    [insertSpanAtNode]
+  );
+  const handleClickButton = useCallback(
+    (e: React.MouseEvent) => {
+      insertSpanAtSelection("color", "red");
+    },
+    [insertSpanAtSelection]
   );
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
