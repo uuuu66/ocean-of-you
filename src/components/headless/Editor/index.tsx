@@ -22,7 +22,19 @@ export default function Editor() {
     }
     return targetRange;
   }, []);
-  const insertSpanAtNode = useCallback(
+  const insertSpanBetweenNodes = useCallback(
+    ({
+      styleKey,
+      styleValue,
+      node,
+      startOffset,
+      endOffset,
+    }: InsertSpanAtNodeArgs) => {
+      if (!node) return null;
+    },
+    []
+  );
+  const insertSpanAtAnchorNodeAndFocusNode = useCallback(
     ({
       styleKey,
       styleValue,
@@ -122,7 +134,7 @@ export default function Editor() {
             //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
             if (anchorNode.isEqualNode(focusNode)) {
               if (anchorOffset < focusOffset)
-                insertSpanAtNode({
+                insertSpanAtAnchorNodeAndFocusNode({
                   styleKey,
                   styleValue,
                   node: anchorNode,
@@ -130,7 +142,7 @@ export default function Editor() {
                   endOffset: focusOffset,
                 });
               else
-                insertSpanAtNode({
+                insertSpanAtAnchorNodeAndFocusNode({
                   styleKey,
                   styleValue,
                   node: anchorNode,
@@ -141,14 +153,14 @@ export default function Editor() {
               //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
               //2 뒤에서 앞으로
               if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-                insertSpanAtNode({
+                insertSpanAtAnchorNodeAndFocusNode({
                   styleKey,
                   styleValue,
                   node: anchorNode,
                   startOffset: 0,
                   endOffset: anchorOffset,
                 });
-                insertSpanAtNode({
+                insertSpanAtAnchorNodeAndFocusNode({
                   styleKey,
                   styleValue,
                   node: focusNode,
@@ -156,14 +168,14 @@ export default function Editor() {
                   endOffset: focusNode.textContent?.length || 0,
                 });
               } else {
-                insertSpanAtNode({
+                insertSpanAtAnchorNodeAndFocusNode({
                   styleKey,
                   styleValue,
                   node: anchorNode,
                   startOffset: anchorOffset,
                   endOffset: anchorNode.textContent?.length || 0,
                 });
-                insertSpanAtNode({
+                insertSpanAtAnchorNodeAndFocusNode({
                   styleKey,
                   styleValue,
                   node: focusNode,
@@ -179,7 +191,7 @@ export default function Editor() {
       else {
       }
     },
-    [insertSpanAtNode]
+    [insertSpanAtAnchorNodeAndFocusNode]
   );
   const handleClickRedButton = useCallback(
     (e: React.MouseEvent) => {
@@ -199,10 +211,12 @@ export default function Editor() {
         const { childNodes } = contentRef.current;
         for (let i = 0; i < childNodes.length; i += 1) {
           const p = document.createElement("p");
+          const span = document.createElement("span");
+          p.appendChild(span);
           if (childNodes[i].nodeType === 3) {
-            p.appendChild(childNodes[i].cloneNode());
+            span.appendChild(childNodes[i].cloneNode());
             contentRef.current.replaceChild(p, childNodes[i]);
-            moveCursorToTargetNode(p);
+            moveCursorToTargetNode(span);
           } else {
             p.remove();
           }
