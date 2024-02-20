@@ -109,6 +109,7 @@ export default function Editor() {
           const { anchorNode, anchorOffset, focusNode, focusOffset } =
             selection;
           if (focusNode && anchorNode) {
+            //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
             if (anchorNode.isEqualNode(focusNode)) {
               if (anchorOffset < focusOffset)
                 insertSpanAtNode({
@@ -127,6 +128,7 @@ export default function Editor() {
                   endOffset: anchorOffset,
                 });
             } else {
+              //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
               if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
                 insertSpanAtNode({
                   styleKey,
