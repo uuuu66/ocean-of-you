@@ -103,13 +103,13 @@ export default function Editor() {
       const selection = window.getSelection();
       //블록이 만들어진 곳이 있을 경우
       if (selection?.rangeCount) {
-      const range = selection?.getRangeAt(0);
-      const clonedRange = range?.cloneRange();
-      if (range && selection && clonedRange) {
+        const range = selection?.getRangeAt(0);
+        const clonedRange = range?.cloneRange();
+        if (range && selection && clonedRange) {
           const { anchorNode, anchorOffset, focusNode, focusOffset } =
             selection;
-        if (focusNode && anchorNode) {
-          if (anchorNode.isEqualNode(focusNode)) {
+          if (focusNode && anchorNode) {
+            if (anchorNode.isEqualNode(focusNode)) {
               if (anchorOffset < focusOffset)
                 insertSpanAtNode({
                   styleKey,
@@ -158,8 +158,8 @@ export default function Editor() {
                   endOffset: focusOffset,
                 });
               }
+            }
           }
-        }
           selection?.removeAllRanges();
         }
       } //없을 경우
@@ -179,13 +179,13 @@ export default function Editor() {
       if (contentRef.current) {
         const { childNodes } = contentRef.current;
         for (let i = 0; i < childNodes.length; i += 1) {
-          const div = document.createElement("div");
+          const p = document.createElement("p");
           if (childNodes[i].nodeType === 3) {
-            div.appendChild(childNodes[i].cloneNode());
-            contentRef.current.replaceChild(div, childNodes[i]);
-            moveCursorToTargetNode(div);
+            p.appendChild(childNodes[i].cloneNode());
+            contentRef.current.replaceChild(p, childNodes[i]);
+            moveCursorToTargetNode(p);
           } else {
-            div.remove();
+            p.remove();
           }
         }
       }
@@ -203,10 +203,7 @@ export default function Editor() {
           ref={contentRef}
           id="editor"
           className="border border-solid border-gray4 h-40 w-40 p-4 whitespace-pre-line"
-        >
-          <div>123456789</div>
-          <div>abcdefghhhj</div>
-        </div>
+        ></div>
       </div>
     </section>
   );
