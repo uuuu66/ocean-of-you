@@ -40,6 +40,7 @@ export default function Editor() {
     }: InsertSpanBetweenNodes) => {
       if (!focusNode || !anchorNode) return null;
       const newRange = new Range();
+
       if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
         newRange.setEndBefore(anchorNode);
         newRange.setStartAfter(focusNode);
@@ -47,10 +48,12 @@ export default function Editor() {
         newRange.setStartAfter(anchorNode);
         newRange.setEndBefore(focusNode);
       }
+
       const clonedContents = newRange.cloneContents();
+      const fragment = document.createDocumentFragment();
 
       for (let i = 0; i < clonedContents.childNodes.length; i += 1) {
-        const node = clonedContents.childNodes[i];
+        const node = clonedContents.childNodes.item(i);
 
         if (!!node) {
           if (!!node.textContent) {
@@ -58,6 +61,7 @@ export default function Editor() {
               case "SPAN":
                 {
                   const range = new Range();
+                  newRange.deleteContents();
                   const newSpan = document.createElement("span");
                   if (styleKey && styleValue)
                     newSpan.style[styleKey as any] = styleValue;
@@ -71,29 +75,20 @@ export default function Editor() {
                 break;
               case "P":
                 {
-                  const { childNodes } = node;
+                  console.log(node);
+                  const range = new Range();
 
-                  for (let i = 0; i < childNodes.length; i += 1) {
-                    const childNode = childNodes[i];
-                    if (childNode.textContent) {
-                      const range = new Range();
-                      const newSpan = document.createElement("span");
-                      if (styleKey && styleValue)
-                        newSpan.style[styleKey as any] = styleValue;
-                      newSpan.appendChild(
-                        document.createTextNode(childNode.textContent || "")
-                      );
+                  if (node.firstChild) range.selectNode(node.firstChild);
 
-                      range.selectNode(childNode);
-                      range.deleteContents();
-                    }
-                  }
+                  range.deleteContents();
                 }
+
                 break;
             }
           }
         }
       }
+      newRange.insertNode(fragment);
     },
     []
   );
@@ -301,6 +296,9 @@ export default function Editor() {
           <p>
             <span>1234567890</span>
           </p>
+          <p>
+            <span>222222222</span>
+          </p>{" "}
           <p>
             <span>222222222</span>
           </p>{" "}
