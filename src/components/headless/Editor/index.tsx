@@ -1,6 +1,6 @@
 import React, { CSSProperties, useCallback, useRef } from "react";
 
-interface InsertSpanAtNodeArgs {
+interface InsertSpanAtAnchorNodeAndFocusNodeArgs {
   styleKey?: keyof CSSStyleDeclaration;
   styleValue?: string;
   spanStyle?: CSSProperties;
@@ -8,32 +8,96 @@ interface InsertSpanAtNodeArgs {
   startOffset: number;
   endOffset: number;
 }
+interface InsertSpanBetweenNodes
+  extends Pick<
+    InsertSpanAtAnchorNodeAndFocusNodeArgs,
+    "styleKey" | "styleValue"
+  > {
+  anchorNode: Node | null;
+  focusNode: Node | null;
+}
 export default function Editor() {
   const contentRef = useRef<HTMLDivElement>(null);
+  //targetNode로 커서를 옮긴다
   const moveCursorToTargetNode = useCallback((targetNode: Node) => {
     const selection = window.getSelection();
     const targetRange = document.createRange();
     targetRange.selectNodeContents(targetNode);
     if (selection) {
       targetRange.collapse(false);
-      // 현재 선택을 제거하고 새로운 선택을 설정합니다.
       selection.removeAllRanges();
       selection.addRange(targetRange);
     }
     return targetRange;
   }, []);
+  //anchorNode와 focusNode 사이의 노드들 가공하는 로직
   const insertSpanBetweenNodes = useCallback(
     ({
+      anchorNode,
+      focusNode,
       styleKey,
       styleValue,
-      node,
-      startOffset,
-      endOffset,
-    }: InsertSpanAtNodeArgs) => {
-      if (!node) return null;
+    }: InsertSpanBetweenNodes) => {
+      if (!focusNode || !anchorNode) return null;
+      const newRange = new Range();
+      if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+        newRange.setEndBefore(anchorNode);
+        newRange.setStartAfter(focusNode);
+      } else {
+        newRange.setStartAfter(anchorNode);
+        newRange.setEndBefore(focusNode);
+      }
+      const clonedContents = newRange.cloneContents();
+
+      for (let i = 0; i < clonedContents.childNodes.length; i += 1) {
+        const node = clonedContents.childNodes[i];
+
+        if (!!node) {
+          if (!!node.textContent) {
+            switch (node.nodeName) {
+              case "SPAN":
+                {
+                  const range = new Range();
+                  const newSpan = document.createElement("span");
+                  if (styleKey && styleValue)
+                    newSpan.style[styleKey as any] = styleValue;
+                  newSpan.appendChild(
+                    document.createTextNode(node.textContent)
+                  );
+                  range.selectNode(node);
+                  range.deleteContents();
+                  range.insertNode(newSpan);
+                }
+                break;
+              case "P":
+                {
+                  const { childNodes } = node;
+
+                  for (let i = 0; i < childNodes.length; i += 1) {
+                    const childNode = childNodes[i];
+                    if (childNode.textContent) {
+                      const range = new Range();
+                      const newSpan = document.createElement("span");
+                      if (styleKey && styleValue)
+                        newSpan.style[styleKey as any] = styleValue;
+                      newSpan.appendChild(
+                        document.createTextNode(childNode.textContent || "")
+                      );
+
+                      range.selectNode(childNode);
+                      range.deleteContents();
+                    }
+                  }
+                }
+                break;
+            }
+          }
+        }
+      }
     },
     []
   );
+  //anchorNode와 focusNode들 가공하는 로직
   const insertSpanAtAnchorNodeAndFocusNode = useCallback(
     ({
       styleKey,
@@ -41,7 +105,7 @@ export default function Editor() {
       node,
       startOffset,
       endOffset,
-    }: InsertSpanAtNodeArgs) => {
+    }: InsertSpanAtAnchorNodeAndFocusNodeArgs) => {
       if (!node) return null;
       if (!node?.parentElement) {
         return null;
@@ -106,7 +170,7 @@ export default function Editor() {
     },
     []
   );
-
+  //선택된 부분에 span을 넣어서 원하는 스타일을 입히는 로직
   const insertSpanAtSelection = useCallback(
     (styleKey?: keyof CSSStyleDeclaration, styleValue?: string) => {
       const selection = window.getSelection();
@@ -119,18 +183,14 @@ export default function Editor() {
             selection;
 
           if (focusNode && anchorNode) {
-            const newRange = new Range();
-            if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-              newRange.setEndBefore(anchorNode);
-              newRange.setStartAfter(focusNode);
-            } else {
-              newRange.setStartAfter(anchorNode);
-              newRange.setEndBefore(focusNode);
-            }
-            const c = newRange.cloneContents();
-            newRange.collapse(true);
-            newRange.insertNode(c);
-            newRange.deleteContents();
+            //anchorNode와 focusNode 사이에 있는 Node들 가공
+            insertSpanBetweenNodes({
+              anchorNode,
+              focusNode,
+              styleKey,
+              styleValue,
+            });
+            //anchorNode와 focusNode들 가공하는 로직
             //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
             if (anchorNode.isEqualNode(focusNode)) {
               if (anchorOffset < focusOffset)
@@ -191,7 +251,7 @@ export default function Editor() {
       else {
       }
     },
-    [insertSpanAtAnchorNodeAndFocusNode]
+    [insertSpanAtAnchorNodeAndFocusNode, insertSpanBetweenNodes]
   );
   const handleClickRedButton = useCallback(
     (e: React.MouseEvent) => {
@@ -237,7 +297,17 @@ export default function Editor() {
           ref={contentRef}
           id="editor"
           className="border border-solid border-gray4 h-40 w-40 p-4 whitespace-pre-line"
-        ></div>
+        >
+          <p>
+            <span>1234567890</span>
+          </p>
+          <p>
+            <span>222222222</span>
+          </p>{" "}
+          <p>
+            <span>33333333</span>
+          </p>
+        </div>
       </div>
     </section>
   );
