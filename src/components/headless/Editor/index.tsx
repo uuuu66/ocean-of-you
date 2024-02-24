@@ -1,3 +1,4 @@
+import { theme } from "@/styles/theme";
 import React, { CSSProperties, useCallback, useRef } from "react";
 
 interface InsertSpanAtAnchorNodeAndFocusNodeArgs {
@@ -110,6 +111,7 @@ export default function Editor() {
       }
       let startNode: Node = anchorNode;
       let endNode: Node = focusNode;
+
       if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
         startNode = focusNode;
         endNode = anchorNode;
@@ -241,6 +243,7 @@ export default function Editor() {
           }
       } else {
       }
+
       removeIdFromChildNodes(containerNode, "P");
     },
     []
@@ -260,25 +263,25 @@ export default function Editor() {
       }
       switch (node?.parentElement?.tagName) {
         //span을 p안에 추가함
-        case "P":
-          {
-            const range = new Range();
-            range.setStart(node, startOffset);
-            range.setEnd(node, endOffset);
-            const clonedContents = range.cloneContents();
-            range.deleteContents();
-            const span = document.createElement("span");
-            span.appendChild(clonedContents);
-            if (
-              styleKey &&
-              styleValue &&
-              styleKey !== "length" &&
-              styleKey !== "parentRule"
-            )
-              span.style[styleKey as any] = styleValue;
-            range.insertNode(span);
-          }
+        case "P": {
+          const range = new Range();
+          range.setStart(node, startOffset);
+          range.setEnd(node, endOffset);
+          const clonedContents = range.cloneContents();
+          range.deleteContents();
+          const span = document.createElement("span");
+          span.appendChild(clonedContents);
+          if (
+            styleKey &&
+            styleValue &&
+            styleKey !== "length" &&
+            styleKey !== "parentRule"
+          )
+            span.style[styleKey as any] = styleValue;
+          range.insertNode(span);
           break;
+        }
+
         //targetNode하나를 잡고 앞뒤로 span을 만듬
         case "SPAN": {
           const ranges = [new Range(), new Range(), new Range()];
@@ -314,7 +317,7 @@ export default function Editor() {
             if (!!followedSpan.textContent) fragment.appendChild(followedSpan);
             node.parentNode.parentNode?.replaceChild(fragment, node.parentNode);
           }
-          break;
+          return node.parentNode;
         }
       }
     },
@@ -344,34 +347,25 @@ export default function Editor() {
               styleValue,
               containerNodeId,
             });
-
+            let startNode = anchorNode;
+            let endNode = focusNode;
+            let startOffset = anchorOffset;
+            let endOffset = focusOffset;
             //anchorNode와 focusNode들 가공하는 로직
             //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
 
             if (anchorNode.isSameNode(focusNode)) {
-              if (anchorOffset < focusOffset)
-                insertSpanIntoNode({
-                  styleKey,
-                  styleValue,
-                  node: anchorNode,
-                  startOffset: anchorOffset,
-                  endOffset: focusOffset,
-                });
-              else
-                insertSpanIntoNode({
-                  styleKey,
-                  styleValue,
-                  node: anchorNode,
-                  startOffset: focusOffset,
-                  endOffset: anchorOffset,
-                });
+              insertSpanIntoNode({
+                styleKey,
+                styleValue,
+                node: anchorNode,
+                startOffset,
+                endOffset,
+              });
             } else {
               //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
               //2 뒤에서 앞으로
-              let startNode = anchorNode;
-              let endNode = focusNode;
-              let startOffset = anchorOffset;
-              let endOffset = focusOffset;
+
               if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
                 startNode = focusNode;
                 endNode = anchorNode;
@@ -394,26 +388,21 @@ export default function Editor() {
               });
             }
           }
-          selection?.removeAllRanges();
         }
-      } //없을 경우
-      else {
+      } else {
       }
+      selection?.removeAllRanges();
     },
     [insertSpanIntoNode, addStyleBetweenNodes]
   );
-  const handleClickRedButton = useCallback(
-    (e: React.MouseEvent) => {
-      addStyleToSelection("color", "red");
+  const handleChangeColorPicker = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (containerRef.current) addStyleToSelection("color", e.target.value);
+      alert("색변경!");
     },
     [addStyleToSelection]
   );
-  const handleClickBlueButton = useCallback(
-    (e: React.MouseEvent) => {
-      addStyleToSelection("color", "blue");
-    },
-    [addStyleToSelection]
-  );
+
   const handleKeyUp = useCallback(
     (e: React.KeyboardEvent) => {
       if (containerRef.current) {
@@ -437,9 +426,12 @@ export default function Editor() {
 
   return (
     <section aria-label="edtior">
-      <button onClick={handleClickRedButton}>red</button>
-      <button onClick={handleClickBlueButton}>blue</button>
-
+      <datalist id="list">
+        {Object.values(theme.colors).map(
+          (color) =>
+            typeof color === "string" && <option key={color}>{color}</option>
+        )}
+      </datalist>
       <div>
         <div
           onKeyUp={handleKeyUp}
@@ -461,7 +453,13 @@ export default function Editor() {
             <span>33333333</span>
           </p>
         </div>
-      </div>
+      </div>{" "}
+      <input
+        type="color"
+        list={"list"}
+        className="w-14"
+        onInput={handleChangeColorPicker}
+      />
     </section>
   );
 }
