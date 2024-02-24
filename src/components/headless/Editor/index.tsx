@@ -138,80 +138,108 @@ export default function Editor() {
       range.deleteContents();
 
       if (clonedContents.hasChildNodes()) {
-        for (let i = 0; i < clonedContents.childNodes.length; i += 1) {
-          const childNode = clonedContents.childNodes.item(i);
-          if (childNode.firstChild) {
-            const id = childNode.firstChild.parentElement?.getAttribute("id");
-            const pElementInDocument = document.getElementById(id || "");
-            const grandChildNodes = childNode.childNodes || [];
-            //부모 p가 anchorNode와 focusNode를 포함할 경우
-            if (pElementInDocument) {
-              //grandChildNode는 p의 자식으로 오는 span들을 말합니다
-              //grandChildNode가 span일 경우 새로 생성한 span에 span의 child를 복사한 후 실제 document에 있는 p에 넣습니다.
-              for (let j = 0; j < grandChildNodes.length; j += 1) {
-                const grandChildNode = grandChildNodes[j];
-                switch (grandChildNode.nodeName) {
-                  case "SPAN":
-                    if (grandChildNode.firstChild?.parentElement) {
-                      const grandChildNodeStyle = window.getComputedStyle(
-                        grandChildNode.firstChild?.parentElement
-                      );
-                      const newSpan = document.createElement("span");
-                      Object.assign(newSpan.style, grandChildNodeStyle);
-                      if (styleKey && styleValue) {
-                        newSpan.style[styleKey as any] = styleValue;
+        //줄바꿈이 없을경우
+        if (firstId === lastId) {
+          const fragment = document.createDocumentFragment();
+          for (let i = 0; i < clonedContents.childNodes.length; i += 1) {
+            const childNode = clonedContents.childNodes.item(i);
+
+            if (childNode.firstChild?.parentElement) {
+              const clonedStyle = window.getComputedStyle(
+                childNode.firstChild?.parentElement
+              );
+              const newSpan = document.createElement("span");
+              Object.assign(newSpan.style, clonedStyle);
+              newSpan.innerHTML = childNode.firstChild?.parentElement.innerHTML;
+              if (styleKey && styleValue)
+                newSpan.style[styleKey as any] = styleValue;
+              fragment.appendChild(newSpan);
+            } else {
+              continue;
+            }
+          }
+
+          range.insertNode(fragment);
+        } //줄바꿈이 있을경우
+        else
+          for (let i = 0; i < clonedContents.childNodes.length; i += 1) {
+            const childNode = clonedContents.childNodes.item(i);
+            if (childNode.firstChild) {
+              const id = childNode.firstChild.parentElement?.getAttribute("id");
+              const pElementInDocument = document.getElementById(id || "");
+              const grandChildNodes = childNode.childNodes || [];
+              //childNode가 startNode 혹은 endNode의 형제 요소일 경우
+              if (pElementInDocument) {
+                //grandChildNode는 p의 자식으로 오는 span들을 말합니다
+                //grandChildNode가 span일 경우 새로 생성한 span에 span의 child를 복사한 후 실제 document에 있는 p에 넣습니다.
+                for (let j = 0; j < grandChildNodes.length; j += 1) {
+                  const grandChildNode = grandChildNodes[j];
+
+                  if (grandChildNode)
+                    switch (grandChildNode.nodeName) {
+                      case "SPAN":
+                        if (grandChildNode.firstChild?.parentElement) {
+                          const grandChildNodeStyle = window.getComputedStyle(
+                            grandChildNode.firstChild?.parentElement
+                          );
+                          const newSpan = document.createElement("span");
+                          Object.assign(newSpan.style, grandChildNodeStyle);
+                          if (styleKey && styleValue) {
+                            newSpan.style[styleKey as any] = styleValue;
+                            newSpan.innerHTML =
+                              grandChildNode.firstChild?.parentElement.innerHTML;
+                            if (id === firstId)
+                              pElementInDocument.appendChild(newSpan);
+                            if (id === lastId) {
+                              pElementInDocument.insertBefore(
+                                newSpan,
+                                pElementInDocument.firstChild
+                              );
+                            }
+                          }
+                        }
+
+                        break;
+                      default:
+                    }
+                  else {
+                  }
+                }
+                //childNode가 startNode 혹은 endNode의 형제 요소가 아닐 경우
+              } else {
+                //grandChildNode는 p의 자식으로 오는 span들을 말합니다
+                //grandChildNode가 span일 경우 새로 생성한 span에 span의 child를 복사한 후  새로 만든  p에 넣습니다.
+                //그 후 실제 document에 존재하는 p 중 lastId를 가지고 있는 p의 before에 추가합니다.
+                const newP = document.createElement("p");
+                for (let j = 0; j < grandChildNodes.length; j += 1) {
+                  const grandChildNode = grandChildNodes[j];
+                  switch (grandChildNode.nodeName) {
+                    case "SPAN":
+                      if (grandChildNode.firstChild?.parentElement) {
+                        const grandChildNodeStyle = window.getComputedStyle(
+                          grandChildNode.firstChild?.parentElement
+                        );
+                        const newSpan = document.createElement("span");
+                        Object.assign(newSpan.style, grandChildNodeStyle);
+                        if (styleKey && styleValue)
+                          newSpan.style[styleKey as any] = styleValue;
                         newSpan.innerHTML =
                           grandChildNode.firstChild?.parentElement.innerHTML;
-                        if (id === firstId)
-                          pElementInDocument.appendChild(newSpan);
-                        if (id === lastId) {
-                          pElementInDocument.insertBefore(
-                            newSpan,
-                            pElementInDocument.firstChild
-                          );
-                        }
+                        newP.appendChild(newSpan);
                       }
-                    }
-
-                    break;
-                  default:
+                  }
+                }
+                const newRange = new Range();
+                const lastP = document.getElementById(lastId);
+                if (lastP) {
+                  newRange.setStartBefore(lastP);
+                  newRange.setEndBefore(lastP);
+                  newRange.insertNode(newP);
                 }
               }
-            } else {
-              //grandChildNode는 p의 자식으로 오는 span들을 말합니다
-              //grandChildNode가 span일 경우 새로 생성한 span에 span의 child를 복사한 후  새로 만든  p에 넣습니다.
-              //그 후 실제 document에 존재하는 p 중 lastId를 가지고 있는 p의 before에 추가합니다.
-              const newP = document.createElement("p");
-              for (let j = 0; j < grandChildNodes.length; j += 1) {
-                const grandChildNode = grandChildNodes[j];
-                switch (grandChildNode.nodeName) {
-                  case "SPAN":
-                    if (grandChildNode.firstChild?.parentElement) {
-                      const grandChildNodeStyle = window.getComputedStyle(
-                        grandChildNode.firstChild?.parentElement
-                      );
-                      const newSpan = document.createElement("span");
-                      Object.assign(newSpan.style, grandChildNodeStyle);
-                      if (styleKey && styleValue)
-                        newSpan.style[styleKey as any] = styleValue;
-                      newSpan.innerHTML =
-                        grandChildNode.firstChild?.parentElement.innerHTML;
-                      newP.appendChild(newSpan);
-                    }
-                }
-              }
-              const newRange = new Range();
-              const lastP = document.getElementById(lastId)!;
-              if (lastP) {
-                newRange.setStartBefore(lastP);
-                newRange.setEndBefore(lastP);
-                newRange.insertNode(newP);
-              }
-            }
-          } else continue;
-        }
+            } else continue;
+          }
       } else {
-        console.error("range is something wrong..");
       }
       removeIdFromChildNodes(containerNode, "P");
     },
