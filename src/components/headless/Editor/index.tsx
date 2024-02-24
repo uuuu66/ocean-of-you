@@ -118,8 +118,14 @@ export default function Editor() {
       range.setEndBefore(endNode);
       //id들을 p node들에 임시적으로 부여하여 어디에 가공한 노드들을 넣을지 기억합니다.
       const ids = addIdToChildNodes(containerNode, "P");
-      const firstId = ids[0];
-
+      let firstId = ids[0];
+      if (startNode.parentElement?.parentElement) {
+        if (startNode.parentElement?.parentElement.nodeName === "P") {
+          firstId = startNode.parentElement?.parentElement.id;
+        }
+      } else if (startNode.parentElement?.nodeName === "P") {
+        firstId = startNode.parentElement.id;
+      }
       let lastId = ids[ids.length - 1];
       if (endNode.parentElement?.parentElement) {
         if (endNode.parentElement?.parentElement.nodeName === "P") {
