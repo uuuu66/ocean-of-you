@@ -34,7 +34,9 @@ export default function Editor() {
           if (childNode.firstChild?.parentElement)
             if (childNode.nodeName === nodeName) {
               const id = `${idPrefix}${i}`;
+
               childNode.firstChild.parentElement.id = id;
+
               ids.push(id);
             }
         }
@@ -114,9 +116,18 @@ export default function Editor() {
       }
       range.setStartAfter(startNode);
       range.setEndBefore(endNode);
+      //id들을 p node들에 임시적으로 부여하여 어디에 가공한 노드들을 넣을지 기억합니다.
       const ids = addIdToChildNodes(containerNode, "P");
       const firstId = ids[0];
-      const lastId = ids[ids.length - 1];
+
+      let lastId = ids[ids.length - 1];
+      if (endNode.parentElement?.parentElement) {
+        if (endNode.parentElement?.parentElement.nodeName === "P") {
+          lastId = endNode.parentElement?.parentElement.id;
+        }
+      } else if (endNode.parentElement?.nodeName === "P") {
+        lastId = endNode.parentElement.id;
+      }
       const clonedContents = range.cloneContents();
       range.deleteContents();
 
@@ -127,23 +138,24 @@ export default function Editor() {
             const id = childNode.firstChild.parentElement?.getAttribute("id");
             const pElementInDocument = document.getElementById(id || "");
             const grandChildNodes = childNode.childNodes || [];
-            for (let j = 0; j < grandChildNodes.length; j += 1) {
-              const grandChildNode = grandChildNodes[j];
-              switch (grandChildNode.nodeName) {
-                case "SPAN":
-                  if (grandChildNode.firstChild?.parentElement) {
-                    const grandChildNodeStyle = window.getComputedStyle(
-                      grandChildNode.firstChild?.parentElement
-                    );
-
-                    const newSpan = document.createElement("span");
-                    Object.assign(newSpan.style, grandChildNodeStyle);
-
-                    if (styleKey && styleValue) {
-                      newSpan.style[styleKey as any] = styleValue;
-                      newSpan.textContent = grandChildNode.textContent;
-                      //anchorNode와 focusNode를 포함하는 p
-                      if (pElementInDocument) {
+            //부모 p가 anchorNode와 focusNode를 포함할 경우
+            if (pElementInDocument) {
+              //grandChildNode는 p의 자식으로 오는 span들을 말합니다
+              //grandChildNode가 span일 경우 새로 생성한 span에 span의 child를 복사한 후 실제 document에 있는 p에 넣습니다.
+              for (let j = 0; j < grandChildNodes.length; j += 1) {
+                const grandChildNode = grandChildNodes[j];
+                switch (grandChildNode.nodeName) {
+                  case "SPAN":
+                    if (grandChildNode.firstChild?.parentElement) {
+                      const grandChildNodeStyle = window.getComputedStyle(
+                        grandChildNode.firstChild?.parentElement
+                      );
+                      const newSpan = document.createElement("span");
+                      Object.assign(newSpan.style, grandChildNodeStyle);
+                      if (styleKey && styleValue) {
+                        newSpan.style[styleKey as any] = styleValue;
+                        newSpan.innerHTML =
+                          grandChildNode.firstChild?.parentElement.innerHTML;
                         if (id === firstId)
                           pElementInDocument.appendChild(newSpan);
                         if (id === lastId) {
@@ -152,13 +164,42 @@ export default function Editor() {
                             pElementInDocument.firstChild
                           );
                         }
-                      } else {
                       }
                     }
-                  }
 
-                  break;
-                default:
+                    break;
+                  default:
+                }
+              }
+            } else {
+              //grandChildNode는 p의 자식으로 오는 span들을 말합니다
+              //grandChildNode가 span일 경우 새로 생성한 span에 span의 child를 복사한 후  새로 만든  p에 넣습니다.
+              //그 후 실제 document에 존재하는 p 중 lastId를 가지고 있는 p의 before에 추가합니다.
+              const newP = document.createElement("p");
+              for (let j = 0; j < grandChildNodes.length; j += 1) {
+                const grandChildNode = grandChildNodes[j];
+                switch (grandChildNode.nodeName) {
+                  case "SPAN":
+                    if (grandChildNode.firstChild?.parentElement) {
+                      const grandChildNodeStyle = window.getComputedStyle(
+                        grandChildNode.firstChild?.parentElement
+                      );
+                      const newSpan = document.createElement("span");
+                      Object.assign(newSpan.style, grandChildNodeStyle);
+                      if (styleKey && styleValue)
+                        newSpan.style[styleKey as any] = styleValue;
+                      newSpan.innerHTML =
+                        grandChildNode.firstChild?.parentElement.innerHTML;
+                      newP.appendChild(newSpan);
+                    }
+                }
+              }
+              const newRange = new Range();
+              const lastP = document.getElementById(lastId)!;
+              if (lastP) {
+                newRange.setStartBefore(lastP);
+                newRange.setEndBefore(lastP);
+                newRange.insertNode(newP);
               }
             }
           } else continue;
@@ -390,3 +431,6 @@ export default function Editor() {
     </section>
   );
 }
+// isSameNode isEqualNode 두개의 동작차이
+// anchorNode와 focusNode를 자르는것은 잘되는 듯
+// p노드들에게 id를 부여한 후 -> clone Content로  자른후 span들에게 style 부여 -> id들에게 다시 넣어준 후 p id 삭제
