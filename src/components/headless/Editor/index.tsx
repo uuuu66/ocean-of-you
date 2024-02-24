@@ -170,8 +170,8 @@ export default function Editor() {
     },
     []
   );
-  //anchorNode와 focusNode들 가공하는 로직
-  const insertSpanAtAnchorNodeAndFocusNode = useCallback(
+  //anchorNode와 focusNode를 가공하는 로직
+  const insertSpanIntoNode = useCallback(
     ({
       styleKey,
       styleValue,
@@ -275,7 +275,7 @@ export default function Editor() {
 
             if (anchorNode.isSameNode(focusNode)) {
               if (anchorOffset < focusOffset)
-                insertSpanAtAnchorNodeAndFocusNode({
+                insertSpanIntoNode({
                   styleKey,
                   styleValue,
                   node: anchorNode,
@@ -283,7 +283,7 @@ export default function Editor() {
                   endOffset: focusOffset,
                 });
               else
-                insertSpanAtAnchorNodeAndFocusNode({
+                insertSpanIntoNode({
                   styleKey,
                   styleValue,
                   node: anchorNode,
@@ -303,14 +303,14 @@ export default function Editor() {
                 startOffset = focusOffset;
                 endOffset = anchorOffset;
               }
-              insertSpanAtAnchorNodeAndFocusNode({
+              insertSpanIntoNode({
                 styleKey,
                 styleValue,
                 node: startNode,
                 startOffset,
                 endOffset: startNode.textContent?.length || 0,
               });
-              insertSpanAtAnchorNodeAndFocusNode({
+              insertSpanIntoNode({
                 styleKey,
                 styleValue,
                 node: endNode,
@@ -325,7 +325,7 @@ export default function Editor() {
       else {
       }
     },
-    [insertSpanAtAnchorNodeAndFocusNode, addStyleBetweenNodes]
+    [insertSpanIntoNode, addStyleBetweenNodes]
   );
   const handleClickRedButton = useCallback(
     (e: React.MouseEvent) => {
@@ -339,7 +339,7 @@ export default function Editor() {
     },
     [addStyleToSelection]
   );
-  const handleKeyDown = useCallback(
+  const handleKeyUp = useCallback(
     (e: React.KeyboardEvent) => {
       if (containerRef.current) {
         const { childNodes } = containerRef.current;
@@ -367,7 +367,7 @@ export default function Editor() {
 
       <div>
         <div
-          onKeyUp={handleKeyDown}
+          onKeyUp={handleKeyUp}
           contentEditable
           ref={containerRef}
           id="m-editor-div-element"
