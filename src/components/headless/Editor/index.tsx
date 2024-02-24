@@ -207,37 +207,30 @@ export default function Editor() {
             } else {
               //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
               //2 뒤에서 앞으로
+              let startNode = anchorNode;
+              let endNode = focusNode;
+              let startOffset = anchorOffset;
+              let endOffset = focusOffset;
               if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-                insertSpanAtAnchorNodeAndFocusNode({
-                  styleKey,
-                  styleValue,
-                  node: anchorNode,
-                  startOffset: 0,
-                  endOffset: anchorOffset,
-                });
-                insertSpanAtAnchorNodeAndFocusNode({
-                  styleKey,
-                  styleValue,
-                  node: focusNode,
-                  startOffset: focusOffset,
-                  endOffset: focusNode.textContent?.length || 0,
-                });
-              } else {
-                insertSpanAtAnchorNodeAndFocusNode({
-                  styleKey,
-                  styleValue,
-                  node: anchorNode,
-                  startOffset: anchorOffset,
-                  endOffset: anchorNode.textContent?.length || 0,
-                });
-                insertSpanAtAnchorNodeAndFocusNode({
-                  styleKey,
-                  styleValue,
-                  node: focusNode,
-                  startOffset: 0,
-                  endOffset: focusOffset,
-                });
+                startNode = focusNode;
+                endNode = anchorNode;
+                startOffset = focusOffset;
+                endOffset = anchorOffset;
               }
+              insertSpanAtAnchorNodeAndFocusNode({
+                styleKey,
+                styleValue,
+                node: startNode,
+                startOffset,
+                endOffset: startNode.textContent?.length || 0,
+              });
+              insertSpanAtAnchorNodeAndFocusNode({
+                styleKey,
+                styleValue,
+                node: endNode,
+                startOffset: 0,
+                endOffset: endOffset,
+              });
             }
           }
           selection?.removeAllRanges();
