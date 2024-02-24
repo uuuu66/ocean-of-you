@@ -74,7 +74,7 @@ export default function Editor() {
   }, []);
 
   //anchorNode와 focusNode 사이의 노드들 가공하는 로직
-  const insertSpanBetweenNodes = useCallback(
+  const addStyleBetweenNodes = useCallback(
     ({
       selection,
       styleKey,
@@ -263,7 +263,7 @@ export default function Editor() {
 
           if (focusNode && anchorNode) {
             // //anchorNode와 focusNode 사이에 있는 Node들 가공
-            insertSpanBetweenNodes({
+            addStyleBetweenNodes({
               selection,
               styleKey,
               styleValue,
@@ -325,7 +325,7 @@ export default function Editor() {
       else {
       }
     },
-    [insertSpanAtAnchorNodeAndFocusNode, insertSpanBetweenNodes]
+    [insertSpanAtAnchorNodeAndFocusNode, addStyleBetweenNodes]
   );
   const handleClickRedButton = useCallback(
     (e: React.MouseEvent) => {
