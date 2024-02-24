@@ -18,6 +18,47 @@ interface InsertSpanBetweenNodes
 }
 export default function Editor() {
   const contentRef = useRef<HTMLDivElement>(null);
+  const addIdToChildNodes = (
+    targetElement: HTMLElement,
+    nodeName: string,
+    idPrefix: string = "m-editor-"
+  ) => {
+    const { childNodes } = targetElement;
+    const ids = [];
+    if (targetElement.hasChildNodes()) {
+      for (let i = 0; i < childNodes.length; i += 1) {
+        const childNode = childNodes.item(i);
+
+        if (childNode.nodeName === nodeName) {
+          if (childNode.firstChild?.parentElement)
+            if (childNode.nodeName === nodeName) {
+              const id = `${idPrefix}${i}`;
+              childNode.firstChild.parentElement.id = id;
+              ids.push(id);
+            }
+        }
+      }
+    }
+    return ids;
+  };
+  //id 를 childnode들에게서 제거
+  const removeIdFromChildNodes = (
+    targetElement: HTMLElement,
+    nodeName: string
+  ) => {
+    const { childNodes } = targetElement;
+    if (targetElement.hasChildNodes()) {
+      for (let i = 0; i < childNodes.length; i += 1) {
+        const childNode = childNodes.item(i);
+
+        if (childNode.nodeName === nodeName) {
+          if (childNode.firstChild?.parentElement)
+            if (childNode.nodeName === nodeName)
+              childNode.firstChild.parentElement.removeAttribute("id");
+        }
+      }
+    }
+  };
   //targetNode로 커서를 옮긴다
   const moveCursorToTargetNode = useCallback((targetNode: Node) => {
     const selection = window.getSelection();
