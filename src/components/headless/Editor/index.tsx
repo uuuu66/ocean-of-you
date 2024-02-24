@@ -187,7 +187,7 @@ export default function Editor() {
             });
             //anchorNode와 focusNode들 가공하는 로직
             //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
-            if (anchorNode.isEqualNode(focusNode)) {
+            if (anchorNode.isSameNode(focusNode)) {
               if (anchorOffset < focusOffset)
                 insertSpanAtAnchorNodeAndFocusNode({
                   styleKey,
