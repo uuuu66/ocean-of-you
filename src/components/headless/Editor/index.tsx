@@ -1,7 +1,8 @@
 import { theme } from "@/styles/theme";
-import React, { CSSProperties, useCallback, useRef } from "react";
+import React, { CSSProperties, useCallback, useRef, useState } from "react";
 import addStyleToSelection from "./addStyleToSelection";
-
+export type TagName = "span" | "strong" | "em";
+export type NodeName = Uppercase<TagName>;
 export default function Editor() {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -17,7 +18,7 @@ export default function Editor() {
     }
     return targetRange;
   }, []);
-
+  const [tagName, setTagName] = useState<TagName>("span");
   const handleChangeColorPicker = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (containerRef.current)
@@ -25,10 +26,11 @@ export default function Editor() {
           styleKey: "color",
           styleValue: e.target.value,
           containerRef: containerRef,
+          tagName,
         });
       alert("색변경!");
     },
-    []
+    [tagName]
   );
 
   const handleKeyUp = useCallback(
@@ -60,6 +62,18 @@ export default function Editor() {
             typeof color === "string" && <option key={color}>{color}</option>
         )}
       </datalist>
+      <datalist id="select"></datalist>
+      <select
+        value={tagName}
+        onChange={(e) => {
+          setTagName(e.target.value as TagName);
+        }}
+      >
+        <option>span</option>
+        <option>strong</option>
+        <option>em</option>
+      </select>
+      넣을 노드 {tagName}
       <div>
         <div
           onKeyUp={handleKeyUp}

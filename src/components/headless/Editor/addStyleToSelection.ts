@@ -1,4 +1,5 @@
 import { CSSProperties } from "react";
+import { NodeName, TagName } from ".";
 
 interface CommonArgs {
   styleKey?: keyof CSSStyleDeclaration;
@@ -9,21 +10,24 @@ interface CommonArgs {
   endOffset: number;
   containerNodeId?: string;
   containerRef?: React.RefObject<HTMLDivElement>;
+  tagName?: TagName;
 }
-interface InsertSpanIntoNodesArgs
+interface InsertTagIntoNodesArgs
   extends Pick<
     CommonArgs,
-    "styleKey" | "styleValue" | "node" | "startOffset" | "endOffset"
-  > {}
+    "styleKey" | "styleValue" | "node" | "startOffset" | "endOffset" | "tagName"
+  > {
+  isEndNode?: boolean;
+}
 interface AddStyleToSelectionArgs
   extends Pick<
     CommonArgs,
-    "styleKey" | "styleValue" | "containerNodeId" | "containerRef"
+    "styleKey" | "styleValue" | "containerNodeId" | "containerRef" | "tagName"
   > {}
 interface AddStyleToBetweenNodesArgs
   extends Pick<
     CommonArgs,
-    "styleKey" | "styleValue" | "containerNodeId" | "containerRef"
+    "styleKey" | "styleValue" | "containerNodeId" | "containerRef" | "tagName"
   > {
   selection: Selection;
 }
@@ -78,6 +82,7 @@ export const addStyleBetweenNodes = ({
   styleValue,
   containerNodeId,
   containerRef,
+  tagName = "span",
 }: AddStyleToBetweenNodesArgs) => {
   let containerNode: HTMLElement | null = null;
   if (containerNodeId) {
@@ -145,12 +150,12 @@ export const addStyleBetweenNodes = ({
           const clonedStyle = window.getComputedStyle(
             childNode.firstChild?.parentElement
           );
-          const newSpan = document.createElement("span");
-          Object.assign(newSpan.style, clonedStyle);
-          newSpan.innerHTML = childNode.firstChild?.parentElement.innerHTML;
+          const newNode = document.createElement(tagName);
+          Object.assign(newNode.style, clonedStyle);
+          newNode.innerHTML = childNode.firstChild?.parentElement.innerHTML;
           if (styleKey && styleValue)
-            newSpan.style[styleKey as any] = styleValue;
-          fragment.appendChild(newSpan);
+            newNode.style[styleKey as any] = styleValue;
+          fragment.appendChild(newNode);
         } else {
           continue;
         }
@@ -167,29 +172,32 @@ export const addStyleBetweenNodes = ({
           const grandChildNodes = childNode.childNodes || [];
           //childNode가 startNode 혹은 endNode의 형제 요소일 경우
           if (pElementInDocument) {
-            //grandChildNode는 p의 자식으로 오는 span들을 말합니다
-            //grandChildNode가 span일 경우 새로 생성한 span에 span의 child를 복사한 후 실제 document에 있는 p에 넣습니다.
+            //grandChildNode는 p의 자식으로 오는 tag들을 말합니다
+            //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
             for (let j = 0; j < grandChildNodes.length; j += 1) {
               const grandChildNode = grandChildNodes[j];
 
               if (grandChildNode)
-                switch (grandChildNode.nodeName) {
+                switch (grandChildNode.nodeName as NodeName) {
+                  case "EM":
+                  case "STRONG":
                   case "SPAN":
                     if (grandChildNode.firstChild?.parentElement) {
                       const grandChildNodeStyle = window.getComputedStyle(
                         grandChildNode.firstChild?.parentElement
                       );
-                      const newSpan = document.createElement("span");
-                      Object.assign(newSpan.style, grandChildNodeStyle);
+
+                      const newTag = document.createElement(tagName);
+                      Object.assign(newTag.style, grandChildNodeStyle);
                       if (styleKey && styleValue) {
-                        newSpan.style[styleKey as any] = styleValue;
-                        newSpan.innerHTML =
+                        newTag.style[styleKey as any] = styleValue;
+                        newTag.innerHTML =
                           grandChildNode.firstChild?.parentElement.innerHTML;
                         if (id === firstId)
-                          pElementInDocument.appendChild(newSpan);
+                          pElementInDocument.appendChild(newTag);
                         if (id === lastId) {
                           pElementInDocument.insertBefore(
-                            newSpan,
+                            newTag,
                             pElementInDocument.firstChild
                           );
                         }
@@ -204,25 +212,28 @@ export const addStyleBetweenNodes = ({
             }
             //childNode가 startNode 혹은 endNode의 형제 요소가 아닐 경우
           } else {
-            //grandChildNode는 p의 자식으로 오는 span들을 말합니다
-            //grandChildNode가 span일 경우 새로 생성한 span에 span의 child를 복사한 후  새로 만든  p에 넣습니다.
+            //grandChildNode는 p의 자식으로 오는 node들을 말합니다
+            //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
             //그 후 실제 document에 존재하는 p 중 lastId를 가지고 있는 p의 before에 추가합니다.
             const newP = document.createElement("p");
             for (let j = 0; j < grandChildNodes.length; j += 1) {
               const grandChildNode = grandChildNodes[j];
-              switch (grandChildNode.nodeName) {
+              switch (grandChildNode.nodeName as NodeName) {
+                case "STRONG":
+                case "EM":
                 case "SPAN":
                   if (grandChildNode.firstChild?.parentElement) {
                     const grandChildNodeStyle = window.getComputedStyle(
                       grandChildNode.firstChild?.parentElement
                     );
-                    const newSpan = document.createElement("span");
-                    Object.assign(newSpan.style, grandChildNodeStyle);
+
+                    const newNode = document.createElement(tagName);
+                    Object.assign(newNode.style, grandChildNodeStyle);
                     if (styleKey && styleValue)
-                      newSpan.style[styleKey as any] = styleValue;
-                    newSpan.innerHTML =
+                      newNode.style[styleKey as any] = styleValue;
+                    newNode.innerHTML =
                       grandChildNode.firstChild?.parentElement.innerHTML;
-                    newP.appendChild(newSpan);
+                    newP.appendChild(newNode);
                   }
               }
             }
@@ -242,26 +253,29 @@ export const addStyleBetweenNodes = ({
   removeIdFromChildNodes(containerNode, "P");
 };
 //anchorNode와 focusNode를 가공하는 로직
-export const insertSpanIntoNode = ({
+export const insertTagIntoNode = ({
   styleKey,
   styleValue,
   node,
   startOffset,
   endOffset,
-}: InsertSpanIntoNodesArgs) => {
+  tagName = "span",
+  isEndNode,
+}: InsertTagIntoNodesArgs) => {
   if (!node) return null;
   if (!node?.parentElement) {
     return null;
   }
   switch (node?.parentElement?.tagName) {
-    //span을 p안에 추가함
+    //tag를 p안에 추가함
+    case "DIV":
     case "P": {
       const range = new Range();
       range.setStart(node, startOffset);
       range.setEnd(node, endOffset);
       const clonedContents = range.cloneContents();
       range.deleteContents();
-      const span = document.createElement("span");
+      const span = document.createElement(tagName);
       span.appendChild(clonedContents);
       if (
         styleKey &&
@@ -274,7 +288,9 @@ export const insertSpanIntoNode = ({
       break;
     }
 
-    //targetNode하나를 잡고 앞뒤로 span을 만듬
+    //targetNode하나를 잡고 앞뒤로 node을 만듬
+    case "I":
+    case "STRONG":
     case "SPAN": {
       const ranges = [new Range(), new Range(), new Range()];
       ranges[0].setStart(node, 0);
@@ -288,9 +304,13 @@ export const insertSpanIntoNode = ({
         const precededContent = ranges[0].cloneContents();
         const selectedContent = ranges[1].cloneContents();
         const followedContent = ranges[2].cloneContents();
-        const precededSpan = document.createElement("span");
-        const selectedSpan = document.createElement("span");
-        const followedSpan = document.createElement("span");
+        const precededSpan = document.createElement(
+          isEndNode ? tagName : node?.parentElement?.tagName.toLowerCase()
+        );
+        const selectedSpan = document.createElement(tagName);
+        const followedSpan = document.createElement(
+          isEndNode ? node?.parentElement?.tagName.toLowerCase() : tagName
+        );
         precededSpan.textContent = "";
         followedSpan.textContent = "";
         precededSpan.appendChild(precededContent);
@@ -313,12 +333,13 @@ export const insertSpanIntoNode = ({
     }
   }
 };
-//선택된 부분에 span을 넣어서 원하는 스타일을 입히는 로직
+//선택된 부분에 node를 넣어서 원하는 스타일을 입히는 로직
 const addStyleToSelection = ({
   styleKey,
   styleValue,
   containerNodeId,
   containerRef,
+  tagName,
 }: AddStyleToSelectionArgs) => {
   const selection = window.getSelection();
   //블록이 만들어진 곳이 있을 경우
@@ -345,12 +366,13 @@ const addStyleToSelection = ({
         //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
 
         if (anchorNode.isSameNode(focusNode)) {
-          insertSpanIntoNode({
+          insertTagIntoNode({
             styleKey,
             styleValue,
             node: anchorNode,
             startOffset,
             endOffset,
+            tagName,
           });
         } else {
           //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
@@ -362,19 +384,23 @@ const addStyleToSelection = ({
             startOffset = focusOffset;
             endOffset = anchorOffset;
           }
-          insertSpanIntoNode({
+          insertTagIntoNode({
             styleKey,
             styleValue,
             node: startNode,
             startOffset,
             endOffset: startNode.textContent?.length || 0,
+            tagName,
+            isEndNode: false,
           });
-          insertSpanIntoNode({
+          insertTagIntoNode({
             styleKey,
             styleValue,
             node: endNode,
             startOffset: 0,
             endOffset: endOffset,
+            tagName,
+            isEndNode: true,
           });
         }
       }
