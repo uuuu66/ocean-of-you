@@ -83,7 +83,9 @@ export default function Editor() {
           className="border border-solid border-gray4 h-40 w-40 p-4 whitespace-pre-line"
         >
           <p>
-            <span>1234567890</span>
+            <span>
+              <strong>1234</strong>567890
+            </span>
           </p>
           <p>
             <span>222222222</span>

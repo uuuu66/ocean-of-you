@@ -150,7 +150,7 @@ export const addStyleBetweenNodes = ({
           const clonedStyle = window.getComputedStyle(
             childNode.firstChild?.parentElement
           );
-          const newNode = document.createElement(tagName);
+          const newNode = document.createElement("span");
           Object.assign(newNode.style, clonedStyle);
           newNode.innerHTML = childNode.firstChild?.parentElement.innerHTML;
           if (styleKey && styleValue)
@@ -187,7 +187,7 @@ export const addStyleBetweenNodes = ({
                         grandChildNode.firstChild?.parentElement
                       );
 
-                      const newTag = document.createElement(tagName);
+                      const newTag = document.createElement("span");
                       Object.assign(newTag.style, grandChildNodeStyle);
                       if (styleKey && styleValue) {
                         newTag.style[styleKey as any] = styleValue;
@@ -227,7 +227,7 @@ export const addStyleBetweenNodes = ({
                       grandChildNode.firstChild?.parentElement
                     );
 
-                    const newNode = document.createElement(tagName);
+                    const newNode = document.createElement("span");
                     Object.assign(newNode.style, grandChildNodeStyle);
                     if (styleKey && styleValue)
                       newNode.style[styleKey as any] = styleValue;
@@ -304,13 +304,9 @@ export const insertTagIntoNode = ({
         const precededContent = ranges[0].cloneContents();
         const selectedContent = ranges[1].cloneContents();
         const followedContent = ranges[2].cloneContents();
-        const precededSpan = document.createElement(
-          isEndNode ? tagName : node?.parentElement?.tagName.toLowerCase()
-        );
-        const selectedSpan = document.createElement(tagName);
-        const followedSpan = document.createElement(
-          isEndNode ? node?.parentElement?.tagName.toLowerCase() : tagName
-        );
+        const precededSpan = document.createElement("span");
+        const selectedSpan = document.createElement("span");
+        const followedSpan = document.createElement("span");
         precededSpan.textContent = "";
         followedSpan.textContent = "";
         precededSpan.appendChild(precededContent);
