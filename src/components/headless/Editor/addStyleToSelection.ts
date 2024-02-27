@@ -168,10 +168,12 @@ export const addStyleBetweenNodes = ({
         const childNode = clonedContents.childNodes.item(i);
         if (childNode.firstChild) {
           const id = childNode.firstChild.parentElement?.getAttribute("id");
-          const pElementInDocument = document.getElementById(id || "");
+          const siblingOfAnchorNodeOrFocusNode = document.getElementById(
+            id || ""
+          );
           const grandChildNodes = childNode.childNodes || [];
           //childNode가 startNode 혹은 endNode의 형제 요소일 경우
-          if (pElementInDocument) {
+          if (siblingOfAnchorNodeOrFocusNode) {
             //grandChildNode는 p의 자식으로 오는 tag들을 말합니다
             //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
             for (let j = 0; j < grandChildNodes.length; j += 1) {
@@ -179,9 +181,7 @@ export const addStyleBetweenNodes = ({
 
               if (grandChildNode)
                 switch (grandChildNode.nodeName as NodeName) {
-                  case "EM":
-                  case "STRONG":
-                  case "SPAN":
+                  default:
                     if (grandChildNode.firstChild?.parentElement) {
                       const grandChildNodeStyle = window.getComputedStyle(
                         grandChildNode.firstChild?.parentElement
@@ -194,18 +194,16 @@ export const addStyleBetweenNodes = ({
                         newTag.innerHTML =
                           grandChildNode.firstChild?.parentElement.innerHTML;
                         if (id === firstId)
-                          pElementInDocument.appendChild(newTag);
+                          siblingOfAnchorNodeOrFocusNode.appendChild(newTag);
                         if (id === lastId) {
-                          pElementInDocument.insertBefore(
+                          siblingOfAnchorNodeOrFocusNode.insertBefore(
                             newTag,
-                            pElementInDocument.firstChild
+                            siblingOfAnchorNodeOrFocusNode.firstChild
                           );
                         }
                       }
                     }
-
                     break;
-                  default:
                 }
               else {
               }
@@ -289,9 +287,7 @@ export const insertTagIntoNode = ({
     }
 
     //targetNode하나를 잡고 앞뒤로 node을 만듬
-    case "I":
-    case "STRONG":
-    case "SPAN": {
+    default: {
       const ranges = [new Range(), new Range(), new Range()];
       ranges[0].setStart(node, 0);
       ranges[0].setEnd(node, startOffset);
@@ -307,6 +303,7 @@ export const insertTagIntoNode = ({
         const precededSpan = document.createElement("span");
         const selectedSpan = document.createElement("span");
         const followedSpan = document.createElement("span");
+
         precededSpan.textContent = "";
         followedSpan.textContent = "";
         precededSpan.appendChild(precededContent);

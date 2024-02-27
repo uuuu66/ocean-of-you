@@ -18,7 +18,6 @@ export default function Editor() {
     }
     return targetRange;
   }, []);
-  const [tagName, setTagName] = useState<TagName>("span");
   const handleChangeColorPicker = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (containerRef.current)
@@ -26,11 +25,11 @@ export default function Editor() {
           styleKey: "color",
           styleValue: e.target.value,
           containerRef: containerRef,
-          tagName,
+          tagName: "span",
         });
       alert("색변경!");
     },
-    [tagName]
+    []
   );
 
   const handleKeyUp = useCallback(
@@ -63,17 +62,6 @@ export default function Editor() {
         )}
       </datalist>
       <datalist id="select"></datalist>
-      <select
-        value={tagName}
-        onChange={(e) => {
-          setTagName(e.target.value as TagName);
-        }}
-      >
-        <option>span</option>
-        <option>strong</option>
-        <option>em</option>
-      </select>
-      넣을 노드 {tagName}
       <div>
         <div
           onKeyUp={handleKeyUp}
@@ -83,7 +71,8 @@ export default function Editor() {
           className="border border-solid border-gray4 h-40 w-40 p-4 whitespace-pre-line"
         >
           <p>
-            <span>1234567890</span>
+            <span>12</span>
+            <span>=4567890</span>
           </p>
           <p>
             <span>222222222</span>
@@ -108,3 +97,4 @@ export default function Editor() {
 // isSameNode isEqualNode 두개의 동작차이
 // anchorNode와 focusNode를 자르는것은 잘되는 듯
 // p노드들에게 id를 부여한 후 -> clone Content로  자른후 span들에게 style 부여 -> id들에게 다시 넣어준 후 p id 삭제
+// style별로 classname을 부여한 후 다시 가공해야 할듯
