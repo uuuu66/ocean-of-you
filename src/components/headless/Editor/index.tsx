@@ -1,23 +1,12 @@
 import { theme } from "@/styles/theme";
 import React, { CSSProperties, useCallback, useRef, useState } from "react";
 import addStyleToSelection from "./addStyleToSelection";
+import { handleEditorKeyUp } from "@/components/headless/Editor/keyboardEvents";
 export type TagName = "span" | "strong" | "em";
 export type NodeName = Uppercase<TagName>;
 export default function Editor() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  //targetNode로 커서를 옮긴다
-  const moveCursorToTargetNode = useCallback((targetNode: Node) => {
-    const selection = window.getSelection();
-    const targetRange = document.createRange();
-    targetRange.selectNodeContents(targetNode);
-    if (selection) {
-      targetRange.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(targetRange);
-    }
-    return targetRange;
-  }, []);
   const handleChangeColorPicker = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (containerRef.current)
@@ -32,27 +21,6 @@ export default function Editor() {
     []
   );
 
-  const handleKeyUp = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (containerRef.current) {
-        const { childNodes } = containerRef.current;
-        for (let i = 0; i < childNodes.length; i += 1) {
-          const p = document.createElement("p");
-          const span = document.createElement("span");
-          p.appendChild(span);
-          if (childNodes[i].nodeType === 3) {
-            span.appendChild(childNodes[i].cloneNode());
-            containerRef.current.replaceChild(p, childNodes[i]);
-            moveCursorToTargetNode(span);
-          } else {
-            p.remove();
-          }
-        }
-      }
-    },
-    [moveCursorToTargetNode]
-  );
-
   return (
     <section aria-label="edtior">
       <datalist id="list">
@@ -64,18 +32,19 @@ export default function Editor() {
       <datalist id="select"></datalist>
       <div>
         <div
-          onKeyUp={handleKeyUp}
+          onKeyDown={() => {}}
+          onKeyUp={(e) => handleEditorKeyUp(e, containerRef.current)}
           contentEditable
           ref={containerRef}
           id="m-editor-div-element"
-          className="border border-solid border-gray4 h-40 w-40 p-4 whitespace-pre-line"
+          className="border border-solid border-gray4  w-full h-full p-4 whitespace-pre-line"
         >
           <p>
             <span>12</span>
-            <span>=4567890</span>
+            <a href="www.naver.com">=4567890</a>
           </p>
           <p>
-            <span>222222222</span>
+            <span>222해보자해보자222</span>
           </p>{" "}
           <p>
             <span>222222222</span>
@@ -97,4 +66,4 @@ export default function Editor() {
 // isSameNode isEqualNode 두개의 동작차이
 // anchorNode와 focusNode를 자르는것은 잘되는 듯
 // p노드들에게 id를 부여한 후 -> clone Content로  자른후 span들에게 style 부여 -> id들에게 다시 넣어준 후 p id 삭제
-// style별로 classname을 부여한 후 다시 가공해야 할듯
+// 복붙할경우 => span으로 바꾸기 마크들  style별로 classname을 부여한 후 다시 가공해야 할듯

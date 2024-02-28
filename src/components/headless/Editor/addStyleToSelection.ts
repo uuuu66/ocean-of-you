@@ -268,6 +268,7 @@ export const insertTagIntoNode = ({
     //tag를 p안에 추가함
     case "DIV":
     case "P": {
+      console.log("hi");
       const range = new Range();
       range.setStart(node, startOffset);
       range.setEnd(node, endOffset);
