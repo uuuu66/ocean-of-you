@@ -1,7 +1,7 @@
 import { theme } from "@/styles/theme";
 import React, { CSSProperties, useCallback, useRef, useState } from "react";
 import addStyleToSelection from "./addStyleToSelection";
-import { handleEditorKeyUp } from "@/components/headless/Editor/keyboardEvents";
+import { handleEditorKeyUp } from "@/components/headless/Editor/eventHandlers";
 export type TagName = "span" | "strong" | "em";
 export type NodeName = Uppercase<TagName>;
 export default function Editor() {
