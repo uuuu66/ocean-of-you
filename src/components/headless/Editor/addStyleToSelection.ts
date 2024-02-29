@@ -150,7 +150,7 @@ export const addStyleBetweenNodes = ({
           const clonedStyle = window.getComputedStyle(
             childNode.firstChild?.parentElement
           );
-          const newNode = document.createElement(tagName);
+          const newNode = document.createElement("span");
           Object.assign(newNode.style, clonedStyle);
           newNode.innerHTML = childNode.firstChild?.parentElement.innerHTML;
           if (styleKey && styleValue)
@@ -168,10 +168,12 @@ export const addStyleBetweenNodes = ({
         const childNode = clonedContents.childNodes.item(i);
         if (childNode.firstChild) {
           const id = childNode.firstChild.parentElement?.getAttribute("id");
-          const pElementInDocument = document.getElementById(id || "");
+          const siblingOfAnchorNodeOrFocusNode = document.getElementById(
+            id || ""
+          );
           const grandChildNodes = childNode.childNodes || [];
           //childNode가 startNode 혹은 endNode의 형제 요소일 경우
-          if (pElementInDocument) {
+          if (siblingOfAnchorNodeOrFocusNode) {
             //grandChildNode는 p의 자식으로 오는 tag들을 말합니다
             //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
             for (let j = 0; j < grandChildNodes.length; j += 1) {
@@ -179,33 +181,29 @@ export const addStyleBetweenNodes = ({
 
               if (grandChildNode)
                 switch (grandChildNode.nodeName as NodeName) {
-                  case "EM":
-                  case "STRONG":
-                  case "SPAN":
+                  default:
                     if (grandChildNode.firstChild?.parentElement) {
                       const grandChildNodeStyle = window.getComputedStyle(
                         grandChildNode.firstChild?.parentElement
                       );
 
-                      const newTag = document.createElement(tagName);
+                      const newTag = document.createElement("span");
                       Object.assign(newTag.style, grandChildNodeStyle);
                       if (styleKey && styleValue) {
                         newTag.style[styleKey as any] = styleValue;
                         newTag.innerHTML =
                           grandChildNode.firstChild?.parentElement.innerHTML;
                         if (id === firstId)
-                          pElementInDocument.appendChild(newTag);
+                          siblingOfAnchorNodeOrFocusNode.appendChild(newTag);
                         if (id === lastId) {
-                          pElementInDocument.insertBefore(
+                          siblingOfAnchorNodeOrFocusNode.insertBefore(
                             newTag,
-                            pElementInDocument.firstChild
+                            siblingOfAnchorNodeOrFocusNode.firstChild
                           );
                         }
                       }
                     }
-
                     break;
-                  default:
                 }
               else {
               }
@@ -227,7 +225,7 @@ export const addStyleBetweenNodes = ({
                       grandChildNode.firstChild?.parentElement
                     );
 
-                    const newNode = document.createElement(tagName);
+                    const newNode = document.createElement("span");
                     Object.assign(newNode.style, grandChildNodeStyle);
                     if (styleKey && styleValue)
                       newNode.style[styleKey as any] = styleValue;
@@ -270,6 +268,7 @@ export const insertTagIntoNode = ({
     //tag를 p안에 추가함
     case "DIV":
     case "P": {
+      console.log("hi");
       const range = new Range();
       range.setStart(node, startOffset);
       range.setEnd(node, endOffset);
@@ -289,9 +288,7 @@ export const insertTagIntoNode = ({
     }
 
     //targetNode하나를 잡고 앞뒤로 node을 만듬
-    case "I":
-    case "STRONG":
-    case "SPAN": {
+    default: {
       const ranges = [new Range(), new Range(), new Range()];
       ranges[0].setStart(node, 0);
       ranges[0].setEnd(node, startOffset);
@@ -304,13 +301,10 @@ export const insertTagIntoNode = ({
         const precededContent = ranges[0].cloneContents();
         const selectedContent = ranges[1].cloneContents();
         const followedContent = ranges[2].cloneContents();
-        const precededSpan = document.createElement(
-          isEndNode ? tagName : node?.parentElement?.tagName.toLowerCase()
-        );
-        const selectedSpan = document.createElement(tagName);
-        const followedSpan = document.createElement(
-          isEndNode ? node?.parentElement?.tagName.toLowerCase() : tagName
-        );
+        const precededSpan = document.createElement("span");
+        const selectedSpan = document.createElement("span");
+        const followedSpan = document.createElement("span");
+
         precededSpan.textContent = "";
         followedSpan.textContent = "";
         precededSpan.appendChild(precededContent);
