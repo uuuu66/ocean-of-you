@@ -16,7 +16,7 @@ export const transformNodeStructure = (element?: EventTarget & Element) => {
   const fragment = document.createDocumentFragment();
   if (!element) {
     console.error("no editor");
-    return;
+    return fragment;
   }
 
   const { childNodes } = element;
@@ -24,44 +24,27 @@ export const transformNodeStructure = (element?: EventTarget & Element) => {
   const childNodesLength = childNodes.length;
   for (let i = 0; i < childNodesLength; i += 1) {
     const childNode = childNodes.item(i);
-    const p = document.createElement("p");
-    p.appendChild(processNodeBasedOnCriteria(childNode));
-    fragment.appendChild(p);
-    element.appendChild(fragment);
-    element.removeChild(childNode);
+    const fragment = document.createDocumentFragment();
+    const node = processNodeBasedOnCriteria(childNode);
+
+    fragment.appendChild(node);
   }
+  return fragment;
 };
 
 const processNodeBasedOnCriteria = (node: Node) => {
   const { nodeName } = node;
   const fragment = document.createDocumentFragment();
+
   switch (nodeName) {
-    case "P":
-      if (node.parentElement?.nodeName !== "P")
-        fragment.appendChild(processPBasedOnCriteria(node));
-      else {
-        const span = document.createElement("span");
-        if (node.textContent) {
-          span.textContent = node.textContent;
-          fragment.appendChild(span);
-        } else return document.createDocumentFragment();
-      }
-      break;
-    case "SPAN":
-      {
-        fragment.appendChild(processSpanBasedOnCriteria(node));
-      }
-      break;
-    default:
-      {
-        const span = document.createElement("span");
-        if (node.textContent) {
-          if (node.textContent.length > 0) span.textContent = node.textContent;
-          else return document.createDocumentFragment();
-          fragment.appendChild(span);
-        } else return document.createDocumentFragment();
-      }
-      break;
+    case "P": {
+    }
+
+    case "SPAN": {
+    }
+
+    case "BR": {
+    }
   }
   return fragment;
 };

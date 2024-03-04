@@ -34,7 +34,24 @@ export const handleEditorKeyUp = (
     }
   }
 };
-export const handleEditorAfterPaste = (e: React.FormEvent<HTMLElement>) => {
-  console.log(e.currentTarget);
-  transformNodeStructure(e.currentTarget);
+export const handleEditorAfterPaste = (
+  e: React.ClipboardEvent<HTMLElement>,
+  targetElement?: HTMLElement | null
+) => {
+  if (targetElement) {
+    const firstWord = e.clipboardData.getData("text/plain").split("\n")[0];
+    e.preventDefault();
+    const div = document.createElement("div");
+    const firstSpan = document.createElement("span");
+    div.innerHTML = e.clipboardData.getData("text/html");
+    for (let i = 0; i < 2; i += 1) {
+      if (div.firstChild) div.removeChild(div.firstChild);
+    }
+    firstSpan.innerHTML = firstWord;
+    (e.nativeEvent.target as HTMLElement).parentElement?.appendChild(firstSpan);
+    console.log(div.innerHTML, div.childNodes);
+    console.log(transformNodeStructure(div));
+    targetElement.appendChild(transformNodeStructure(div));
+    //
+  }
 };
