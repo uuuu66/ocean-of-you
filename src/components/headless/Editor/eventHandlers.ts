@@ -1,4 +1,7 @@
-import { moveCursorToTargetNode } from "@/components/headless/Editor/nodeHandlers";
+import {
+  moveCursorToTargetNode,
+  transformNodeStructure,
+} from "@/components/headless/Editor/nodeHandlers";
 
 export const handleEditorKeyUp = (
   e: React.KeyboardEvent,
@@ -10,13 +13,28 @@ export const handleEditorKeyUp = (
       const p = document.createElement("p");
       const span = document.createElement("span");
       p.appendChild(span);
-      if (childNodes[i].nodeType === 3) {
-        span.appendChild(childNodes[i].cloneNode());
-        targetElement.replaceChild(p, childNodes[i]);
-        moveCursorToTargetNode(span);
-      } else {
-        p.remove();
+      switch (childNodes[i].nodeName) {
+        case "#text":
+          span.appendChild(childNodes[i].cloneNode());
+          targetElement.replaceChild(p, childNodes[i]);
+          moveCursorToTargetNode(span);
+          break;
+        case "P":
+          if (childNodes[i].firstChild?.nodeName === "BR") {
+            childNodes[i].remove();
+          } else {
+            p.remove();
+            span.remove();
+          }
+          break;
+        default:
+          p.remove();
+          span.remove();
       }
     }
   }
+};
+export const handleEditorAfterPaste = (e: React.FormEvent<HTMLElement>) => {
+  console.log(e.currentTarget);
+  transformNodeStructure(e.currentTarget);
 };
