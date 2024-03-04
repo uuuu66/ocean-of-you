@@ -2,6 +2,7 @@ import {
   moveCursorToTargetNode,
   transformNodeStructure,
 } from "@/components/headless/Editor/nodeHandlers";
+import { insertTagIntoNode } from "./addStyleToSelection";
 
 export const handleEditorKeyUp = (
   e: React.KeyboardEvent,
@@ -48,10 +49,53 @@ export const handleEditorAfterPaste = (
       if (div.firstChild) div.removeChild(div.firstChild);
     }
     firstSpan.innerHTML = firstWord;
-    (e.nativeEvent.target as HTMLElement).parentElement?.appendChild(firstSpan);
-    console.log(div.innerHTML, div.childNodes);
-    console.log(transformNodeStructure(div));
-    targetElement.appendChild(transformNodeStructure(div));
-    //
+    const selection = window.getSelection();
+    if (selection) {
+      const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+      if (anchorNode && anchorOffset && focusNode && focusOffset) {
+        let startNode = anchorNode;
+        let endNode = focusNode;
+        let startOffset = anchorOffset;
+        let endOffset = focusOffset;
+        let node = null;
+        if (anchorNode.isSameNode(focusNode)) {
+          node = insertTagIntoNode({
+            node: anchorNode,
+            startOffset,
+            endOffset,
+            content: firstWord,
+          });
+        } else {
+          //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
+          //2 뒤에서 앞으로
+
+          if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+            startNode = focusNode;
+            endNode = anchorNode;
+            startOffset = focusOffset;
+            endOffset = anchorOffset;
+          }
+          node = insertTagIntoNode({
+            node: startNode,
+            startOffset,
+            endOffset: startNode.textContent?.length || 0,
+            content: firstWord,
+          });
+          node = insertTagIntoNode({
+            node: endNode,
+            startOffset: 0,
+            endOffset: endOffset,
+            content: firstWord,
+          });
+        }
+        selection.removeAllRanges();
+        const newRange = new Range();
+        if (node) {
+          newRange.setStartAfter(node);
+          newRange.setEndAfter(node);
+          selection.addRange(newRange);
+        }
+      }
+    }
   }
 };

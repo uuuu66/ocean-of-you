@@ -17,7 +17,7 @@ interface InsertTagIntoNodesArgs
     CommonArgs,
     "styleKey" | "styleValue" | "node" | "startOffset" | "endOffset" | "tagName"
   > {
-  isEndNode?: boolean;
+  content?: string;
 }
 interface AddStyleToSelectionArgs
   extends Pick<
@@ -258,17 +258,17 @@ export const insertTagIntoNode = ({
   startOffset,
   endOffset,
   tagName = "span",
-  isEndNode,
+  content,
 }: InsertTagIntoNodesArgs) => {
   if (!node) return null;
   if (!node?.parentElement) {
     return null;
   }
+
   switch (node?.parentElement?.tagName) {
     //tag를 p안에 추가함
     case "DIV":
     case "P": {
-      console.log("hi");
       const range = new Range();
       range.setStart(node, startOffset);
       range.setEnd(node, endOffset);
@@ -299,7 +299,12 @@ export const insertTagIntoNode = ({
 
       if (node.parentNode) {
         const precededContent = ranges[0].cloneContents();
-        const selectedContent = ranges[1].cloneContents();
+        let selectedContent = ranges[1].cloneContents();
+
+        if (content) {
+          selectedContent = document.createDocumentFragment();
+          selectedContent.textContent = content;
+        }
         const followedContent = ranges[2].cloneContents();
         const precededSpan = document.createElement("span");
         const selectedSpan = document.createElement("span");
@@ -322,6 +327,7 @@ export const insertTagIntoNode = ({
         if (!!selectedSpan.textContent) fragment.appendChild(selectedSpan);
         if (!!followedSpan.textContent) fragment.appendChild(followedSpan);
         node.parentNode.parentNode?.replaceChild(fragment, node.parentNode);
+        return selectedSpan;
       }
       return node.parentNode;
     }
@@ -385,7 +391,6 @@ const addStyleToSelection = ({
             startOffset,
             endOffset: startNode.textContent?.length || 0,
             tagName,
-            isEndNode: false,
           });
           insertTagIntoNode({
             styleKey,
@@ -394,7 +399,6 @@ const addStyleToSelection = ({
             startOffset: 0,
             endOffset: endOffset,
             tagName,
-            isEndNode: true,
           });
         }
       }
