@@ -2,7 +2,8 @@ import {
   moveCursorToTargetNode,
   transformNodeStructure,
 } from "@/components/headless/Editor/nodeHandlers";
-import { insertTagIntoNode } from "./addStyleToSelection";
+import { insertTagNextToNode } from "./addStyleToSelection";
+import { start } from "repl";
 
 export const handleEditorKeyUp = (
   e: React.KeyboardEvent,
@@ -41,6 +42,8 @@ export const handleEditorAfterPaste = (
 ) => {
   if (targetElement) {
     const firstWord = e.clipboardData.getData("text/plain").split("\n")[0];
+    const hasNewline =
+      e.clipboardData.getData("text/plain").split("\n").length > 2;
     e.preventDefault();
     const div = document.createElement("div");
     const firstSpan = document.createElement("span");
@@ -51,43 +54,48 @@ export const handleEditorAfterPaste = (
     firstSpan.innerHTML = firstWord;
     const selection = window.getSelection();
     if (selection) {
+      const range = selection.getRangeAt(0);
+
       const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
-      if (anchorNode && anchorOffset && focusNode && focusOffset) {
+
+      if (anchorNode && focusNode) {
         let startNode = anchorNode;
         let endNode = focusNode;
-        let startOffset = anchorOffset;
-        let endOffset = focusOffset;
+        let startOffset = anchorOffset || 0;
+        let endOffset = focusOffset || 0;
         let node = null;
-        if (anchorNode.isSameNode(focusNode)) {
-          node = insertTagIntoNode({
-            node: anchorNode,
-            startOffset,
-            endOffset,
-            content: firstWord,
-          });
-        } else {
-          //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
-          //2 뒤에서 앞으로
 
-          if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-            startNode = focusNode;
-            endNode = anchorNode;
-            startOffset = focusOffset;
-            endOffset = anchorOffset;
-          }
-          node = insertTagIntoNode({
-            node: startNode,
-            startOffset,
-            endOffset: startNode.textContent?.length || 0,
-            content: firstWord,
-          });
-          node = insertTagIntoNode({
-            node: endNode,
-            startOffset: 0,
-            endOffset: endOffset,
-            content: firstWord,
-          });
+        switch (hasNewline) {
+          case true:
+            break;
+          case false:
+            if (range.collapsed) {
+              node = insertTagNextToNode({
+                node: anchorNode,
+                startOffset,
+                endOffset,
+                content: firstWord,
+              });
+            } else {
+              //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
+              //2 뒤에서 앞으로
+
+              if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+                startNode = focusNode;
+                endNode = anchorNode;
+                startOffset = focusOffset;
+                endOffset = anchorOffset;
+              }
+              console.log(startOffset, endOffset);
+              const newRange = new Range();
+              newRange.setStartAfter(startNode);
+              newRange.setEndAfter(startNode);
+              range.deleteContents();
+              range.insertNode(firstSpan);
+              console.log(range.startContainer.parentElement);
+            }
         }
+
         selection.removeAllRanges();
         const newRange = new Range();
         if (node) {
