@@ -41,7 +41,6 @@ export default function Editor() {
         >
           <p>
             <span>12</span>
-            <a href="www.naver.com">=4567890</a>
           </p>
           <p>
             <span>222해보자해보자222</span>
