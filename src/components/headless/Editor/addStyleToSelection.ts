@@ -6,8 +6,8 @@ interface CommonArgs {
   styleValue?: string;
   spanStyle?: CSSProperties;
   node: Node | null;
-  startOffset: number;
-  endOffset: number;
+  startOffset?: number;
+  endOffset?: number;
   containerNodeId?: string;
   containerRef?: React.RefObject<HTMLDivElement>;
   tagName?: TagName;
@@ -15,7 +15,7 @@ interface CommonArgs {
 interface InsertTagIntoNodesArgs
   extends Pick<
     CommonArgs,
-    "styleKey" | "styleValue" | "node" | "startOffset" | "endOffset" | "tagName"
+    "styleKey" | "styleValue" | "startOffset" | "endOffset" | "tagName" | "node"
   > {
   content?: string;
 }
@@ -251,12 +251,12 @@ export const addStyleBetweenNodes = ({
   removeIdFromChildNodes(containerNode, "P");
 };
 //anchorNode와 focusNode를 가공하는 로직
-export const insertTagIntoNode = ({
+export const insertTagNextToNode = ({
   styleKey,
   styleValue,
   node,
-  startOffset,
-  endOffset,
+  startOffset = 0,
+  endOffset = 0,
   tagName = "span",
   content,
 }: InsertTagIntoNodesArgs) => {
@@ -305,6 +305,7 @@ export const insertTagIntoNode = ({
           selectedContent = document.createDocumentFragment();
           selectedContent.textContent = content;
         }
+
         const followedContent = ranges[2].cloneContents();
         const precededSpan = document.createElement("span");
         const selectedSpan = document.createElement("span");
@@ -312,6 +313,7 @@ export const insertTagIntoNode = ({
 
         precededSpan.textContent = "";
         followedSpan.textContent = "";
+
         precededSpan.appendChild(precededContent);
         selectedSpan.appendChild(selectedContent);
         followedSpan.appendChild(followedContent);
@@ -323,9 +325,11 @@ export const insertTagIntoNode = ({
             node.parentElement.style[styleKey as any];
         }
         const fragment = document.createDocumentFragment();
+
         if (!!precededSpan.textContent) fragment.appendChild(precededSpan);
         if (!!selectedSpan.textContent) fragment.appendChild(selectedSpan);
         if (!!followedSpan.textContent) fragment.appendChild(followedSpan);
+
         node.parentNode.parentNode?.replaceChild(fragment, node.parentNode);
         return selectedSpan;
       }
@@ -366,7 +370,7 @@ const addStyleToSelection = ({
         //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
 
         if (anchorNode.isSameNode(focusNode)) {
-          insertTagIntoNode({
+          insertTagNextToNode({
             styleKey,
             styleValue,
             node: anchorNode,
@@ -384,7 +388,7 @@ const addStyleToSelection = ({
             startOffset = focusOffset;
             endOffset = anchorOffset;
           }
-          insertTagIntoNode({
+          insertTagNextToNode({
             styleKey,
             styleValue,
             node: startNode,
@@ -392,7 +396,7 @@ const addStyleToSelection = ({
             endOffset: startNode.textContent?.length || 0,
             tagName,
           });
-          insertTagIntoNode({
+          insertTagNextToNode({
             styleKey,
             styleValue,
             node: endNode,
