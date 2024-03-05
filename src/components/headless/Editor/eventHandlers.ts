@@ -1,9 +1,7 @@
 import {
+  insertTagNextToNode,
   moveCursorToTargetNode,
-  transformNodeStructure,
 } from "@/components/headless/Editor/nodeHandlers";
-import { insertTagNextToNode } from "./addStyleToSelection";
-import { start } from "repl";
 
 export const handleEditorKeyUp = (
   e: React.KeyboardEvent,
@@ -64,7 +62,6 @@ export const handleEditorAfterPaste = (
         let startOffset = anchorOffset || 0;
         let endOffset = focusOffset || 0;
         let node = null;
-
         switch (hasNewline) {
           case true:
             break;
@@ -79,20 +76,31 @@ export const handleEditorAfterPaste = (
             } else {
               //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
               //2 뒤에서 앞으로
-
               if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
                 startNode = focusNode;
                 endNode = anchorNode;
                 startOffset = focusOffset;
                 endOffset = anchorOffset;
+              } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
+                startNode = focusNode;
+                endNode = anchorNode;
+                startOffset = Math.min(anchorOffset, focusOffset);
+                endOffset = Math.max(anchorOffset, focusOffset);
               }
-              console.log(startOffset, endOffset);
               const newRange = new Range();
               newRange.setStartAfter(startNode);
               newRange.setEndAfter(startNode);
               range.deleteContents();
-              range.insertNode(firstSpan);
-              console.log(range.startContainer.parentElement);
+              range.setStart(startNode, startOffset);
+              range.setEnd(startNode, startOffset);
+              selection.removeAllRanges();
+              selection.addRange(range);
+              node = insertTagNextToNode({
+                node: startNode,
+                startOffset,
+                endOffset: startOffset,
+                content: firstWord,
+              });
             }
         }
 

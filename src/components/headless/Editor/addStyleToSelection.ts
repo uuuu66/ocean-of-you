@@ -1,5 +1,10 @@
 import { CSSProperties } from "react";
 import { NodeName, TagName } from ".";
+import {
+  addIdToChildNodes,
+  removeIdFromChildNodes,
+  insertTagNextToNode,
+} from "@/components/headless/Editor/nodeHandlers";
 
 interface CommonArgs {
   styleKey?: keyof CSSStyleDeclaration;
@@ -11,13 +16,6 @@ interface CommonArgs {
   containerNodeId?: string;
   containerRef?: React.RefObject<HTMLDivElement>;
   tagName?: TagName;
-}
-interface InsertTagIntoNodesArgs
-  extends Pick<
-    CommonArgs,
-    "styleKey" | "styleValue" | "startOffset" | "endOffset" | "tagName" | "node"
-  > {
-  content?: string;
 }
 interface AddStyleToSelectionArgs
   extends Pick<
@@ -31,49 +29,6 @@ interface AddStyleToBetweenNodesArgs
   > {
   selection: Selection;
 }
-const addIdToChildNodes = (
-  targetElement: HTMLElement,
-  nodeName: string,
-  idPrefix: string = "m-editor-"
-) => {
-  const { childNodes } = targetElement;
-  const ids = [];
-  if (targetElement.hasChildNodes()) {
-    for (let i = 0; i < childNodes.length; i += 1) {
-      const childNode = childNodes.item(i);
-
-      if (childNode.nodeName === nodeName) {
-        if (childNode.firstChild?.parentElement)
-          if (childNode.nodeName === nodeName) {
-            const id = `${idPrefix}${i}`;
-
-            childNode.firstChild.parentElement.id = id;
-
-            ids.push(id);
-          }
-      }
-    }
-  }
-  return ids;
-};
-//id 를 childnode들에게서 제거
-const removeIdFromChildNodes = (
-  targetElement: HTMLElement,
-  nodeName: string
-) => {
-  const { childNodes } = targetElement;
-  if (targetElement.hasChildNodes()) {
-    for (let i = 0; i < childNodes.length; i += 1) {
-      const childNode = childNodes.item(i);
-
-      if (childNode.nodeName === nodeName) {
-        if (childNode.firstChild?.parentElement)
-          if (childNode.nodeName === nodeName)
-            childNode.firstChild.parentElement.removeAttribute("id");
-      }
-    }
-  }
-};
 
 //anchorNode와 focusNode 사이의 노드들 가공하는 로직
 const addStyleBetweenNodes = ({
@@ -178,7 +133,6 @@ const addStyleBetweenNodes = ({
             //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
             for (let j = 0; j < grandChildNodes.length; j += 1) {
               const grandChildNode = grandChildNodes[j];
-
               if (grandChildNode)
                 switch (grandChildNode.nodeName as NodeName) {
                   default:
@@ -186,7 +140,6 @@ const addStyleBetweenNodes = ({
                       const grandChildNodeStyle = window.getComputedStyle(
                         grandChildNode.firstChild?.parentElement
                       );
-
                       const newTag = document.createElement("span");
                       Object.assign(newTag.style, grandChildNodeStyle);
                       if (styleKey && styleValue) {
@@ -250,93 +203,7 @@ const addStyleBetweenNodes = ({
 
   removeIdFromChildNodes(containerNode, "P");
 };
-//anchorNode와 focusNode를 가공하는 로직
-const insertTagNextToNode = ({
-  styleKey,
-  styleValue,
-  node,
-  startOffset = 0,
-  endOffset = 0,
-  tagName = "span",
-  content,
-}: InsertTagIntoNodesArgs) => {
-  if (!node) return null;
-  if (!node?.parentElement) {
-    return null;
-  }
 
-  switch (node?.parentElement?.tagName) {
-    //tag를 p안에 추가함
-    case "DIV":
-    case "P": {
-      const range = new Range();
-      range.setStart(node, startOffset);
-      range.setEnd(node, endOffset);
-      const clonedContents = range.cloneContents();
-      range.deleteContents();
-      const span = document.createElement(tagName);
-      span.appendChild(clonedContents);
-      if (
-        styleKey &&
-        styleValue &&
-        styleKey !== "length" &&
-        styleKey !== "parentRule"
-      )
-        span.style[styleKey as any] = styleValue;
-      range.insertNode(span);
-      break;
-    }
-
-    //targetNode하나를 잡고 앞뒤로 node을 만듬
-    default: {
-      const ranges = [new Range(), new Range(), new Range()];
-      ranges[0].setStart(node, 0);
-      ranges[0].setEnd(node, startOffset);
-      ranges[1].setStart(node, startOffset);
-      ranges[1].setEnd(node, endOffset);
-      ranges[2].setStart(node, endOffset);
-      ranges[2].setEnd(node, node.textContent?.length || 0);
-
-      if (node.parentNode) {
-        const precededContent = ranges[0].cloneContents();
-        let selectedContent = ranges[1].cloneContents();
-
-        if (content) {
-          selectedContent = document.createDocumentFragment();
-          selectedContent.textContent = content;
-        }
-
-        const followedContent = ranges[2].cloneContents();
-        const precededSpan = document.createElement("span");
-        const selectedSpan = document.createElement("span");
-        const followedSpan = document.createElement("span");
-
-        precededSpan.textContent = "";
-        followedSpan.textContent = "";
-
-        precededSpan.appendChild(precededContent);
-        selectedSpan.appendChild(selectedContent);
-        followedSpan.appendChild(followedContent);
-        if (styleKey && styleValue) {
-          selectedSpan.style[styleKey as any] = styleValue;
-          precededSpan.style[styleKey as any] =
-            node.parentElement.style[styleKey as any];
-          followedSpan.style[styleKey as any] =
-            node.parentElement.style[styleKey as any];
-        }
-        const fragment = document.createDocumentFragment();
-
-        if (!!precededSpan.textContent) fragment.appendChild(precededSpan);
-        if (!!selectedSpan.textContent) fragment.appendChild(selectedSpan);
-        if (!!followedSpan.textContent) fragment.appendChild(followedSpan);
-
-        node.parentNode.parentNode?.replaceChild(fragment, node.parentNode);
-        return selectedSpan;
-      }
-      return node.parentNode;
-    }
-  }
-};
 //선택된 부분에 node를 넣어서 원하는 스타일을 입히는 로직
 const addStyleToSelection = ({
   styleKey,
@@ -366,6 +233,18 @@ const addStyleToSelection = ({
         let endNode = focusNode;
         let startOffset = anchorOffset;
         let endOffset = focusOffset;
+        if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+          startNode = focusNode;
+          endNode = anchorNode;
+          startOffset = focusOffset;
+          endOffset = anchorOffset;
+        } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
+          startNode = focusNode;
+          endNode = anchorNode;
+          startOffset = Math.min(anchorOffset, focusOffset);
+          endOffset = Math.max(anchorOffset, focusOffset);
+        }
+
         //anchorNode와 focusNode들 가공하는 로직
         //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
 
@@ -373,7 +252,7 @@ const addStyleToSelection = ({
           insertTagNextToNode({
             styleKey,
             styleValue,
-            node: anchorNode,
+            node: startNode,
             startOffset,
             endOffset,
             tagName,
@@ -382,12 +261,6 @@ const addStyleToSelection = ({
           //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
           //2 뒤에서 앞으로
 
-          if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-            startNode = focusNode;
-            endNode = anchorNode;
-            startOffset = focusOffset;
-            endOffset = anchorOffset;
-          }
           insertTagNextToNode({
             styleKey,
             styleValue,
@@ -401,7 +274,7 @@ const addStyleToSelection = ({
             styleValue,
             node: endNode,
             startOffset: 0,
-            endOffset: endOffset,
+            endOffset,
             tagName,
           });
         }
@@ -413,9 +286,4 @@ const addStyleToSelection = ({
 };
 export default addStyleToSelection;
 
-export {
-  addIdToChildNodes,
-  removeIdFromChildNodes,
-  addStyleBetweenNodes,
-  insertTagNextToNode,
-};
+export {};
