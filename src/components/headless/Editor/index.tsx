@@ -1,7 +1,10 @@
 import { theme } from "@/styles/theme";
 import React, { CSSProperties, useCallback, useRef, useState } from "react";
 import addStyleToSelection from "./addStyleToSelection";
-import { handleEditorKeyUp } from "@/components/headless/Editor/keyboardEvents";
+import {
+  handleEditorAfterPaste,
+  handleEditorKeyUp,
+} from "@/components/headless/Editor/eventHandlers";
 export type TagName = "span" | "strong" | "em";
 export type NodeName = Uppercase<TagName>;
 export default function Editor() {
@@ -32,7 +35,7 @@ export default function Editor() {
       <datalist id="select"></datalist>
       <div>
         <div
-          onKeyDown={() => {}}
+          onPaste={(e) => handleEditorAfterPaste(e, containerRef.current)}
           onKeyUp={(e) => handleEditorKeyUp(e, containerRef.current)}
           contentEditable
           ref={containerRef}
@@ -41,7 +44,6 @@ export default function Editor() {
         >
           <p>
             <span>12</span>
-            <a href="www.naver.com">=4567890</a>
           </p>
           <p>
             <span>222해보자해보자222</span>
