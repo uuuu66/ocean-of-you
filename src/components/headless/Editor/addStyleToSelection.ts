@@ -31,7 +31,7 @@ interface AddStyleToBetweenNodesArgs
   > {
   selection: Selection;
 }
-export const addIdToChildNodes = (
+const addIdToChildNodes = (
   targetElement: HTMLElement,
   nodeName: string,
   idPrefix: string = "m-editor-"
@@ -57,7 +57,7 @@ export const addIdToChildNodes = (
   return ids;
 };
 //id 를 childnode들에게서 제거
-export const removeIdFromChildNodes = (
+const removeIdFromChildNodes = (
   targetElement: HTMLElement,
   nodeName: string
 ) => {
@@ -76,7 +76,7 @@ export const removeIdFromChildNodes = (
 };
 
 //anchorNode와 focusNode 사이의 노드들 가공하는 로직
-export const addStyleBetweenNodes = ({
+const addStyleBetweenNodes = ({
   selection,
   styleKey,
   styleValue,
@@ -251,7 +251,7 @@ export const addStyleBetweenNodes = ({
   removeIdFromChildNodes(containerNode, "P");
 };
 //anchorNode와 focusNode를 가공하는 로직
-export const insertTagIntoNode = ({
+const insertTagIntoNode = ({
   styleKey,
   styleValue,
   node,
@@ -404,3 +404,10 @@ const addStyleToSelection = ({
   selection?.removeAllRanges();
 };
 export default addStyleToSelection;
+
+export {
+  addIdToChildNodes,
+  removeIdFromChildNodes,
+  addStyleBetweenNodes,
+  insertTagIntoNode,
+};
