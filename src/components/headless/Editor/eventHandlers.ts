@@ -1,4 +1,5 @@
 import {
+  findTextNode,
   insertTagNextToNode,
   moveCursorToTargetNode,
 } from "@/components/headless/Editor/nodeHandlers";
@@ -51,11 +52,10 @@ export const handleEditorAfterPaste = (
     }
     firstSpan.innerHTML = firstWord;
     const selection = window.getSelection();
+
     if (selection) {
       const range = selection.getRangeAt(0);
-
       const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
-
       if (anchorNode && focusNode) {
         let startNode = anchorNode;
         let endNode = focusNode;
@@ -64,9 +64,12 @@ export const handleEditorAfterPaste = (
         let node = null;
         switch (hasNewline) {
           case true:
+            const div = document.createElement("div");
+            div.innerHTML = e.clipboardData.getData("text/html");
             break;
           case false:
             if (range.collapsed) {
+              console.log(anchorNode);
               node = insertTagNextToNode({
                 node: anchorNode,
                 startOffset,
@@ -107,11 +110,13 @@ export const handleEditorAfterPaste = (
         selection.removeAllRanges();
         const newRange = new Range();
         if (node) {
-          newRange.setStartAfter(node);
-          newRange.setEndAfter(node);
+          newRange.selectNode(node);
+
           selection.addRange(newRange);
         }
       }
     }
   }
 };
+// 붙여넣기 할때 => 노드들을 태그네임 속성 텍스트 위치로 분해해서 다시 재조립 하는게 나을듯
+// 텍스트 /n

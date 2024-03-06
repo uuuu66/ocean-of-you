@@ -117,10 +117,32 @@ const insertTagNextToNode = ({
   if (!node?.parentElement) {
     return null;
   }
-
+  console.log(node);
   switch (node?.parentElement?.tagName) {
     //tag를 p안에 추가함
-    case "DIV":
+    case "DIV": {
+      const range = new Range();
+      range.setStart(node, startOffset);
+      range.setEnd(node, endOffset);
+      const clonedContents = range.cloneContents();
+      range.deleteContents();
+      const p = document.createElement("p");
+      const span = document.createElement(tagName);
+      p.appendChild(span);
+      span.appendChild(clonedContents);
+
+      if (
+        styleKey &&
+        styleValue &&
+        styleKey !== "length" &&
+        styleKey !== "parentRule"
+      )
+        span.style[styleKey as any] = styleValue;
+
+      if (content) span.textContent = content;
+      range.insertNode(p);
+      return span;
+    }
     case "P": {
       const range = new Range();
       range.setStart(node, startOffset);
@@ -136,8 +158,9 @@ const insertTagNextToNode = ({
         styleKey !== "parentRule"
       )
         span.style[styleKey as any] = styleValue;
+      if (content) span.textContent = content;
       range.insertNode(span);
-      break;
+      return span;
     }
 
     //targetNode하나를 잡고 앞뒤로 node을 만듬
@@ -149,7 +172,7 @@ const insertTagNextToNode = ({
       ranges[1].setEnd(node, endOffset);
       ranges[2].setStart(node, endOffset);
       ranges[2].setEnd(node, node.textContent?.length || 0);
-
+      console.log(ranges);
       if (node.parentNode) {
         const precededContent = ranges[0].cloneContents();
         let selectedContent = ranges[1].cloneContents();
@@ -163,10 +186,8 @@ const insertTagNextToNode = ({
         const precededSpan = document.createElement("span");
         const selectedSpan = document.createElement("span");
         const followedSpan = document.createElement("span");
-
         precededSpan.textContent = "";
         followedSpan.textContent = "";
-
         precededSpan.appendChild(precededContent);
         selectedSpan.appendChild(selectedContent);
         followedSpan.appendChild(followedContent);
@@ -207,9 +228,22 @@ const processPBasedOnCriteria = (pNode: Node) => {
   }
   return fragment;
 };
+const findTextNode = (node: Node) => {
+  let target: Node | null = node;
+  while (target?.firstChild) {
+    if (!target) return target;
+    if (target.nodeType === 3) {
+      console.log(target);
+      return target;
+    }
+    target = target.firstChild;
+  }
+  return target;
+};
 export {
   addIdToChildNodes,
   removeIdFromChildNodes,
   insertTagNextToNode,
   moveCursorToTargetNode,
+  findTextNode,
 };
