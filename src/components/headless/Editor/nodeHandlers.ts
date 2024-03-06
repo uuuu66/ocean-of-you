@@ -103,8 +103,8 @@ const removeIdFromChildNodes = (
     }
   }
 };
-//anchorNode와 focusNode를 가공하는 로직
-const insertTagNextToNode = ({
+//selection의 offset에 노드를 삽입하는 함수
+const insertTagAtOffsets = ({
   styleKey,
   styleValue,
   node,
@@ -117,9 +117,7 @@ const insertTagNextToNode = ({
   if (!node?.parentElement) {
     return null;
   }
-  console.log(node);
   switch (node?.parentElement?.tagName) {
-    //tag를 p안에 추가함
     case "DIV": {
       const range = new Range();
       range.setStart(node, startOffset);
@@ -130,7 +128,6 @@ const insertTagNextToNode = ({
       const span = document.createElement(tagName);
       p.appendChild(span);
       span.appendChild(clonedContents);
-
       if (
         styleKey &&
         styleValue &&
@@ -253,7 +250,7 @@ const findParentPElement = (node: Node) => {
 export {
   addIdToChildNodes,
   removeIdFromChildNodes,
-  insertTagNextToNode,
+  insertTagAtOffsets,
   moveCursorToTargetNode,
   findTextNode,
 };

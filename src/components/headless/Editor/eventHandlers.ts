@@ -1,6 +1,6 @@
 import {
   findTextNode,
-  insertTagNextToNode,
+  insertTagAtOffsets,
   moveCursorToTargetNode,
 } from "@/components/headless/Editor/nodeHandlers";
 
@@ -69,8 +69,7 @@ export const handleEditorAfterPaste = (
             break;
           case false:
             if (range.collapsed) {
-              console.log(anchorNode);
-              node = insertTagNextToNode({
+              node = insertTagAtOffsets({
                 node: anchorNode,
                 startOffset,
                 endOffset,
@@ -98,7 +97,7 @@ export const handleEditorAfterPaste = (
               range.setEnd(startNode, startOffset);
               selection.removeAllRanges();
               selection.addRange(range);
-              node = insertTagNextToNode({
+              node = insertTagAtOffsets({
                 node: startNode,
                 startOffset,
                 endOffset: startOffset,

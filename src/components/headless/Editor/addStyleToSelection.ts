@@ -3,7 +3,7 @@ import { NodeName, TagName } from ".";
 import {
   addIdToChildNodes,
   removeIdFromChildNodes,
-  insertTagNextToNode,
+  insertTagAtOffsets,
 } from "@/components/headless/Editor/nodeHandlers";
 
 interface CommonArgs {
@@ -249,7 +249,7 @@ const addStyleToSelection = ({
         //anchorNode와 focusNode가 같은 부모 node를 가지는 경우
 
         if (anchorNode.isSameNode(focusNode)) {
-          insertTagNextToNode({
+          insertTagAtOffsets({
             styleKey,
             styleValue,
             node: startNode,
@@ -261,7 +261,7 @@ const addStyleToSelection = ({
           //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
           //2 뒤에서 앞으로
 
-          insertTagNextToNode({
+          insertTagAtOffsets({
             styleKey,
             styleValue,
             node: startNode,
@@ -269,7 +269,7 @@ const addStyleToSelection = ({
             endOffset: startNode.textContent?.length || 0,
             tagName,
           });
-          insertTagNextToNode({
+          insertTagAtOffsets({
             styleKey,
             styleValue,
             node: endNode,
