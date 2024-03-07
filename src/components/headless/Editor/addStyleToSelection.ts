@@ -2,9 +2,9 @@ import { CSSProperties } from "react";
 import { NodeName, TagName } from ".";
 import {
   addIdToChildNodes,
-  removeIdFromChildNodes,
+  removeIdFromChildNodesBasedOnNodeName,
   insertTagAtOffsets,
-} from "@/components/headless/Editor/nodeHandlers";
+} from "@/components/headless/Editor/nodeHandlers/common";
 
 interface CommonArgs {
   styleKey?: keyof CSSStyleDeclaration;
@@ -37,7 +37,6 @@ const addStyleBetweenNodes = ({
   styleValue,
   containerNodeId,
   containerRef,
-  tagName = "span",
 }: AddStyleToBetweenNodesArgs) => {
   let containerNode: HTMLElement | null = null;
   if (containerNodeId) {
@@ -201,7 +200,7 @@ const addStyleBetweenNodes = ({
   } else {
   }
 
-  removeIdFromChildNodes(containerNode, "P");
+  removeIdFromChildNodesBasedOnNodeName(containerNode, "P");
 };
 
 //선택된 부분에 node를 넣어서 원하는 스타일을 입히는 로직

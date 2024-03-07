@@ -3,6 +3,7 @@ import React, { CSSProperties, useCallback, useRef, useState } from "react";
 import addStyleToSelection from "./addStyleToSelection";
 import {
   handleEditorAfterPaste,
+  handleEditorKeyDown,
   handleEditorKeyUp,
 } from "@/components/headless/Editor/eventHandlers";
 export type TagName = "span" | "strong" | "em";
@@ -36,25 +37,13 @@ export default function Editor() {
       <div>
         <div
           onPaste={(e) => handleEditorAfterPaste(e, containerRef.current)}
-          onKeyUp={(e) => handleEditorKeyUp(e, containerRef.current)}
+          onKeyDown={(e) => handleEditorKeyDown(e, containerRef.current)}
+          // onKeyUp={(e) => handleEditorKeyUp(e, containerRef.current)}
           contentEditable
           ref={containerRef}
           id="m-editor-div-element"
           className="border border-solid border-gray4  w-full min-w-80 h-full min-h-5 p-4 whitespace-pre-line"
-        >
-          <p>
-            <span>12</span>
-          </p>
-          <p>
-            <span>222해보자해보자222</span>
-          </p>{" "}
-          <p>
-            <span>222222222</span>
-          </p>{" "}
-          <p>
-            <span>12345678</span>
-          </p>
-        </div>
+        ></div>
       </div>{" "}
       <input
         type="color"
