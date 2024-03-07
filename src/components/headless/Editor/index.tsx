@@ -3,8 +3,8 @@ import React, { CSSProperties, useCallback, useRef, useState } from "react";
 import addStyleToSelection from "./addStyleToSelection";
 import {
   handleEditorAfterPaste,
+  handleEditorFocus,
   handleEditorKeyDown,
-  handleEditorKeyUp,
 } from "@/components/headless/Editor/eventHandlers";
 export type TagName = "span" | "strong" | "em";
 export type NodeName = Uppercase<TagName>;
@@ -38,7 +38,7 @@ export default function Editor() {
         <div
           onPaste={(e) => handleEditorAfterPaste(e, containerRef.current)}
           onKeyDown={(e) => handleEditorKeyDown(e, containerRef.current)}
-          // onKeyUp={(e) => handleEditorKeyUp(e, containerRef.current)}
+          onFocus={(e) => handleEditorFocus(e, containerRef.current)}
           contentEditable
           ref={containerRef}
           id="m-editor-div-element"
