@@ -30,7 +30,6 @@ export const handleEditorKeyDown = (
         }
         break;
       case "Backspace":
-        console.log(targetElement.innerHTML);
         if (
           (targetElement.textContent?.length || 0) === 1 ||
           !targetElement.innerHTML
