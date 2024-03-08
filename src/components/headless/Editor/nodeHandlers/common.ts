@@ -1,18 +1,11 @@
 import { TagName } from "@/components/headless/Editor";
 import { flags } from "@/components/headless/Editor/configs";
-import { RecomposedNodes } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
+import {
+  FlattendNode,
+  InsertTagNextToNodesArgs,
+  RecomposedNodes,
+} from "@/components/headless/Editor/nodeHandlers/types";
 import { CSSProperties, cloneElement } from "react";
-
-interface InsertTagNextToNodesArgs {
-  styleKey?: keyof CSSStyleDeclaration;
-  styleValue?: string;
-  spanStyle?: CSSProperties;
-  node: Node | null;
-  startOffset?: number;
-  endOffset?: number;
-  content?: Node | null;
-  tagName?: TagName;
-}
 
 //targetNode로 커서를 옮긴다
 const moveCursorToTargetNode = (targetNode: Node) => {
@@ -237,37 +230,11 @@ const pasteNodesToSelection = (recomposedNodes: RecomposedNodes) => {
     }
   }
 };
-const flattenChildNodes = (node: Node) => {
-  if (node.nodeType === 3) {
-    const span = document.createElement("span");
-    span.textContent = (node as Text).data;
-    return [span];
-  }
-  if (node.nodeName === "BR") {
-    return [flags.newLine, node];
-  }
 
-  if (node.childNodes.length === 1) {
-    if (node.firstChild?.nodeType === 3) {
-      return [node];
-    }
-  }
-  const array: any[] = [];
-  for (let i = 0; i < node.childNodes.length; i += 1) {
-    const childNode = node.childNodes.item(i);
-    if (childNode.nodeName === "P") array.push(flags.newLine);
-    array.push(flattenChildNodes(childNode));
-  }
-  return array.flat(Infinity);
-};
-// const postActionAfterFlatten = (array:) => {
-
-// };
 export {
   addIdToChildNodes,
   removeIdFromChildNodesBasedOnNodeName,
   insertTagAtOffsets,
   moveCursorToTargetNode,
   pasteNodesToSelection,
-  flattenChildNodes,
 };

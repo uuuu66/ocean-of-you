@@ -1,4 +1,4 @@
-const findTextNode = (node: Node) => {
+const searchTextNode = (node: Node) => {
   let target: Node | null = node;
   while (target?.firstChild) {
     if (!target) return target;
@@ -9,15 +9,15 @@ const findTextNode = (node: Node) => {
   }
   return target;
 };
-const findParentPElement = (node: Node) => {
+const searchParentNodeForNodeName = (node: Node, nodeName: string) => {
   let target: Node | null = node;
   while (target?.parentElement) {
     if (!target) return target;
-    if (target.nodeName === "P") {
+    if (target.nodeName === nodeName) {
       return target;
     }
     target = target.parentElement;
   }
   return target;
 };
-export { findParentPElement, findTextNode };
+export { searchParentNodeForNodeName, searchTextNode };
