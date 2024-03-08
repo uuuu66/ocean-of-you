@@ -52,6 +52,19 @@ const flattenChildNodes = (
           },
         ];
       }
+    case "LI": {
+      array.push([
+        {
+          isNewLine: true,
+          style: node?.firstChild?.parentElement?.style ?? null,
+          node,
+          text: node.textContent || "",
+          nodeIndex: nodeIndex ? [...nodeIndex] : [],
+          nodeName: node.nodeName,
+          parentIndex,
+        },
+      ]);
+    }
     default: {
       for (let i = 0; i < node.childNodes.length; i += 1) {
         const childNode = node.childNodes.item(i);
