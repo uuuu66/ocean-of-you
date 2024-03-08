@@ -17,6 +17,7 @@ export interface FlattendNode {
   isNewLine: boolean | null;
   text: string;
   nodeIndex: number[];
+  parentIndex: number[];
   nodeName: string;
 }
 export interface RecomposedNodes {

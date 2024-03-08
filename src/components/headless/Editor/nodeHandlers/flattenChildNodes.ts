@@ -7,6 +7,7 @@ const flattenChildNodes = (
   nodeIndex?: number[]
 ): FlattendNode[] => {
   const array: any[] = [];
+  const parentIndex = nodeIndex ? nodeIndex.slice(0, -1) : [];
   switch (node.nodeName) {
     case "BR":
       return [
@@ -17,6 +18,7 @@ const flattenChildNodes = (
           node,
           text: "",
           nodeName: node.nodeName,
+          parentIndex,
         },
       ];
     case "#text": {
@@ -30,6 +32,7 @@ const flattenChildNodes = (
           text: span.textContent || "",
           nodeIndex: nodeIndex ? [...nodeIndex] : [],
           nodeName: span.nodeName,
+          parentIndex,
         },
       ];
     }
@@ -45,6 +48,7 @@ const flattenChildNodes = (
             text: span.textContent || "",
             nodeIndex: nodeIndex ? [...nodeIndex] : [],
             nodeName: span.nodeName,
+            parentIndex,
           },
         ];
       }
@@ -61,6 +65,7 @@ const flattenChildNodes = (
             text: "",
             nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],
             nodeName: childNode.nodeName,
+            parentIndex,
           });
 
         array.push(
