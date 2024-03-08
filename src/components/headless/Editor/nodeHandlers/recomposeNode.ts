@@ -39,7 +39,7 @@ const processNodeWithIndex = (flattenNode: FlattendNode) => {
 
   return fragment;
 };
-//첫번째 div나 p section은 무시함. 그 안에 div p가 있어도 일단 밖으로 꺼냄 . 그 후에 가공
+
 const recomposeNode = (node: Node): RecomposedNodes => {
   const div = document.createElement("div");
   div.innerHTML = node.firstChild?.parentElement?.innerHTML || "";
