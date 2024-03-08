@@ -45,6 +45,13 @@ export default function Editor() {
           className="border border-solid border-gray4  w-full min-w-80 h-full min-h-5 p-4 whitespace-pre-line"
         ></div>
       </div>{" "}
+      <div contentEditable>
+        <p>ss</p>
+        <span>ss</span>
+        <p>
+          <span>dd</span>ff
+        </p>{" "}
+      </div>
       <input
         type="color"
         list={"list"}

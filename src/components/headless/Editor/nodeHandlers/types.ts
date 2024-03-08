@@ -14,9 +14,10 @@ export interface InsertTagNextToNodesArgs {
 export interface FlattendNode {
   node: Node | null;
   style: CSSStyleDeclaration | null;
-  isParentNode: boolean | null;
+  isNewLine: boolean | null;
   text: string;
-  nodeIndex?: number[];
+  nodeIndex: number[];
+  nodeName: string;
 }
 export interface RecomposedNodes {
   firstNode: Node | null;

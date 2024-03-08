@@ -1,11 +1,13 @@
 import { classNames } from "@/components/headless/Editor/configs";
-import { flattenChildNodes } from "@/components/headless/Editor/nodeHandlers/common";
+import {
+  flattenChildNodes,
+  postProcessAfterFlatten,
+} from "@/components/headless/Editor/nodeHandlers/flattenChildNodes";
+import {
+  FlattendNode,
+  RecomposedNodes,
+} from "@/components/headless/Editor/nodeHandlers/types";
 
-export interface RecomposedNodes {
-  firstNode: Node | null;
-  lastNode: Node | null;
-  originalNode: Node;
-}
 //fragment 를 만든 후 Node안에 있는 childNode들을 가공한 후 fragment의 child에 추가함
 const recomposeNodeToSpan = (node: Node): Node => {
   const fragment = document.createDocumentFragment();
@@ -30,14 +32,10 @@ const recomposeNodeToSpan = (node: Node): Node => {
   return fragment;
 };
 
-const processNodeWithIndex = (
-  node: Node,
-  index: number,
-  parentElement: Element
-) => {
-  const { nodeName } = node;
+const processNodeWithIndex = (flattenNode: FlattendNode) => {
+  const { isNewLine, node, nodeIndex, nodeName, style, text } = flattenNode;
+
   const fragment = document.createDocumentFragment();
-  const isFirstNode = index === 0;
 
   return fragment;
 };
@@ -45,18 +43,16 @@ const processNodeWithIndex = (
 const recomposeNode = (node: Node): RecomposedNodes => {
   const div = document.createElement("div");
   div.innerHTML = node.firstChild?.parentElement?.innerHTML || "";
-  const { childNodes } = div;
-  console.log("ori=>", div);
-  console.log(flattenChildNodes(div));
+  const flattendNodes = postProcessAfterFlatten(flattenChildNodes(div));
   const fragment = document.createDocumentFragment();
-  const section = document.createElement("section");
-  //   for (let i = 0; i < nodeArray.length; i += 1) {
-  //     const node = nodeArray[i];
-  //     const processedNode = processNodeWithIndex(node, i, section);
-  //     fragment.appendChild(processedNode);
-  //     section.appendChild(processedNode);
-  //   }
-
+  console.log(flattendNodes);
+  for (let i = 0; i < flattendNodes.length; i += 1) {
+    const node = flattendNodes[i];
+    if (node.isNewLine === true) {
+      const p = document.createElement("p");
+    }
+    processNodeWithIndex(node);
+  }
   return {
     firstNode: fragment.firstChild,
     lastNode: fragment.lastChild,

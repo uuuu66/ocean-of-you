@@ -5,51 +5,70 @@ const flattenChildNodes = (
   node: Node,
   nodeIndex?: number[]
 ): FlattendNode[] => {
-  if (node.nodeType === 3) {
-    const span = document.createElement("span");
-    span.textContent = (node as Text).data;
-    return [
-      {
-        isParentNode: false,
-        style: node.parentElement?.style || null,
-        node: span,
-        text: span.textContent,
-        nodeIndex,
-      },
-    ];
-  }
-  if (node.nodeName === "BR") {
-    return [{ isParentNode: false, style: null, node, text: "" }];
-  }
-
-  if (node.childNodes.length === 1) {
-    if (node.firstChild?.nodeType === 3) {
+  const array: any[] = [];
+  switch (node.nodeName) {
+    case "BR":
       return [
         {
-          isParentNode: false,
-          style: node.firstChild.parentElement?.style || null,
-          node: node,
-          text: node.textContent || "",
-          nodeIndex,
+          isNewLine: true,
+          nodeIndex: nodeIndex ?? [],
+          style: null,
+          node,
+          text: "",
+          nodeName: node.nodeName,
+        },
+      ];
+    case "#text": {
+      const span = document.createElement("span");
+      span.textContent = (node as Text).data;
+      return [
+        {
+          isNewLine: false,
+          style: node?.parentElement?.style ?? null,
+          node: span,
+          text: span.textContent || "",
+          nodeIndex: nodeIndex ? [...nodeIndex] : [],
+          nodeName: span.nodeName,
         },
       ];
     }
+    case "SPAN":
+      if (node.childNodes.length === 1) {
+        const span = document.createElement("span");
+        span.textContent = node.textContent;
+        return [
+          {
+            isNewLine: false,
+            style: node?.parentElement?.style ?? null,
+            node: span,
+            text: span.textContent || "",
+            nodeIndex: nodeIndex ? [...nodeIndex] : [],
+            nodeName: span.nodeName,
+          },
+        ];
+      }
+    default: {
+      for (let i = 0; i < node.childNodes.length; i += 1) {
+        const childNode = node.childNodes.item(i);
+        if (
+          notAllowedTagsInParagraph.includes(childNode.nodeName.toLowerCase())
+        )
+          array.push({
+            isNewLine: true,
+            style: childNode?.firstChild?.parentElement?.style || null,
+            node: childNode,
+            text: "",
+            nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],
+            nodeName: childNode.nodeName,
+          });
+
+        array.push(
+          flattenChildNodes(childNode, nodeIndex ? [...nodeIndex, i] : [i])
+        );
+      }
+    }
   }
-  const array: any[] = [];
-  for (let i = 0; i < node.childNodes.length; i += 1) {
-    const childNode = node.childNodes.item(i);
-    if (notAllowedTagsInParagraph.includes(childNode.nodeName.toLowerCase()))
-      array.push({
-        isParentNode: true,
-        style: childNode?.firstChild?.parentElement?.style || null,
-        node: childNode,
-        text: "",
-        nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],
-      });
-    array.push(
-      flattenChildNodes(childNode, nodeIndex ? [...nodeIndex, i] : [i])
-    );
-  }
+
   return array.flat(Infinity);
 };
 
@@ -57,6 +76,11 @@ const postProcessAfterFlatten = (flattenNodes: FlattendNode[]) => {
   const newNodes = [...flattenNodes];
   let resultNode = elminateFirstIndexPTag(newNodes);
   resultNode = eliminateConsecutiveRepeatBr(resultNode);
+  resultNode = eliminateConsecutiveRepeatNewLine(resultNode);
+  const searchResult = searchFlattenNode(flattenNodes, [0]);
+  if (searchResult !== -1 && resultNode[searchResult]?.nodeName === "META")
+    resultNode.splice(searchResult, 1);
+
   return resultNode;
 };
 const eliminateConsecutiveRepeatBr = (flattendNodes: FlattendNode[]) => {
@@ -64,10 +88,19 @@ const eliminateConsecutiveRepeatBr = (flattendNodes: FlattendNode[]) => {
   for (let i = 1; i < newNodes.length; i += 1) {
     const node = newNodes[i];
     const prevNode = newNodes[i - 1];
-    if (
-      node.node?.nodeName === "BR" &&
-      node.node?.nodeName === prevNode.node?.nodeName
-    ) {
+    if (node?.nodeName === "BR" && node?.nodeName === prevNode.node?.nodeName) {
+      newNodes.splice(i, 1);
+      i = i - 1;
+    }
+  }
+  return newNodes;
+};
+const eliminateConsecutiveRepeatNewLine = (flattendNodes: FlattendNode[]) => {
+  const newNodes = [...flattendNodes];
+  for (let i = 1; i < newNodes.length; i += 1) {
+    const node = newNodes[i];
+    const prevNode = newNodes[i - 1];
+    if (node?.isNewLine && node?.nodeName === prevNode.node?.nodeName) {
       newNodes.splice(i, 1);
       i = i - 1;
     }
@@ -89,7 +122,7 @@ const searchFlattenNode = (array: FlattendNode[], nodeIndex: number[]) => {
     const mid = Math.floor((left + right) / 2);
 
     if (JSON.stringify(array[mid].nodeIndex) === JSON.stringify(nodeIndex)) {
-      return array[mid];
+      return mid;
     } else if (
       array[mid].nodeIndex &&
       isLessThan(array[mid].nodeIndex || [], nodeIndex)
@@ -100,7 +133,7 @@ const searchFlattenNode = (array: FlattendNode[], nodeIndex: number[]) => {
     }
   }
 
-  return null;
+  return -1;
 };
 const isLessThan = (compareA: number[], compareB: number[]) => {
   const length = Math.min(compareA.length, compareB.length);
