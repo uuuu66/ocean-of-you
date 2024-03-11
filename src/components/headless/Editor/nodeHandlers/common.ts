@@ -155,6 +155,7 @@ const insertTagAtOffsets = ({
         if (!!selectedSpan.textContent) fragment.appendChild(selectedSpan);
         if (!!followedSpan.textContent) fragment.appendChild(followedSpan);
         ranges[1].deleteContents();
+
         node.parentNode.parentNode?.replaceChild(fragment, node.parentNode);
         return selectedSpan;
       }
@@ -162,8 +163,7 @@ const insertTagAtOffsets = ({
   }
 };
 //selection한 부분에 node를 붙여넣는 코드
-const pasteNodesToSelection = (recomposedNodes: RecomposedNodes) => {
-  recomposedNodes;
+const pasteNodesToSelection = (resultArray: FlattendNode[]) => {
   const selection = window.getSelection();
   if (selection) {
     const range = selection.getRangeAt(0);
@@ -178,7 +178,7 @@ const pasteNodesToSelection = (recomposedNodes: RecomposedNodes) => {
           node: anchorNode,
           startOffset,
           endOffset,
-          content: recomposedNodes.firstNode,
+          content: resultArray[0].node,
         });
       } else {
         //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
@@ -204,7 +204,7 @@ const pasteNodesToSelection = (recomposedNodes: RecomposedNodes) => {
           node: startNode,
           startOffset,
           endOffset: startOffset,
-          content: recomposedNodes.firstNode,
+          content: resultArray[0].node,
         });
       }
 

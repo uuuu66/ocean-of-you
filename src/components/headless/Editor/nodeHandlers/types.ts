@@ -2,7 +2,7 @@ import { TagName } from "@/components/headless/Editor";
 import { CSSProperties } from "react";
 
 export interface InsertTagNextToNodesArgs {
-  styleKey?: keyof CSSStyleDeclaration;
+  styleKey?: string;
   styleValue?: string;
   spanStyle?: CSSProperties;
   node: Node | null;
@@ -19,9 +19,4 @@ export interface FlattendNode {
   nodeIndex: number[];
   parentIndex: number[];
   nodeName: string;
-}
-export interface RecomposedNodes {
-  firstNode: Node | null;
-  lastNode: Node | null;
-  originalNode: Node;
 }
