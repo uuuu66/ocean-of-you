@@ -31,4 +31,5 @@ export const notAllowedTagsInParagraph = [
   "section",
   "table",
   "ul",
+  "figure",
 ];
