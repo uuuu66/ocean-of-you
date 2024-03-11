@@ -1,10 +1,10 @@
 import { TagName } from "@/components/headless/Editor";
+import { copyAndPasteStyle } from "@/components/headless/Editor/addStyleToSelection";
 import { flags } from "@/components/headless/Editor/configs";
 import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import {
   FlattendNode,
   InsertTagNextToNodesArgs,
-  RecomposedNodes,
 } from "@/components/headless/Editor/nodeHandlers/types";
 import { CSSProperties, cloneElement } from "react";
 
@@ -95,13 +95,7 @@ const insertTagAtOffsets = ({
         span.appendChild(clonedContents);
         p.appendChild(span);
       }
-      if (
-        styleKey &&
-        styleValue &&
-        styleKey !== "length" &&
-        styleKey !== "parentRule"
-      )
-        span.style[styleKey as any] = styleValue;
+      if (styleKey && styleValue) span.style.setProperty(styleKey, styleValue);
 
       range.insertNode(p);
       return span;
@@ -116,13 +110,7 @@ const insertTagAtOffsets = ({
 
       span.appendChild(clonedContents);
 
-      if (
-        styleKey &&
-        styleValue &&
-        styleKey !== "length" &&
-        styleKey !== "parentRule"
-      )
-        span.style[styleKey as any] = styleValue;
+      if (styleKey && styleValue) span.style.setProperty(styleKey, styleValue);
       if (content) range.insertNode(content);
       else range.insertNode(span);
       return span;
@@ -140,7 +128,6 @@ const insertTagAtOffsets = ({
       if (node.parentNode) {
         const precededContent = ranges[0].cloneContents();
         let selectedContent = ranges[1].cloneContents();
-
         if (content) {
           selectedContent = document.createDocumentFragment();
           selectedContent.appendChild(content);
@@ -156,11 +143,11 @@ const insertTagAtOffsets = ({
         selectedSpan.appendChild(selectedContent);
         followedSpan.appendChild(followedContent);
         if (styleKey && styleValue) {
-          selectedSpan.style[styleKey as any] = styleValue;
-          precededSpan.style[styleKey as any] =
-            node.parentElement.style[styleKey as any];
-          followedSpan.style[styleKey as any] =
-            node.parentElement.style[styleKey as any];
+          const style = window.getComputedStyle(node.parentElement);
+          copyAndPasteStyle(precededSpan, style);
+          copyAndPasteStyle(selectedSpan, style);
+          copyAndPasteStyle(followedSpan, style);
+          selectedSpan.style.setProperty(styleKey, styleValue);
         }
         const fragment = document.createDocumentFragment();
 

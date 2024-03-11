@@ -7,7 +7,7 @@ import {
 } from "@/components/headless/Editor/nodeHandlers/common";
 
 interface CommonArgs {
-  styleKey?: keyof CSSStyleDeclaration;
+  styleKey?: string;
   styleValue?: string;
   spanStyle?: CSSProperties;
   node: Node | null;
@@ -29,7 +29,16 @@ interface AddStyleToBetweenNodesArgs
   > {
   selection: Selection;
 }
-
+const copyAndPasteStyle = (
+  targetElement: HTMLElement,
+  source: CSSStyleDeclaration
+) => {
+  const style = source;
+  const keys = Object.keys(style);
+  for (let i = 0; i < keys.length; i += 1) {
+    targetElement?.style?.setProperty(keys[i], style.getPropertyValue(keys[i]));
+  }
+};
 //anchorNode와 focusNode 사이의 노드들 가공하는 로직
 const addStyleBetweenNodes = ({
   selection,
@@ -108,7 +117,7 @@ const addStyleBetweenNodes = ({
           Object.assign(newNode.style, clonedStyle);
           newNode.innerHTML = childNode.firstChild?.parentElement.innerHTML;
           if (styleKey && styleValue)
-            newNode.style[styleKey as any] = styleValue;
+            newNode.style.setProperty(styleKey, styleValue);
           fragment.appendChild(newNode);
         } else {
           continue;
@@ -139,17 +148,18 @@ const addStyleBetweenNodes = ({
                       const grandChildNodeStyle = window.getComputedStyle(
                         grandChildNode.firstChild?.parentElement
                       );
-                      const newTag = document.createElement("span");
-                      Object.assign(newTag.style, grandChildNodeStyle);
+                      const newNode = document.createElement("span");
+                      copyAndPasteStyle(newNode, grandChildNodeStyle);
+
                       if (styleKey && styleValue) {
-                        newTag.style[styleKey as any] = styleValue;
-                        newTag.innerHTML =
+                        newNode.style.setProperty(styleKey, styleValue);
+                        newNode.innerHTML =
                           grandChildNode.firstChild?.parentElement.innerHTML;
                         if (id === firstId)
-                          siblingOfAnchorNodeOrFocusNode.appendChild(newTag);
+                          siblingOfAnchorNodeOrFocusNode.appendChild(newNode);
                         if (id === lastId) {
                           siblingOfAnchorNodeOrFocusNode.insertBefore(
-                            newTag,
+                            newNode,
                             siblingOfAnchorNodeOrFocusNode.firstChild
                           );
                         }
@@ -178,9 +188,9 @@ const addStyleBetweenNodes = ({
                     );
 
                     const newNode = document.createElement("span");
-                    Object.assign(newNode.style, grandChildNodeStyle);
+                    copyAndPasteStyle(newNode, grandChildNodeStyle);
                     if (styleKey && styleValue)
-                      newNode.style[styleKey as any] = styleValue;
+                      newNode.style.setProperty(styleKey, styleValue);
                     newNode.innerHTML =
                       grandChildNode.firstChild?.parentElement.innerHTML;
                     newP.appendChild(newNode);
@@ -285,4 +295,4 @@ const addStyleToSelection = ({
 };
 export default addStyleToSelection;
 
-export {};
+export { copyAndPasteStyle };
