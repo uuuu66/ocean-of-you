@@ -15,6 +15,7 @@ const searchParentNodeForNodeName = (node: Node, nodeName: string) => {
   let target: Node | null = node;
   while (target?.parentElement) {
     if (!target) return target;
+
     if (target.nodeName === nodeName) {
       return target;
     }
@@ -22,7 +23,7 @@ const searchParentNodeForNodeName = (node: Node, nodeName: string) => {
   }
   return target;
 };
-const searchFlattenNode = (array: FlattendNode[], nodeIndex: number[]) => {
+const searchFlattenNodeIndex = (array: FlattendNode[], nodeIndex: number[]) => {
   let left = 0;
   let right = array.length - 1;
 
@@ -60,4 +61,4 @@ const isLessThan = (compareA: number[], compareB: number[]) => {
   }
   return false;
 };
-export { searchParentNodeForNodeName, searchTextNode, searchFlattenNode };
+export { searchParentNodeForNodeName, searchTextNode, searchFlattenNodeIndex };

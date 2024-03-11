@@ -1,5 +1,5 @@
 import { notAllowedTagsInParagraph } from "@/components/headless/Editor/configs";
-import { searchFlattenNode } from "@/components/headless/Editor/nodeHandlers/searchNodes";
+import { searchFlattenNodeIndex } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
 
 const flattenChildNodes = (
@@ -12,7 +12,7 @@ const flattenChildNodes = (
     case "BR":
       return [
         {
-          isNewLine: true,
+          isParent: true,
           nodeIndex: nodeIndex ?? [],
           style: null,
           node,
@@ -26,7 +26,7 @@ const flattenChildNodes = (
       span.textContent = (node as Text).data;
       return [
         {
-          isNewLine: false,
+          isParent: false,
           style: node?.parentElement?.style ?? null,
           node: span,
           text: span.textContent || "",
@@ -42,7 +42,7 @@ const flattenChildNodes = (
         span.textContent = node.textContent;
         return [
           {
-            isNewLine: false,
+            isParent: false,
             style: node?.parentElement?.style ?? null,
             node: span,
             text: span.textContent || "",
@@ -55,7 +55,7 @@ const flattenChildNodes = (
     case "LI": {
       array.push([
         {
-          isNewLine: true,
+          isParent: true,
           style: node?.firstChild?.parentElement?.style ?? null,
           node,
           text: node.textContent || "",
@@ -72,7 +72,7 @@ const flattenChildNodes = (
           notAllowedTagsInParagraph.includes(childNode.nodeName.toLowerCase())
         )
           array.push({
-            isNewLine: true,
+            isParent: true,
             style: childNode?.firstChild?.parentElement?.style || null,
             node: childNode,
             text: "",
@@ -93,13 +93,11 @@ const flattenChildNodes = (
 
 const postProcessAfterFlatten = (flattenNodes: FlattendNode[]) => {
   const newNodes = [...flattenNodes];
-  let resultNode = elminateFirstIndexPTag(newNodes);
-  resultNode = eliminateConsecutiveRepeatBr(resultNode);
+  let resultNode = eliminateConsecutiveRepeatBr(newNodes);
   resultNode = eliminateConsecutiveRepeatNewLine(resultNode);
-  const searchResult = searchFlattenNode(flattenNodes, [0]);
+  const searchResult = searchFlattenNodeIndex(flattenNodes, [0]);
   if (searchResult !== -1 && resultNode[searchResult]?.nodeName === "META")
     resultNode.splice(searchResult, 1);
-
   return resultNode;
 };
 const eliminateConsecutiveRepeatBr = (flattendNodes: FlattendNode[]) => {
@@ -119,17 +117,10 @@ const eliminateConsecutiveRepeatNewLine = (flattendNodes: FlattendNode[]) => {
   for (let i = 1; i < newNodes.length; i += 1) {
     const node = newNodes[i];
     const prevNode = newNodes[i - 1];
-    if (node?.isNewLine && node?.nodeName === prevNode.node?.nodeName) {
+    if (node?.isParent && node?.nodeName === prevNode.node?.nodeName) {
       newNodes.splice(i, 1);
       i = i - 1;
     }
-  }
-  return newNodes;
-};
-const elminateFirstIndexPTag = (flattendNodes: FlattendNode[]) => {
-  const newNodes = [...flattendNodes];
-  if (newNodes[0].node?.nodeName === "P") {
-    newNodes.splice(0, 1);
   }
   return newNodes;
 };
