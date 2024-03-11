@@ -1,5 +1,6 @@
 import { TagName } from "@/components/headless/Editor";
 import { flags } from "@/components/headless/Editor/configs";
+import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import {
   FlattendNode,
   InsertTagNextToNodesArgs,
@@ -146,9 +147,9 @@ const insertTagAtOffsets = ({
         }
 
         const followedContent = ranges[2].cloneContents();
-        const precededSpan = document.createElement("span");
-        const selectedSpan = document.createElement("span");
-        const followedSpan = document.createElement("span");
+        const precededSpan = document.createElement(node.parentNode.nodeName);
+        const selectedSpan = document.createElement(node.parentNode.nodeName);
+        const followedSpan = document.createElement(node.parentNode.nodeName);
         precededSpan.textContent = "";
         followedSpan.textContent = "";
         precededSpan.appendChild(precededContent);
@@ -185,7 +186,6 @@ const pasteNodesToSelection = (recomposedNodes: RecomposedNodes) => {
       let startOffset = anchorOffset || 0;
       let endOffset = focusOffset || 0;
       let node = null;
-
       if (range.collapsed) {
         node = insertTagAtOffsets({
           node: anchorNode,
