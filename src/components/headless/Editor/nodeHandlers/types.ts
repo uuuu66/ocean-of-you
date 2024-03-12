@@ -19,4 +19,5 @@ export interface FlattendNode {
   nodeIndex: number[];
   parentIndex: number[];
   nodeName: string;
+  childNodes?: HTMLElement[];
 }

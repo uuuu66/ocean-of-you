@@ -68,7 +68,6 @@ const recomposeNode = (node: Node) => {
     while (true) {
       parentNodeIndex = searchFlattenNodeIndex(resultArray, targetIndex);
       targetIndex = targetIndex.slice(0, -1);
-
       if (targetIndex.length === 0) {
         break;
       }
@@ -80,13 +79,14 @@ const recomposeNode = (node: Node) => {
       case true:
         {
           const node = initializeParentNode(flattendNode);
-          const newFlattendNode = {
+          const newFlattendNode: FlattendNode = {
             ...flattendNode,
             isParent,
             parentIndex,
             text,
             node: node,
             nodeName: node.nodeName,
+            childNodes: [],
           };
           resultArray.push(newFlattendNode);
         }
@@ -99,10 +99,16 @@ const recomposeNode = (node: Node) => {
             const span = initializeChildNode(flattendNode);
             const parentNode = resultArray[parentNodeIndex];
             parentNode.node?.appendChild(span);
+            parentNode.childNodes?.push(span);
           } else {
             const isParentExist =
-              resultArray[resultArray.length - 1].nodeIndex.length !== 0;
+              resultArray[resultArray.length - 1]?.nodeIndex?.length === 0;
             if (isParentExist) {
+              const parentNode = resultArray[resultArray.length - 1];
+              const span = initializeChildNode(flattendNode);
+              parentNode?.node?.appendChild(span);
+              parentNode.childNodes?.push(span);
+            } else {
               const newParent: FlattendNode = {
                 isParent: true,
                 nodeIndex: [],
@@ -111,14 +117,12 @@ const recomposeNode = (node: Node) => {
                 parentIndex: [],
                 style: null,
                 text: "",
+                childNodes: [],
               };
               const span = initializeChildNode(flattendNode);
-              newParent.node?.appendChild(span);
               resultArray.push(newParent);
-            } else {
-              const parentNode = resultArray[resultArray.length - 1];
-              const span = initializeChildNode(flattendNode);
-              parentNode.node?.appendChild(span);
+              resultArray[resultArray.length - 1].node?.appendChild(span);
+              resultArray[resultArray.length - 1].childNodes?.push(span);
             }
           }
         }

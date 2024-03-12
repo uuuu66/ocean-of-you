@@ -71,157 +71,77 @@ const insertTagAtOffsets = ({
   node,
   startOffset = 0,
   endOffset = 0,
-  tagName = "span",
   content,
 }: InsertTagNextToNodesArgs) => {
   if (!node) return null;
   if (!node?.parentElement) {
     return null;
   }
+  let targetNode = node;
 
-  switch (node?.parentElement?.tagName) {
-    case "DIV": {
-      const range = new Range();
-      range.setStart(node, startOffset);
-      range.setEnd(node, endOffset);
-      const clonedContents = range.cloneContents();
-      range.deleteContents();
-      const p = document.createElement("p");
-      const span = document.createElement(tagName);
-      p.appendChild(span);
-      if (content) {
-        p.appendChild(content);
-      } else {
-        span.appendChild(clonedContents);
-        p.appendChild(span);
-      }
-      if (styleKey && styleValue) span.style.setProperty(styleKey, styleValue);
-
-      range.insertNode(p);
-      return span;
-    }
-    case "P": {
-      const range = new Range();
-      range.setStart(node, startOffset);
-      range.setEnd(node, endOffset);
-      const clonedContents = range.cloneContents();
-      range.deleteContents();
-      const span = document.createElement(tagName);
-
-      span.appendChild(clonedContents);
-
-      if (styleKey && styleValue) span.style.setProperty(styleKey, styleValue);
-      if (content) range.insertNode(content);
-      else range.insertNode(span);
-      return span;
-    }
-
+  switch (targetNode.nodeName) {
     //targetNode하나를 잡고 앞뒤로 node을 만듬
-    default: {
-      const ranges = [new Range(), new Range(), new Range()];
-      ranges[0].setStart(node, 0);
-      ranges[0].setEnd(node, startOffset);
-      ranges[1].setStart(node, startOffset);
-      ranges[1].setEnd(node, endOffset);
-      ranges[2].setStart(node, endOffset);
-      ranges[2].setEnd(node, node.textContent?.length || 0);
-      if (node.parentNode) {
-        const precededContent = ranges[0].cloneContents();
-        let selectedContent = ranges[1].cloneContents();
-        if (content) {
+    case "#text":
+      targetNode = node.parentElement;
+      break;
+  }
+  const ranges = [new Range(), new Range(), new Range()];
+  ranges[0].setStart(node, 0);
+  ranges[0].setEnd(node, startOffset);
+  ranges[1].setStart(node, startOffset);
+  ranges[1].setEnd(node, endOffset);
+  ranges[2].setStart(node, endOffset);
+  ranges[2].setEnd(node, node.textContent?.length || 0);
+  if (targetNode) {
+    const precededContent = ranges[0].cloneContents();
+    let selectedContent = ranges[1].cloneContents();
+    const followedContent = ranges[2].cloneContents();
+    const precededNode = document.createElement(targetNode.nodeName);
+    let selectedNode: HTMLElement | DocumentFragment = document.createElement(
+      targetNode.nodeName
+    );
+    if (content) {
+      switch (content.nodeName) {
+        default:
+          selectedNode = document.createDocumentFragment();
           selectedContent = document.createDocumentFragment();
           selectedContent.appendChild(content);
-        }
-
-        const followedContent = ranges[2].cloneContents();
-        const precededSpan = document.createElement(node.parentNode.nodeName);
-        const selectedSpan = document.createElement(node.parentNode.nodeName);
-        const followedSpan = document.createElement(node.parentNode.nodeName);
-        precededSpan.textContent = "";
-        followedSpan.textContent = "";
-        precededSpan.appendChild(precededContent);
-        selectedSpan.appendChild(selectedContent);
-        followedSpan.appendChild(followedContent);
-        if (styleKey && styleValue) {
-          const style = window.getComputedStyle(node.parentElement);
-          copyAndPasteStyle(precededSpan, style);
-          copyAndPasteStyle(selectedSpan, style);
-          copyAndPasteStyle(followedSpan, style);
-          selectedSpan.style.setProperty(styleKey, styleValue);
-        }
-        const fragment = document.createDocumentFragment();
-
-        if (!!precededSpan.textContent) fragment.appendChild(precededSpan);
-        if (!!selectedSpan.textContent) fragment.appendChild(selectedSpan);
-        if (!!followedSpan.textContent) fragment.appendChild(followedSpan);
-        ranges[1].deleteContents();
-
-        node.parentNode.parentNode?.replaceChild(fragment, node.parentNode);
-        return selectedSpan;
       }
     }
+    const followedNode = document.createElement(targetNode.nodeName);
+    precededNode.textContent = "";
+    followedNode.textContent = "";
+
+    precededNode.appendChild(precededContent);
+    selectedNode.appendChild(selectedContent);
+    followedNode.appendChild(followedContent);
+    if (styleKey && styleValue && targetNode.firstChild?.parentElement) {
+      const style = window.getComputedStyle(
+        targetNode.firstChild?.parentElement
+      );
+      copyAndPasteStyle(precededNode, style);
+      if (selectedNode instanceof HTMLElement) {
+        copyAndPasteStyle(selectedNode, style);
+        selectedNode.style.setProperty(styleKey, styleValue);
+      }
+      copyAndPasteStyle(followedNode, style);
+    }
+    const fragment = document.createDocumentFragment();
+
+    if (!!precededNode.textContent) fragment.appendChild(precededNode);
+    if (!!selectedNode.textContent) fragment.appendChild(selectedNode);
+    if (!!followedNode.textContent) fragment.appendChild(followedNode);
+
+    ranges[1].deleteContents();
+    targetNode.parentNode?.replaceChild(fragment, targetNode);
+    return { node: selectedNode };
   }
 };
 //selection한 부분에 node를 붙여넣는 코드
-const pasteNodesToSelection = (resultArray: FlattendNode[]) => {
-  const selection = window.getSelection();
-  if (selection) {
-    const range = selection.getRangeAt(0);
-    const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
-    if (anchorNode && focusNode) {
-      let startNode = anchorNode;
-      let startOffset = anchorOffset || 0;
-      let endOffset = focusOffset || 0;
-      let node = null;
-      if (range.collapsed) {
-        node = insertTagAtOffsets({
-          node: anchorNode,
-          startOffset,
-          endOffset,
-          content: resultArray[0].node,
-        });
-      } else {
-        //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
-        //2 뒤에서 앞으로
-        if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-          startNode = focusNode;
-          startOffset = focusOffset;
-          endOffset = anchorOffset;
-        } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
-          startNode = focusNode;
-          startOffset = Math.min(anchorOffset, focusOffset);
-          endOffset = Math.max(anchorOffset, focusOffset);
-        }
-        const newRange = new Range();
-        newRange.setStartAfter(startNode);
-        newRange.setEndAfter(startNode);
-        range.deleteContents();
-        range.setStart(startNode, startOffset);
-        range.setEnd(startNode, startOffset);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        node = insertTagAtOffsets({
-          node: startNode,
-          startOffset,
-          endOffset: startOffset,
-          content: resultArray[0].node,
-        });
-      }
-
-      selection.removeAllRanges();
-      const newRange = new Range();
-      if (node && node.parentNode) {
-        newRange.selectNode(node);
-        selection.addRange(newRange);
-      }
-    }
-  }
-};
 
 export {
   addIdToChildNodes,
   removeIdFromChildNodesBasedOnNodeName,
   insertTagAtOffsets,
   moveCursorToTargetNode,
-  pasteNodesToSelection,
 };

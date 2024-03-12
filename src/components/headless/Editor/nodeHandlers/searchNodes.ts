@@ -21,7 +21,7 @@ const searchParentNodeForNodeName = (node: Node, nodeName: string) => {
     }
     target = target.parentElement;
   }
-  return target;
+  return null;
 };
 const searchFlattenNodeIndex = (
   array: FlattendNode[],
@@ -30,10 +30,8 @@ const searchFlattenNodeIndex = (
   let left = 0;
   let right = array.length - 1;
   const newArray = array.filter((node) => node.nodeIndex.length > 0);
-
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
-
     if (
       JSON.stringify(newArray[mid]?.nodeIndex) === JSON.stringify(targetIndex)
     ) {
