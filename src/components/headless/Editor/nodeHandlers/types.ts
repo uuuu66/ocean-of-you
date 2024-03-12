@@ -10,6 +10,7 @@ export interface InsertTagNextToNodesArgs {
   endOffset?: number;
   content?: Node | null;
   tagName?: TagName;
+  className?: string;
 }
 export interface FlattendNode {
   node: Node | null;

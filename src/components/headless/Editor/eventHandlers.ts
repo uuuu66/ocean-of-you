@@ -1,3 +1,4 @@
+import { classNames } from "@/components/headless/Editor/configs";
 import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common";
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
 import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
@@ -118,17 +119,14 @@ const pasteNodesToSelection = (
     const newRange = new Range();
     if (selection) {
       const range = selection.getRangeAt(0);
+      console.log(selection);
       const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+
       if (anchorNode && focusNode) {
         let startNode = anchorNode;
         let startOffset = anchorOffset || 0;
         let endOffset = focusOffset || 0;
-        let node:
-          | {
-              node: HTMLElement | DocumentFragment;
-            }
-          | null
-          | undefined = null;
+
         if (!range.collapsed) {
           //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
           //2 뒤에서 앞으로
@@ -151,19 +149,37 @@ const pasteNodesToSelection = (
           case true:
             if (resultArray[0]?.childNodes) {
               const fragment = document.createDocumentFragment();
-              for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1)
+              for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1) {
+                if (i === resultArray[0]?.childNodes?.length - 1) {
+                  resultArray[0].childNodes[i].className = classNames.lastNode;
+                }
                 fragment.appendChild(resultArray[0].childNodes[i]);
-              node = insertTagAtOffsets({
+              }
+              insertTagAtOffsets({
                 node: startNode,
                 startOffset,
                 endOffset,
                 content: fragment,
+                className: "mouse-selection",
               });
-              const newRange = new Range();
+            }
+            const lastNode = document.getElementsByClassName(
+              classNames.lastNode
+            )[0];
+            selection.removeAllRanges();
+            const newRange = new Range();
+            if (lastNode) {
+              newRange.selectNodeContents(lastNode);
+              newRange.collapse(false);
 
-              selection.addRange(range);
+              newRange.setStart(lastNode, lastNode.textContent?.length || 0);
+              newRange.setEnd(lastNode, lastNode.textContent?.length || 0);
+              selection.addRange(newRange);
+
+              lastNode.removeAttribute("class");
             }
 
+            console.log(lastNode);
             break;
           case false:
             {
@@ -173,6 +189,7 @@ const pasteNodesToSelection = (
                 for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1)
                   fragment.appendChild(resultArray[0].childNodes[i]);
                 p.appendChild(fragment);
+
                 if (
                   targetElement &&
                   targetElement.childNodes?.length === 1 &&

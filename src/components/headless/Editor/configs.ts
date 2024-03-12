@@ -1,5 +1,6 @@
 export const classNames = {
   firstNode: "first-node",
+  lastNode: "m-editor-last-node",
 };
 export const flags = {
   newLine: "new_line",

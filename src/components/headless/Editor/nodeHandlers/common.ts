@@ -72,6 +72,7 @@ const insertTagAtOffsets = ({
   startOffset = 0,
   endOffset = 0,
   content,
+  className,
 }: InsertTagNextToNodesArgs) => {
   if (!node) return null;
   if (!node?.parentElement) {
@@ -85,13 +86,14 @@ const insertTagAtOffsets = ({
       targetNode = node.parentElement;
       break;
   }
+  console.log(targetNode, node, startOffset, endOffset);
   const ranges = [new Range(), new Range(), new Range()];
   ranges[0].setStart(node, 0);
   ranges[0].setEnd(node, startOffset);
   ranges[1].setStart(node, startOffset);
   ranges[1].setEnd(node, endOffset);
   ranges[2].setStart(node, endOffset);
-  ranges[2].setEnd(node, node.textContent?.length || 0);
+  ranges[2].setEnd(node, node.textContent ? node.textContent?.length - 1 : 0);
   if (targetNode) {
     const precededContent = ranges[0].cloneContents();
     let selectedContent = ranges[1].cloneContents();
@@ -111,10 +113,10 @@ const insertTagAtOffsets = ({
     const followedNode = document.createElement(targetNode.nodeName);
     precededNode.textContent = "";
     followedNode.textContent = "";
-
     precededNode.appendChild(precededContent);
     selectedNode.appendChild(selectedContent);
     followedNode.appendChild(followedContent);
+
     if (styleKey && styleValue && targetNode.firstChild?.parentElement) {
       const style = window.getComputedStyle(
         targetNode.firstChild?.parentElement
@@ -126,12 +128,11 @@ const insertTagAtOffsets = ({
       }
       copyAndPasteStyle(followedNode, style);
     }
-    const fragment = document.createDocumentFragment();
 
+    const fragment = document.createDocumentFragment();
     if (!!precededNode.textContent) fragment.appendChild(precededNode);
     if (!!selectedNode.textContent) fragment.appendChild(selectedNode);
     if (!!followedNode.textContent) fragment.appendChild(followedNode);
-
     ranges[1].deleteContents();
     targetNode.parentNode?.replaceChild(fragment, targetNode);
     return { node: selectedNode };
