@@ -43,7 +43,39 @@ export const handleEditorKeyDown = (
           span.appendChild(br);
           targetElement.appendChild(p);
         }
+
+        if (
+          !!window.getSelection()?.getRangeAt(0).cloneContents().textContent &&
+          !!targetElement.textContent &&
+          targetElement.textContent ===
+          window.getSelection()?.getRangeAt(0).cloneContents().textContent
+        ) {
+          e.preventDefault();
+          targetElement.textContent = "";
+          const p = document.createElement("p");
+          const span = document.createElement("span");
+          const br = document.createElement("br");
+          p.appendChild(span);
+          span.appendChild(br);
+          targetElement.appendChild(p);
+        }
+        break;
       default:
+        if (
+          !!window.getSelection()?.getRangeAt(0).cloneContents().textContent &&
+          !!targetElement.textContent &&
+          targetElement.textContent ===
+            window.getSelection()?.getRangeAt(0).cloneContents().textContent
+        ) {
+          e.preventDefault();
+          targetElement.textContent = "";
+          const p = document.createElement("p");
+          const span = document.createElement("span");
+          const br = document.createElement("br");
+          p.appendChild(span);
+          span.appendChild(br);
+          targetElement.appendChild(p);
+        }
     }
   }
 };
