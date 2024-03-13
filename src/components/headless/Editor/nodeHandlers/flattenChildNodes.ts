@@ -128,7 +128,8 @@ const elminateEmptyTextNode = (flattendNodes: FlattendNode[]) => {
   const newNodes = [...flattendNodes];
   for (let i = 1; i < newNodes.length; i += 1) {
     const node = newNodes[i];
-    if (node.nodeName !== "BR") if (!node.text) newNodes.splice(i, 1);
+    if (!notAllowedTagsInParagraph.includes(node.nodeName.toLowerCase()))
+      if (!node.text) newNodes.splice(i, 1);
   }
   return newNodes;
 };

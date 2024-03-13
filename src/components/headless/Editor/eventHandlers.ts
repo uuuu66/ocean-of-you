@@ -3,6 +3,7 @@ import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/co
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
 import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
+import { ZCOOL_KuaiLe } from "next/font/google";
 import { start } from "repl";
 
 export const handleEditorKeyDown = (
@@ -112,102 +113,124 @@ const pasteNodesToSelection = (
   resultArray: FlattendNode[],
   targetElement?: HTMLElement | null
 ) => {
-  if (resultArray) {
-    const selection = window.getSelection();
-    if (selection) {
-      const range = selection.getRangeAt(0);
-      if (range) {
-        const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
-
-        if (anchorNode && focusNode) {
-          let startNode = anchorNode;
-          let startOffset = anchorOffset || 0;
-          let endOffset = focusOffset || 0;
-
-          if (!range.collapsed) {
-            //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
-            //2 뒤에서 앞으로
-            if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-              startNode = focusNode;
-              startOffset = focusOffset;
-              endOffset = anchorOffset;
-            } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
-              startNode = focusNode;
-              startOffset = Math.min(anchorOffset, focusOffset);
-              endOffset = Math.max(anchorOffset, focusOffset);
-            }
-            range.deleteContents();
-            selection.collapseToEnd();
-
-            endOffset = startOffset;
+  if (!resultArray) {
+    console.error("need resultArray");
+    return;
+  }
+  const selection = window.getSelection();
+  if (!selection) {
+    console.error("need selection");
+    return;
+  }
+  const range = selection.getRangeAt(0);
+  if (!range) {
+    console.error("need range");
+    return;
+  }
+  const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+  if (!anchorNode || !focusNode) {
+    console.error("need AnchorNode or FocusNode");
+    return;
+  }
+  let startNode = anchorNode;
+  let startOffset = anchorOffset || 0;
+  let endOffset = focusOffset || 0;
+  if (!range.collapsed) {
+    //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
+    //2 뒤에서 앞으로
+    if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+      startNode = focusNode;
+      startOffset = focusOffset;
+      endOffset = anchorOffset;
+    } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
+      startNode = focusNode;
+      startOffset = Math.min(anchorOffset, focusOffset);
+      endOffset = Math.max(anchorOffset, focusOffset);
+    }
+    range.deleteContents();
+    endOffset = startOffset;
+  }
+  let parentP = searchParentNodeForNodeName(startNode, "P");
+  switch (!!parentP) {
+    case true:
+      if (resultArray[0]?.childNodes) {
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1) {
+          if (i === resultArray[0]?.childNodes?.length - 1) {
+            resultArray[0].childNodes[i].className = classNames.lastNode;
           }
-          const parentP = searchParentNodeForNodeName(startNode, "P");
-          switch (!!parentP) {
-            case true:
-              if (resultArray[0]?.childNodes) {
-                const fragment = document.createDocumentFragment();
-                for (
-                  let i = 0;
-                  i < resultArray[0]?.childNodes?.length;
-                  i += 1
-                ) {
-                  if (i === resultArray[0]?.childNodes?.length - 1) {
-                    resultArray[0].childNodes[i].className =
-                      classNames.lastNode;
-                  }
-                  fragment.appendChild(resultArray[0].childNodes[i]);
-                }
-                insertTagAtOffsets({
-                  node: startNode,
-                  startOffset,
-                  endOffset,
-                  content: fragment,
-                });
-              }
+          fragment.appendChild(resultArray[0].childNodes[i]);
+        }
+        insertTagAtOffsets({
+          node: startNode,
+          startOffset,
+          endOffset,
+          content: fragment,
+        });
+      }
 
-              break;
-            case false:
-              {
-                const p = document.createElement("p");
-                if (resultArray[0]?.childNodes) {
-                  const fragment = document.createDocumentFragment();
-                  for (
-                    let i = 0;
-                    i < resultArray[0]?.childNodes?.length;
-                    i += 1
-                  ) {
-                    if (i === resultArray[0]?.childNodes?.length - 1)
-                      resultArray[0].childNodes[i].className =
-                        classNames.lastNode;
-                    fragment.appendChild(resultArray[0].childNodes[i]);
-                  }
-                  p.appendChild(fragment);
+      break;
+    case false:
+      {
+        const p = document.createElement("p");
+        if (resultArray[0]?.childNodes) {
+          const fragment = document.createDocumentFragment();
+          for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1) {
+            if (i === resultArray[0]?.childNodes?.length - 1)
+              resultArray[0].childNodes[i].className = classNames.lastNode;
+            fragment.appendChild(resultArray[0].childNodes[i]);
+          }
+          p.appendChild(fragment);
 
-                  if (
-                    targetElement &&
-                    targetElement.childNodes?.length === 1 &&
-                    targetElement.firstChild
-                  )
-                    targetElement.removeChild(targetElement.firstChild);
-                  range.insertNode(p);
-                }
-              }
-              break;
-          }
-          selection.removeAllRanges();
-          const lastNode = document.getElementsByClassName(
-            classNames.lastNode
-          )[0];
-          const newRange = new Range();
-          if (lastNode.firstChild) {
-            newRange.setStart(lastNode, 0);
-            newRange.setEnd(lastNode, 1);
-            newRange.collapse(false);
-            selection.addRange(newRange);
-            lastNode.removeAttribute("class");
-          }
+          if (
+            targetElement &&
+            targetElement.childNodes?.length === 1 &&
+            targetElement.firstChild
+          )
+            targetElement.removeChild(targetElement.firstChild);
+          range.insertNode(p);
         }
       }
-    }
+      break;
   }
+  selection.addRange(range);
+  const lastNode = moveCursorToLastNode(selection);
+
+  if (lastNode) {
+    parentP = searchParentNodeForNodeName(lastNode, "P");
+  }
+  if (resultArray.length > 1) {
+    if (parentP) {
+      const newRange = new Range();
+      newRange.setEndAfter(parentP);
+      newRange.setStartAfter(parentP);
+      for (let i = resultArray.length - 1; i >= 1; i -= 1) {
+        const { node } = resultArray[i];
+        if (!node) break;
+        if (i === resultArray.length - 1 && node?.firstChild?.parentElement) {
+          node.firstChild?.parentElement?.setAttribute(
+            "class",
+            classNames.lastNode
+          );
+        }
+        newRange.insertNode(node);
+      }
+    }
+
+    moveCursorToLastNode(selection);
+  }
+};
+const moveCursorToLastNode = (selection: Selection) => {
+  const lastNode = document.getElementsByClassName(classNames.lastNode)[0];
+  selection.removeAllRanges();
+  const newRange = new Range();
+  if (!lastNode.lastChild) return null;
+  if (lastNode.lastChild?.textContent) {
+    newRange.setStart(lastNode.lastChild, 0);
+    newRange.setEnd(lastNode.lastChild, 1);
+    newRange.collapse(false);
+    selection.addRange(newRange);
+    lastNode.removeAttribute("class");
+  }
+  return lastNode;
 };

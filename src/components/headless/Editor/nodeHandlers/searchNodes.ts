@@ -29,13 +29,15 @@ const searchFlattenNodeIndex = (
 ) => {
   let left = 0;
   let right = array.length - 1;
-  const newArray = array.filter((node) => node.nodeIndex.length > 0);
+  const newArray = array
+    .map((value, index) => ({ ...value, originalIndex: index }))
+    .filter((node) => node.nodeIndex.length > 0);
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     if (
       JSON.stringify(newArray[mid]?.nodeIndex) === JSON.stringify(targetIndex)
     ) {
-      return mid;
+      return newArray[mid].originalIndex;
     } else if (isLessThan(newArray[mid]?.nodeIndex, targetIndex)) {
       left = mid + 1; // 중간값이 타겟보다 작으면 오른쪽 부분만 남김
     } else {
