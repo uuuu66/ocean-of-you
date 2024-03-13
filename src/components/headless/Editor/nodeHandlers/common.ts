@@ -138,7 +138,6 @@ const insertTagAtOffsets = ({
     return { node: selectedNode };
   }
 };
-//selection한 부분에 node를 붙여넣는 코드
 
 export {
   addIdToChildNodes,

@@ -108,16 +108,12 @@ export const handleEditorAfterPaste = (
   }
 };
 
-// 붙여넣기 할때 => 노드들을 태그네임 속성 텍스트 위치로 분해해서 다시 재조립 하는게 나을듯
-// 텍스트 /n
 const pasteNodesToSelection = (
   resultArray: FlattendNode[],
   targetElement?: HTMLElement | null
 ) => {
   if (resultArray) {
     const selection = window.getSelection();
-
-    const newRange = new Range();
     if (selection) {
       const range = selection.getRangeAt(0);
       if (range) {
