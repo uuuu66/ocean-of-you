@@ -24,6 +24,11 @@ export const handleEditorKeyDown = (
     }
 
     switch (e.code) {
+      case "MetaLeft":
+      case "MetaRight":
+      case "KeyV":
+      case "KeyC":
+        if (e.ctrlKey || e.metaKey) break;
       case "Enter":
         if (!targetElement.innerHTML) {
           e.preventDefault();
@@ -35,6 +40,7 @@ export const handleEditorKeyDown = (
           targetElement.appendChild(p);
         }
         break;
+
       case "Backspace":
         if (
           (targetElement.textContent?.length || 0) === 1 ||
@@ -130,6 +136,7 @@ const pasteNodesToSelection = (
     console.error("need range");
     return;
   }
+
   const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
   if (!anchorNode || !focusNode) {
     console.error("need AnchorNode or FocusNode");
@@ -138,6 +145,7 @@ const pasteNodesToSelection = (
   let startNode = anchorNode;
   let startOffset = anchorOffset || 0;
   let endOffset = focusOffset || 0;
+  let endNode = focusNode;
   if (!range.collapsed) {
     //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
     //2 뒤에서 앞으로
@@ -145,14 +153,17 @@ const pasteNodesToSelection = (
       startNode = focusNode;
       startOffset = focusOffset;
       endOffset = anchorOffset;
+      endNode = anchorNode;
     } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
       startNode = focusNode;
       startOffset = Math.min(anchorOffset, focusOffset);
       endOffset = Math.max(anchorOffset, focusOffset);
+      endNode = focusNode;
     }
     range.deleteContents();
     endOffset = startOffset;
   }
+
   let parentP = searchParentNodeForNodeName(startNode, "P");
   switch (!!parentP) {
     case true:
@@ -164,14 +175,12 @@ const pasteNodesToSelection = (
           }
           fragment.appendChild(resultArray[0].childNodes[i]);
         }
-
         insertTagAtOffsets({
           node: startNode,
           startOffset,
           endOffset,
           content: fragment,
         });
-        console.log("hi2");
       }
 
       break;
@@ -198,34 +207,62 @@ const pasteNodesToSelection = (
       }
       break;
   }
-  selection.addRange(range);
-  const lastNode = moveCursorToLastNode(selection);
 
-  if (lastNode) {
-    parentP = searchParentNodeForNodeName(lastNode, "P");
+  const lastNode = moveCursorToLastNode(selection);
+  let clonedNode = null;
+  if (!lastNode) {
+    console.error("need lastNode");
+    return;
   }
+
+  parentP = searchParentNodeForNodeName(lastNode, "P");
+  const newRange = new Range();
+  newRange.setStartAfter(lastNode);
+  if (parentP?.lastChild) newRange.setEndAfter(parentP?.lastChild);
+  clonedNode = newRange.cloneContents();
+  if (clonedNode.textContent) newRange.deleteContents();
+
   if (resultArray.length > 1) {
     if (parentP) {
-      const newRange = new Range();
-      newRange.setEndAfter(parentP);
-      newRange.setStartAfter(parentP);
-      for (let i = resultArray.length - 1; i >= 1; i -= 1) {
+      let nextPastePoint = new Range();
+      nextPastePoint.setEndAfter(parentP);
+      nextPastePoint.setStartAfter(parentP);
+      for (let i = 1; i < resultArray.length; i += 1) {
         const { node } = resultArray[i];
         if (!node) break;
-        if (i === resultArray.length - 1 && node?.firstChild?.parentElement) {
-          node.firstChild?.parentElement?.setAttribute(
-            "class",
-            classNames.lastNode
-          );
+        node.firstChild?.parentElement?.setAttribute(
+          "class",
+          classNames.lastNode
+        );
+        nextPastePoint.insertNode(node);
+        const lastAddedNode = moveCursorToLastNode(
+          selection,
+          !clonedNode?.textContent
+        );
+        nextPastePoint = selection.getRangeAt(0);
+
+        if (
+          i === resultArray.length - 1 &&
+          clonedNode?.textContent &&
+          lastAddedNode?.lastChild
+        ) {
+          newRange.setStartAfter(lastAddedNode.lastChild);
+          newRange.setEndAfter(lastAddedNode.lastChild);
+          newRange.insertNode(clonedNode);
         }
-        newRange.insertNode(node);
       }
     }
-
-    moveCursorToLastNode(selection);
+    moveCursorToLastNode(selection, !clonedNode?.textContent);
+  } else {
+    newRange.setEndAfter(lastNode);
+    newRange.setStartAfter(lastNode);
+    newRange.insertNode(clonedNode);
   }
 };
-const moveCursorToLastNode = (selection: Selection) => {
+const moveCursorToLastNode = (
+  selection: Selection,
+  deleteClassName: boolean = true
+) => {
   const lastNode = document.getElementsByClassName(classNames.lastNode)[0];
   selection.removeAllRanges();
   const newRange = new Range();
@@ -234,14 +271,13 @@ const moveCursorToLastNode = (selection: Selection) => {
     return null;
   }
   const targetNode = searchTextNode(lastNode?.lastChild);
-
   if (!targetNode) return null;
   if (targetNode?.textContent) {
     newRange.setStart(targetNode, 0);
     newRange.setEnd(targetNode, targetNode.textContent?.length);
     newRange.collapse(false);
     selection.addRange(newRange);
-    lastNode.removeAttribute("class");
+    if (deleteClassName) lastNode.removeAttribute("class");
   }
   return lastNode;
 };

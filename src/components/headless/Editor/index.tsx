@@ -42,16 +42,9 @@ export default function Editor() {
           contentEditable
           ref={containerRef}
           id="m-editor-div-element"
-          className="border border-solid border-gray4  w-full min-w-80 h-full min-h-5 p-4 whitespace-pre-line"
+          className="border border-solid border-gray4  w-[800px] min-w-80 h-[900px] min-h-5 p-4 whitespace-pre-line"
         ></div>
       </div>{" "}
-      <div contentEditable>
-        <p>ss</p>
-        <span>ss</span>
-        <p>
-          <span>dd</span>ff
-        </p>{" "}
-      </div>
       <input
         type="color"
         list={"list"}
