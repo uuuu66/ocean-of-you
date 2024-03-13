@@ -72,7 +72,6 @@ const insertTagAtOffsets = ({
   startOffset = 0,
   endOffset = 0,
   content,
-  className,
 }: InsertTagNextToNodesArgs) => {
   if (!node) return null;
   if (!node?.parentElement) {
@@ -86,7 +85,6 @@ const insertTagAtOffsets = ({
       targetNode = node.parentElement;
       break;
   }
-  console.log(targetNode, node, startOffset, endOffset);
   const ranges = [new Range(), new Range(), new Range()];
   ranges[0].setStart(node, 0);
   ranges[0].setEnd(node, startOffset);
@@ -128,7 +126,6 @@ const insertTagAtOffsets = ({
       }
       copyAndPasteStyle(followedNode, style);
     }
-
     const fragment = document.createDocumentFragment();
     if (!!precededNode.textContent) fragment.appendChild(precededNode);
     if (!!selectedNode.textContent) fragment.appendChild(selectedNode);

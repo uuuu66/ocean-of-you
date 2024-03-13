@@ -21,7 +21,6 @@ const initializeParentNode = (parentNode: FlattendNode) => {
   }
 
   if (style) copyAndPasteStyle(newNode, style);
-
   return newNode;
 };
 const initializeChildNode = (node: FlattendNode): HTMLElement => {
@@ -30,29 +29,6 @@ const initializeChildNode = (node: FlattendNode): HTMLElement => {
   span.textContent = text;
   if (style) copyAndPasteStyle(span, style);
   return span;
-};
-//fragment 를 만든 후 Node안에 있는 childNode들을 가공한 후 fragment의 child에 추가함
-const recomposeNodeToSpan = (node: Node): Node => {
-  const fragment = document.createDocumentFragment();
-  const { childNodes } = node;
-  const nodeArray = Array.from(childNodes);
-
-  for (let i = 0; i < nodeArray.length; i += 1) {
-    const childNode = nodeArray[i];
-    switch (childNode.nodeName) {
-      case "#text":
-        const span = document.createElement("span");
-        span.textContent = (childNode as Text).data;
-        if (span.textContent) fragment.appendChild(span);
-        break;
-      case "SPAN":
-      default:
-        const recomposedSpan = recomposeNodeToSpan(childNode);
-        if (recomposedSpan.textContent) fragment.appendChild(recomposedSpan);
-    }
-  }
-
-  return fragment;
 };
 const recomposeNode = (node: Node) => {
   const div = document.createElement("div");
@@ -75,10 +51,12 @@ const recomposeNode = (node: Node) => {
         break;
       }
     }
+
     switch (isParent) {
       case true:
         {
           const node = initializeParentNode(flattendNode);
+
           const newFlattendNode: FlattendNode = {
             ...flattendNode,
             isParent,
@@ -88,6 +66,7 @@ const recomposeNode = (node: Node) => {
             nodeName: node.nodeName,
             childNodes: [],
           };
+
           resultArray.push(newFlattendNode);
         }
         break;
@@ -129,7 +108,6 @@ const recomposeNode = (node: Node) => {
         break;
     }
   }
-
   return resultArray;
 };
 export { recomposeNode };
