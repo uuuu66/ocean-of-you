@@ -116,90 +116,100 @@ const pasteNodesToSelection = (
 ) => {
   if (resultArray) {
     const selection = window.getSelection();
+
     const newRange = new Range();
     if (selection) {
       const range = selection.getRangeAt(0);
-      console.log(selection);
-      const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+      if (range) {
+        const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
 
-      if (anchorNode && focusNode) {
-        let startNode = anchorNode;
-        let startOffset = anchorOffset || 0;
-        let endOffset = focusOffset || 0;
+        if (anchorNode && focusNode) {
+          let startNode = anchorNode;
+          let startOffset = anchorOffset || 0;
+          let endOffset = focusOffset || 0;
 
-        if (!range.collapsed) {
-          //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
-          //2 뒤에서 앞으로
-          if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-            startNode = focusNode;
-            startOffset = focusOffset;
-            endOffset = anchorOffset;
-          } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
-            startNode = focusNode;
-            startOffset = Math.min(anchorOffset, focusOffset);
-            endOffset = Math.max(anchorOffset, focusOffset);
+          if (!range.collapsed) {
+            //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
+            //2 뒤에서 앞으로
+            if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+              startNode = focusNode;
+              startOffset = focusOffset;
+              endOffset = anchorOffset;
+            } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
+              startNode = focusNode;
+              startOffset = Math.min(anchorOffset, focusOffset);
+              endOffset = Math.max(anchorOffset, focusOffset);
+            }
+            range.deleteContents();
+            selection.collapseToEnd();
+
+            endOffset = startOffset;
           }
-          range.deleteContents();
-          selection.collapseToEnd();
-
-          endOffset = startOffset;
-        }
-        const parentP = searchParentNodeForNodeName(startNode, "P");
-        switch (!!parentP) {
-          case true:
-            if (resultArray[0]?.childNodes) {
-              const fragment = document.createDocumentFragment();
-              for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1) {
-                if (i === resultArray[0]?.childNodes?.length - 1) {
-                  resultArray[0].childNodes[i].className = classNames.lastNode;
-                }
-                fragment.appendChild(resultArray[0].childNodes[i]);
-              }
-              insertTagAtOffsets({
-                node: startNode,
-                startOffset,
-                endOffset,
-                content: fragment,
-                className: "mouse-selection",
-              });
-            }
-            const lastNode = document.getElementsByClassName(
-              classNames.lastNode
-            )[0];
-            selection.removeAllRanges();
-            const newRange = new Range();
-            if (lastNode) {
-              newRange.selectNodeContents(lastNode);
-              newRange.collapse(false);
-
-              newRange.setStart(lastNode, lastNode.textContent?.length || 0);
-              newRange.setEnd(lastNode, lastNode.textContent?.length || 0);
-              selection.addRange(newRange);
-
-              lastNode.removeAttribute("class");
-            }
-
-            console.log(lastNode);
-            break;
-          case false:
-            {
-              const p = document.createElement("p");
+          const parentP = searchParentNodeForNodeName(startNode, "P");
+          switch (!!parentP) {
+            case true:
               if (resultArray[0]?.childNodes) {
                 const fragment = document.createDocumentFragment();
-                for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1)
+                for (
+                  let i = 0;
+                  i < resultArray[0]?.childNodes?.length;
+                  i += 1
+                ) {
+                  if (i === resultArray[0]?.childNodes?.length - 1) {
+                    resultArray[0].childNodes[i].className =
+                      classNames.lastNode;
+                  }
                   fragment.appendChild(resultArray[0].childNodes[i]);
-                p.appendChild(fragment);
-
-                if (
-                  targetElement &&
-                  targetElement.childNodes?.length === 1 &&
-                  targetElement.firstChild
-                )
-                  targetElement.removeChild(targetElement.firstChild);
-                range.insertNode(p);
+                }
+                insertTagAtOffsets({
+                  node: startNode,
+                  startOffset,
+                  endOffset,
+                  content: fragment,
+                });
               }
-            }
-            break;
+
+              break;
+            case false:
+              {
+                const p = document.createElement("p");
+                if (resultArray[0]?.childNodes) {
+                  const fragment = document.createDocumentFragment();
+                  for (
+                    let i = 0;
+                    i < resultArray[0]?.childNodes?.length;
+                    i += 1
+                  ) {
+                    if (i === resultArray[0]?.childNodes?.length - 1)
+                      resultArray[0].childNodes[i].className =
+                        classNames.lastNode;
+                    fragment.appendChild(resultArray[0].childNodes[i]);
+                  }
+                  p.appendChild(fragment);
+
+                  if (
+                    targetElement &&
+                    targetElement.childNodes?.length === 1 &&
+                    targetElement.firstChild
+                  )
+                    targetElement.removeChild(targetElement.firstChild);
+                  range.insertNode(p);
+                }
+              }
+              break;
+          }
+          selection.removeAllRanges();
+          const lastNode = document.getElementsByClassName(
+            classNames.lastNode
+          )[0];
+          const newRange = new Range();
+          if (lastNode.firstChild) {
+            newRange.setStart(lastNode, 0);
+            newRange.setEnd(lastNode, 1);
+            newRange.collapse(false);
+            selection.addRange(newRange);
+            lastNode.removeAttribute("class");
+          }
         }
       }
     }
