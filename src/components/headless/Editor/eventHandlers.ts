@@ -1,7 +1,10 @@
 import { classNames } from "@/components/headless/Editor/configs";
 import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common";
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
-import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
+import {
+  searchParentNodeForNodeName,
+  searchTextNode,
+} from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
 import { ZCOOL_KuaiLe } from "next/font/google";
 import { start } from "repl";
@@ -161,12 +164,14 @@ const pasteNodesToSelection = (
           }
           fragment.appendChild(resultArray[0].childNodes[i]);
         }
+
         insertTagAtOffsets({
           node: startNode,
           startOffset,
           endOffset,
           content: fragment,
         });
+        console.log("hi2");
       }
 
       break;
@@ -224,10 +229,16 @@ const moveCursorToLastNode = (selection: Selection) => {
   const lastNode = document.getElementsByClassName(classNames.lastNode)[0];
   selection.removeAllRanges();
   const newRange = new Range();
-  if (!lastNode.lastChild) return null;
-  if (lastNode.lastChild?.textContent) {
-    newRange.setStart(lastNode.lastChild, 0);
-    newRange.setEnd(lastNode.lastChild, 1);
+  if (!lastNode?.lastChild) {
+    console.error("no lastChild", lastNode);
+    return null;
+  }
+  const targetNode = searchTextNode(lastNode?.lastChild);
+
+  if (!targetNode) return null;
+  if (targetNode?.textContent) {
+    newRange.setStart(targetNode, 0);
+    newRange.setEnd(targetNode, targetNode.textContent?.length);
     newRange.collapse(false);
     selection.addRange(newRange);
     lastNode.removeAttribute("class");

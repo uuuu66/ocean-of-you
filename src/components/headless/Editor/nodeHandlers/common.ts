@@ -83,16 +83,18 @@ const insertTagAtOffsets = ({
     //targetNode하나를 잡고 앞뒤로 node을 만듬
     case "#text":
       targetNode = node.parentElement;
+
       break;
   }
-  const ranges = [new Range(), new Range(), new Range()];
-  ranges[0].setStart(node, 0);
-  ranges[0].setEnd(node, startOffset);
-  ranges[1].setStart(node, startOffset);
-  ranges[1].setEnd(node, endOffset);
-  ranges[2].setStart(node, endOffset);
-  ranges[2].setEnd(node, node.textContent ? node.textContent?.length - 1 : 0);
+
   if (targetNode) {
+    const ranges = [new Range(), new Range(), new Range()];
+    ranges[0].setStart(node, 0);
+    ranges[0].setEnd(node, startOffset);
+    ranges[1].setStart(node, startOffset);
+    ranges[1].setEnd(node, endOffset);
+    ranges[2].setStart(node, endOffset);
+    ranges[2].setEnd(node, node.textContent ? node.textContent?.length : 0);
     const precededContent = ranges[0].cloneContents();
     let selectedContent = ranges[1].cloneContents();
     const followedContent = ranges[2].cloneContents();
