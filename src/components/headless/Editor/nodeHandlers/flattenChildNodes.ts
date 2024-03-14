@@ -82,9 +82,9 @@ const flattenChildNodes = (
         ) {
           array.push({
             isParent: true,
-            style: window.getComputedStyle(
-              childNode?.firstChild?.parentElement ?? new Element()
-            ),
+            style: childNode?.firstChild?.parentElement
+              ? window.getComputedStyle(childNode?.firstChild?.parentElement)
+              : null,
             node: childNode,
             text: "",
             nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],
@@ -98,19 +98,19 @@ const flattenChildNodes = (
       }
     }
   }
-
   return array.flat(Infinity);
 };
-
 const postProcessAfterFlatten = (flattendNodes: FlattendNode[]) => {
   const newNodes = [...flattendNodes];
-  let resultNode = eliminateConsecutiveRepeatBr(newNodes);
-  resultNode = eliminateConsecutiveRepeatNewLine(resultNode);
-  resultNode = elminateEmptyTextNode(resultNode);
+  let resultNodes = eliminateConsecutiveRepeatBr(newNodes);
+  resultNodes = eliminateConsecutiveRepeatNewLine(resultNodes);
+  resultNodes = elminateEmptyTextNode(resultNodes);
+  resultNodes = elimiateEmptyChildNodes(resultNodes);
   const searchResult = searchFlattenNodeIndex(flattendNodes, [0]);
-  if (searchResult !== -1 && resultNode[searchResult]?.nodeName === "META")
-    resultNode.splice(searchResult, 1);
-  return resultNode;
+  if (searchResult !== -1 && resultNodes[searchResult]?.nodeName === "META")
+    resultNodes.splice(searchResult, 1);
+
+  return resultNodes;
 };
 const eliminateConsecutiveRepeatBr = (flattendNodes: FlattendNode[]) => {
   const newNodes = [...flattendNodes];
@@ -145,5 +145,22 @@ const eliminateConsecutiveRepeatNewLine = (flattendNodes: FlattendNode[]) => {
   }
   return newNodes;
 };
-
+const elimiateEmptyChildNodes = (flattendNodes: FlattendNode[]) => {
+  const newNodes = [...flattendNodes];
+  for (let i = 1; i < newNodes.length; i += 1) {
+    const { node } = newNodes[i];
+    switch (node?.nodeName) {
+      case "P":
+        if (node?.childNodes?.length === 0) newNodes.splice(i, 1);
+        if (
+          node?.childNodes?.length === 1 &&
+          node?.childNodes[0].nodeName === "SPAN" &&
+          !node?.textContent
+        )
+          newNodes.splice(i, 1);
+        break;
+    }
+  }
+  return newNodes;
+};
 export { flattenChildNodes, postProcessAfterFlatten };
