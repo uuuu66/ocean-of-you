@@ -51,7 +51,6 @@ const recomposeNode = (node: Node) => {
         break;
       }
     }
-
     switch (isParent) {
       case true:
         {
@@ -103,6 +102,21 @@ const recomposeNode = (node: Node) => {
               resultArray[resultArray.length - 1].node?.appendChild(span);
               resultArray[resultArray.length - 1].childNodes?.push(span);
             }
+          }
+        }
+        break;
+    }
+  }
+  for (let i = 0; i < resultArray.length; i += 1) {
+    const { nodeName, childNodes } = resultArray[i];
+    switch (nodeName) {
+      case "BR":
+        if (i === 0) resultArray.splice(i, 1);
+        break;
+      case "P":
+        {
+          if (childNodes?.length === 0) {
+            resultArray.splice(i, 1);
           }
         }
         break;
