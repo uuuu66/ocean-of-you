@@ -47,6 +47,19 @@ const searchFlattenNodeIndex = (
 
   return -1;
 };
+const searchTextNodeAtOffset = (node: Node, offset: number) => {
+  let sum = 0;
+
+  for (let i = 0; i < node.childNodes.length; i += 1) {
+    const childNode = searchTextNode(node.childNodes[i]);
+
+    sum += (childNode as Text)?.data?.length || 0;
+    if (sum >= offset) {
+      return { sum, childNode, offset: sum - offset };
+    }
+  }
+  return { sum: 0, childNode: node };
+};
 //targetA가 compareB보다 먼저오면 true
 const isLessThan = (targetA: number[], compareB: number[]) => {
   const length = Math.max(targetA?.length, compareB?.length);
@@ -72,4 +85,9 @@ const isLessThan = (targetA: number[], compareB: number[]) => {
   }
   return false;
 };
-export { searchParentNodeForNodeName, searchTextNode, searchFlattenNodeIndex };
+export {
+  searchParentNodeForNodeName,
+  searchTextNode,
+  searchFlattenNodeIndex,
+  searchTextNodeAtOffset,
+};
