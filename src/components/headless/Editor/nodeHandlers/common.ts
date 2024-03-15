@@ -88,13 +88,7 @@ const insertTagAtOffsets = ({
   }
 
   if (targetNode) {
-    const ranges = [new Range(), new Range(), new Range()];
-    ranges[0].setStart(node, 0);
-    ranges[0].setEnd(node, startOffset);
-    ranges[1].setStart(node, startOffset);
-    ranges[1].setEnd(node, endOffset);
-    ranges[2].setStart(node, endOffset);
-    ranges[2].setEnd(node, node.textContent ? node.textContent?.length : 0);
+    const ranges = divideNodeIntoThreePart(node, startOffset, endOffset);
     const precededContent = ranges[0].cloneContents();
     let selectedContent = ranges[1].cloneContents();
     const followedContent = ranges[2].cloneContents();
@@ -137,10 +131,33 @@ const insertTagAtOffsets = ({
     return { node: selectedNode };
   }
 };
+const divideNodeIntoThreePart = (
+  node: Node,
+  startOffset: number,
+  endOffset: number
+) => {
+  const ranges = [new Range(), new Range(), new Range()];
+  ranges[0].setStart(node, 0);
+  ranges[0].setEnd(node, startOffset);
+  ranges[1].setStart(node, startOffset);
+  ranges[1].setEnd(node, endOffset);
+  ranges[2].setStart(node, endOffset);
+  ranges[2].setEnd(node, node.textContent ? node.textContent?.length : 0);
+  return ranges;
+};
+const removeEmptyNode = (targetElement: HTMLElement) => {
+  const root = targetElement;
+  const emptyTags = (root as HTMLElement).querySelectorAll(":empty");
 
+  emptyTags.forEach(
+    (tag) => tag.nodeName !== "BR" && tag.parentNode?.removeChild(tag)
+  );
+};
 export {
   addIdToChildNodes,
   removeIdFromChildNodesBasedOnNodeName,
   insertTagAtOffsets,
   moveCursorToTargetNode,
+  divideNodeIntoThreePart,
+  removeEmptyNode,
 };

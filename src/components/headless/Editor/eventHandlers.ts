@@ -1,6 +1,20 @@
-import { pasteNodesToSelection } from "@/components/headless/Editor/nodeHandlers/pasteNodes";
+import { classNames } from "@/components/headless/Editor/configs";
+import {
+  divideNodeIntoThreePart,
+  insertTagAtOffsets,
+  removeEmptyNode,
+} from "@/components/headless/Editor/nodeHandlers/common";
+import {
+  moveCursorToClassName,
+  pasteNodesToSelection,
+} from "@/components/headless/Editor/nodeHandlers/pasteNodes";
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
-import { searchTextNodeAtOffset } from "@/components/headless/Editor/nodeHandlers/searchNodes";
+import {
+  findAllTextNodes,
+  searchParentNodeForNodeName,
+  searchTextNode,
+  searchTextNodeAtOffset,
+} from "@/components/headless/Editor/nodeHandlers/searchNodes";
 
 const handleEditorKeyDown = (
   e: React.KeyboardEvent,
@@ -97,6 +111,23 @@ const handleEditorKeyDown = (
     }
   }
 };
+const handleEditorKeyUp = (
+  e: React.KeyboardEvent,
+  targetElement?: HTMLElement | null
+) => {
+  if (!targetElement) {
+    console.log("need targetElement");
+    return;
+  }
+  const textTags = findAllTextNodes(targetElement);
+  textTags.forEach((tag) => {
+    if (tag.parentNode?.nodeName !== "SPAN") {
+      const span = document.createElement("span");
+      span.appendChild(tag.cloneNode());
+      tag.parentNode?.replaceChild(span, tag);
+    }
+  });
+};
 const handleEditorFocus = (
   e: React.FocusEvent,
   targetElement?: HTMLElement | null
@@ -116,47 +147,132 @@ const handleEditorAfterPaste = (
   e: React.ClipboardEvent<HTMLElement>,
   targetElement?: HTMLElement | null
 ) => {
-  if (targetElement) {
-    e.preventDefault();
-
-    const div = document.createElement("div");
-    div.innerHTML = e.clipboardData.getData("text/html");
-    const recomposedNode = recomposeNode(div);
-    pasteNodesToSelection(recomposedNode, targetElement);
+  if (!targetElement) {
+    console.error("need targetElement");
+    return;
   }
+  e.preventDefault();
+
+  const div = document.createElement("div");
+  div.innerHTML = e.clipboardData.getData("text/html");
+  const recomposedNode = recomposeNode(div);
+  pasteNodesToSelection(recomposedNode, targetElement);
+  removeEmptyNode(targetElement);
 };
 const handleEditorCut = (
   e: React.ClipboardEvent<HTMLElement>,
   targetElement?: HTMLElement | null
 ) => {
   if (!targetElement) {
+    console.error("need targetElement");
     return;
   }
   e.preventDefault();
   const selection = window.getSelection();
+  if (!selection) return;
   const range = selection?.getRangeAt(0);
   if (!range) return;
-  const data = range?.extractContents();
+  const data = range?.cloneContents();
   const div = document.createElement("div");
-  if (data) div.appendChild(data);
-
+  div.appendChild(data);
   e.clipboardData.setData("text/html", div.innerHTML);
 
-  range?.collapse(true);
-  const cursorFlag = document.createElement("span");
-  cursorFlag.className = "hi";
-  range.insertNode(cursorFlag);
-  selection?.removeAllRanges();
-  range.setStartBefore(cursorFlag);
-  range.setEndBefore(cursorFlag);
+  const { anchorNode, focusNode, anchorOffset, focusOffset } = selection;
+  if (anchorNode && focusNode) {
+    let startNode = anchorNode;
+    let startOffset = anchorOffset;
+    let endNode = focusNode;
+    let endOffset = focusOffset;
+    const isAnchorNodeStart =
+      anchorNode?.compareDocumentPosition(focusNode) === 4;
+    if (!isAnchorNodeStart) {
+      startNode = focusNode;
+      startOffset = focusOffset;
+      endNode = anchorNode;
+      endOffset = anchorOffset;
+    }
 
-  // cursorFlag.remove();
-  selection?.addRange(range);
+    if (!endNode?.parentElement) {
+      console.error("need endnodeParent");
+      return;
+    }
+    const postSelectionRange = new Range();
+
+    startNode.firstChild?.parentElement?.setAttribute(
+      "id",
+      classNames.firstNode
+    );
+    postSelectionRange.setStart(endNode, endOffset);
+    while (true) {
+      if (!endNode) break;
+      if (!endNode?.parentElement) {
+        break;
+      }
+      if (endNode?.parentElement)
+        postSelectionRange.setEndAfter(endNode?.parentElement);
+
+      if (!endNode?.parentElement?.nextElementSibling) {
+        endNode?.parentElement?.setAttribute("class", classNames.lastNode);
+        break;
+      }
+      endNode =
+        endNode?.parentElement?.nextElementSibling?.firstChild || endNode;
+    }
+
+    const postSelectionContent = postSelectionRange.extractContents();
+    if (
+      postSelectionContent.firstChild?.firstChild?.parentElement?.className ===
+        classNames.lastNode &&
+      !postSelectionContent.firstChild.textContent
+    )
+      selection.deleteFromDocument();
+    selection.removeAllRanges();
+    selection.addRange(postSelectionRange);
+    postSelectionContent.firstChild?.firstChild?.parentElement?.setAttribute(
+      "id",
+      classNames.firstNode
+    );
+
+    const insertPointRange = range.cloneRange();
+    insertPointRange.collapse(true);
+    if (insertPointRange.commonAncestorContainer.nodeName === "DIV") return;
+
+    insertTagAtOffsets({
+      node: searchTextNode(startNode),
+      startOffset: insertPointRange.startOffset,
+      endOffset: insertPointRange.startOffset,
+      content: postSelectionContent,
+    });
+    const deleteStartPoint = document.getElementsByClassName(
+      classNames.lastNode
+    )[0];
+    const deleteRange = new Range();
+    deleteRange.setStartAfter(deleteStartPoint);
+    deleteRange.setEndAfter(selection.getRangeAt(0).endContainer);
+
+    selection.removeAllRanges();
+    selection.addRange(deleteRange);
+    deleteStartPoint.removeAttribute("class");
+    selection.deleteFromDocument();
+    const cursorAfterCutRange = new Range();
+    const cursorAfterCutPoint = document.getElementById(classNames.firstNode);
+    if (!cursorAfterCutPoint) {
+      console.error("need firstNode");
+      return;
+    }
+    cursorAfterCutRange.setStart(searchTextNode(cursorAfterCutPoint), 0);
+    cursorAfterCutRange.setEnd(searchTextNode(cursorAfterCutPoint), 0);
+    selection.removeAllRanges();
+    selection.addRange(cursorAfterCutRange);
+    cursorAfterCutPoint.removeAttribute("id");
+    removeEmptyNode(targetElement);
+  }
 };
 
 export {
   handleEditorFocus,
   handleEditorAfterPaste,
   handleEditorKeyDown,
+  handleEditorKeyUp,
   handleEditorCut,
 };

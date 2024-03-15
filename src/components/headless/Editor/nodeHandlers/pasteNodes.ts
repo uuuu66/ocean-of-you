@@ -34,6 +34,7 @@ const pasteNodesToSelection = (
   let startNode = anchorNode;
   let startOffset = anchorOffset || 0;
   let endOffset = focusOffset || 0;
+
   if (!range.collapsed) {
     //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
     //2 뒤에서 앞으로
@@ -53,19 +54,10 @@ const pasteNodesToSelection = (
     endOffset = startOffset;
   }
   const parentP = searchParentNodeForNodeName(startNode, "P");
-  if (startNode.nodeName === "P") {
-    const { node, offset } = getAppropriateNodeAndOffset(
-      startNode,
-      Math.max(anchorOffset, focusOffset)
-    );
-    startNode = node;
-    startOffset = offset;
-    endOffset = offset;
-  }
   const firstChildNode = resultArray[0];
-
-  switch (!!parentP) {
-    case true:
+  console.log(startNode.nodeName);
+  switch (startNode.nodeName) {
+    case "DIV":
       if (firstChildNode?.childNodes) {
         const fragment = document.createDocumentFragment();
         for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
@@ -74,58 +66,79 @@ const pasteNodesToSelection = (
           }
           fragment.appendChild(firstChildNode.childNodes[i]);
         }
-        insertTagAtOffsets({
-          node: startNode,
-          startOffset,
-          endOffset,
-          content: fragment,
-        });
-      }
-      break;
-    case false:
-      {
-        const p = document.createElement("p");
-        if (resultArray[0]?.childNodes) {
-          const fragment = document.createDocumentFragment();
-          for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1) {
-            if (i === resultArray[0]?.childNodes?.length - 1)
-              resultArray[0].childNodes[i].className = classNames.lastNode;
-            fragment.appendChild(resultArray[0].childNodes[i]);
-          }
+        const targetP = startNode.childNodes.item(startOffset - 1);
+        if (targetP?.lastChild) {
+          const newRange = new Range();
+          newRange.setEndAfter(targetP.lastChild);
+          newRange.setStartAfter(targetP.lastChild);
+          newRange.insertNode(fragment);
+        } else {
+          const p = document.createElement("p");
           p.appendChild(fragment);
-
-          if (
-            targetElement &&
-            targetElement.childNodes?.length === 1 &&
-            targetElement.firstChild
-          )
-            targetElement.removeChild(targetElement.firstChild);
           range.insertNode(p);
         }
       }
       break;
+    case "P":
+      if (firstChildNode?.childNodes) {
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
+          if (i === firstChildNode.childNodes?.length - 1) {
+            firstChildNode.childNodes[i].className = classNames.lastNode;
+          }
+          fragment.appendChild(firstChildNode.childNodes[i]);
+        }
+        range.insertNode(fragment);
+      }
+      break;
+    default:
+      switch (!!parentP) {
+        case true:
+          if (firstChildNode?.childNodes) {
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
+              if (i === firstChildNode.childNodes?.length - 1) {
+                firstChildNode.childNodes[i].className = classNames.lastNode;
+              }
+              fragment.appendChild(firstChildNode.childNodes[i]);
+            }
+            insertTagAtOffsets({
+              node: startNode,
+              startOffset,
+              endOffset,
+              content: fragment,
+            });
+          }
+          break;
+        case false:
+          {
+            const p = document.createElement("p");
+            if (resultArray[0]?.childNodes) {
+              const fragment = document.createDocumentFragment();
+              for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1) {
+                if (i === resultArray[0]?.childNodes?.length - 1)
+                  resultArray[0].childNodes[i].className = classNames.lastNode;
+                fragment.appendChild(resultArray[0].childNodes[i]);
+              }
+              p.appendChild(fragment);
+
+              if (
+                targetElement &&
+                targetElement.childNodes?.length === 1 &&
+                targetElement.firstChild
+              )
+                targetElement.removeChild(targetElement.firstChild);
+              range.insertNode(p);
+            }
+          }
+          break;
+      }
   }
   const lastNode = moveCursorToClassName(selection, classNames.lastNode);
 
   insertRemainingNodes(lastNode, selection, resultArray);
 };
-const getAppropriateNodeAndOffset = (node: Node, offset: number) => {
-  switch (node.nodeName) {
-    case "P":
-      const {
-        childNode,
 
-        offset: resultOffset,
-      } = searchTextNodeAtOffset(node, offset);
-
-      return {
-        node: childNode,
-        offset: (resultOffset || 0) + 1,
-      };
-    default:
-      return { node, offset };
-  }
-};
 const insertRemainingNodes = (
   lastNode: Node | null,
   selection: Selection,
@@ -144,7 +157,7 @@ const insertRemainingNodes = (
   const range = new Range();
   const firstLineParentP = searchParentNodeForNodeName(lastNode, "P");
   if (!firstLineParentP) {
-    console.error("need firstLineParentP");
+    console.error("need firstLineParentP", lastNode.parentElement);
     return;
   }
   //뒤에 남아있는 노드들 추출하기
@@ -205,4 +218,4 @@ const moveCursorToClassName = (selection: Selection, className: string) => {
   }
   return targetNode;
 };
-export { pasteNodesToSelection };
+export { pasteNodesToSelection, moveCursorToClassName };
