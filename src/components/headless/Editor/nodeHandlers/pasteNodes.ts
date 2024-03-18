@@ -55,7 +55,6 @@ const pasteNodesToSelection = (
   }
   const parentP = searchParentNodeForNodeName(startNode, "P");
   const firstChildNode = resultArray[0];
-  console.log(startNode.nodeName);
   switch (startNode.nodeName) {
     case "DIV":
       if (firstChildNode?.childNodes) {

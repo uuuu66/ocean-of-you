@@ -176,7 +176,6 @@ const handleEditorCut = (
   const div = document.createElement("div");
   div.appendChild(data);
   e.clipboardData.setData("text/html", div.innerHTML);
-
   const { anchorNode, focusNode, anchorOffset, focusOffset } = selection;
   if (anchorNode && focusNode) {
     let startNode = anchorNode;
@@ -196,79 +195,116 @@ const handleEditorCut = (
       console.error("need endnodeParent");
       return;
     }
-    const postSelectionRange = new Range();
-
-    startNode.firstChild?.parentElement?.setAttribute(
-      "id",
-      classNames.firstNode
-    );
-    postSelectionRange.setStart(endNode, endOffset);
-    while (true) {
-      if (!endNode) break;
-      if (!endNode?.parentElement) {
-        break;
-      }
-      if (endNode?.parentElement)
-        postSelectionRange.setEndAfter(endNode?.parentElement);
-
-      if (!endNode?.parentElement?.nextElementSibling) {
-        endNode?.parentElement?.setAttribute("class", classNames.lastNode);
-        break;
-      }
-      endNode =
-        endNode?.parentElement?.nextElementSibling?.firstChild || endNode;
-    }
-
-    const postSelectionContent = postSelectionRange.extractContents();
-    if (
-      postSelectionContent.firstChild?.firstChild?.parentElement?.className ===
-        classNames.lastNode &&
-      !postSelectionContent.firstChild.textContent
-    )
-      selection.deleteFromDocument();
-    selection.removeAllRanges();
-    selection.addRange(postSelectionRange);
-    postSelectionContent.firstChild?.firstChild?.parentElement?.setAttribute(
-      "id",
-      classNames.firstNode
+    const postSelectionRange = makePostSelectionRange(
+      startNode,
+      endNode,
+      endOffset
     );
 
-    const insertPointRange = range.cloneRange();
-    insertPointRange.collapse(true);
-    if (insertPointRange.commonAncestorContainer.nodeName === "DIV") return;
-
-    insertTagAtOffsets({
-      node: searchTextNode(startNode),
-      startOffset: insertPointRange.startOffset,
-      endOffset: insertPointRange.startOffset,
-      content: postSelectionContent,
-    });
-    const deleteStartPoint = document.getElementsByClassName(
-      classNames.lastNode
-    )[0];
-    const deleteRange = new Range();
-    deleteRange.setStartAfter(deleteStartPoint);
-    deleteRange.setEndAfter(selection.getRangeAt(0).endContainer);
-
-    selection.removeAllRanges();
-    selection.addRange(deleteRange);
-    deleteStartPoint.removeAttribute("class");
-    selection.deleteFromDocument();
-    const cursorAfterCutRange = new Range();
-    const cursorAfterCutPoint = document.getElementById(classNames.firstNode);
-    if (!cursorAfterCutPoint) {
-      console.error("need firstNode");
-      return;
-    }
-    cursorAfterCutRange.setStart(searchTextNode(cursorAfterCutPoint), 0);
-    cursorAfterCutRange.setEnd(searchTextNode(cursorAfterCutPoint), 0);
-    selection.removeAllRanges();
-    selection.addRange(cursorAfterCutRange);
-    cursorAfterCutPoint.removeAttribute("id");
+    copyAndPastePostSelectionContent(
+      selection,
+      range,
+      startNode,
+      postSelectionRange
+    );
+    deletePostSelectionContent(selection);
+    moveCursorToCutPoint(selection, startNode);
     removeEmptyNode(targetElement);
   }
 };
+const makePostSelectionRange = (
+  startNode: Node,
+  endNode: Node,
+  endOffset: number
+) => {
+  const postSelectionRange = new Range();
+  startNode.firstChild?.parentElement?.setAttribute("id", classNames.firstNode);
+  postSelectionRange.setStart(endNode, endOffset);
+  while (true) {
+    if (!endNode) break;
+    if (!endNode?.parentElement) {
+      break;
+    }
+    if (endNode?.parentElement)
+      postSelectionRange.setEndAfter(endNode?.parentElement);
 
+    if (!endNode?.parentElement?.nextElementSibling) {
+      endNode?.parentElement?.setAttribute("class", classNames.lastNode);
+      break;
+    }
+    endNode = endNode?.parentElement?.nextElementSibling?.firstChild || endNode;
+  }
+  return postSelectionRange;
+};
+const copyAndPastePostSelectionContent = (
+  selection: Selection,
+  selectionRange: Range,
+  startNode: Node,
+  postSelectionRange: Range
+) => {
+  const postSelectionContent = postSelectionRange.extractContents();
+
+  if (
+    postSelectionContent.firstChild?.firstChild?.parentElement?.className ===
+      classNames.lastNode &&
+    !postSelectionContent.firstChild.textContent
+  )
+    selection.deleteFromDocument();
+  selection.removeAllRanges();
+  selection.addRange(postSelectionRange);
+  postSelectionContent.firstChild?.firstChild?.parentElement?.setAttribute(
+    "id",
+    classNames.firstNode
+  );
+  const insertPointRange = selectionRange.cloneRange();
+  insertPointRange.collapse(true);
+  if (insertPointRange.commonAncestorContainer.nodeName === "DIV") return;
+  insertTagAtOffsets({
+    node: searchTextNode(startNode),
+    startOffset: insertPointRange.startOffset,
+    endOffset: insertPointRange.startOffset,
+    content: postSelectionContent,
+  });
+};
+const deletePostSelectionContent = (selection: Selection) => {
+  const deleteStartPoint = document.getElementsByClassName(
+    classNames.lastNode
+  )[0];
+  const deleteRange = new Range();
+  deleteRange.setStartAfter(deleteStartPoint);
+  deleteRange.setEndAfter(selection.getRangeAt(0).endContainer);
+  selection.removeAllRanges();
+  selection.addRange(deleteRange);
+  deleteStartPoint.removeAttribute("class");
+  selection.deleteFromDocument();
+};
+const moveCursorToCutPoint = (selection: Selection, startNode: Node) => {
+  const cursorAfterCutRange = new Range();
+  const cursorAfterCutPoint = document.getElementById(classNames.firstNode);
+  if (!cursorAfterCutPoint) {
+    const parentP = searchParentNodeForNodeName(startNode, "P");
+    if (!parentP?.lastChild) {
+      const span = document.createElement("span");
+      const br = document.createElement("br");
+      span.appendChild(br);
+      parentP?.appendChild(span);
+      cursorAfterCutRange.setStart(span, 0);
+      cursorAfterCutRange.setEnd(span, 1);
+    } else {
+      const textNode = searchTextNode(parentP.lastChild);
+      cursorAfterCutRange.setStart(textNode, textNode.data.length);
+      cursorAfterCutRange.setEnd(textNode, textNode.data.length);
+    }
+    selection.removeAllRanges();
+    selection.addRange(cursorAfterCutRange);
+    return;
+  }
+  cursorAfterCutRange.setStart(searchTextNode(cursorAfterCutPoint), 0);
+  cursorAfterCutRange.setEnd(searchTextNode(cursorAfterCutPoint), 0);
+  selection.removeAllRanges();
+  selection.addRange(cursorAfterCutRange);
+  cursorAfterCutPoint.removeAttribute("id");
+};
 export {
   handleEditorFocus,
   handleEditorAfterPaste,
