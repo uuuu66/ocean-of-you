@@ -50,18 +50,26 @@ const pasteNodesToSelection = (
       startOffset = Math.min(anchorOffset, focusOffset);
       endOffset = Math.max(anchorOffset, focusOffset);
     }
+    //일단 선택한 부분을 없앰 없앤 후 flatten한 노드들을 재배치함
     range.deleteContents();
 
     endOffset = startOffset;
   }
+  //셀렉션의 시작노드의 p태그를 찾음
   const parentP = searchParentNodeForNodeName(startNode, "P");
+  //첫번째 줄은 기존에 존재하는 p태그의 child로 추가해야됨
+  //따로 처리함
   const firstChildNode = resultArray[0];
+  //셀렉션의 startNode의 경우의 수
   switch (startNode.nodeName) {
+    //div일 경우는 p가 없거나 셀렉트가 잘못된 경우
     case "DIV":
       if (firstChildNode?.childNodes) {
         const fragment = document.createDocumentFragment();
+
         for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
           if (i === firstChildNode.childNodes?.length - 1) {
+            //마지막 노드에 커서이동을 위한 클래스 부여
             firstChildNode.childNodes[i].className = classNames.lastNode;
           }
           fragment.appendChild(firstChildNode.childNodes[i]);
@@ -79,11 +87,13 @@ const pasteNodesToSelection = (
         }
       }
       break;
+    //p일 경우는 br태그이거나 셀렉트가 잘못된 경우
     case "P":
       if (firstChildNode?.childNodes) {
         const fragment = document.createDocumentFragment();
         for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
           if (i === firstChildNode.childNodes?.length - 1) {
+            //마지막 노드에 커서이동을 위한 클래스 부여
             firstChildNode.childNodes[i].className = classNames.lastNode;
           }
           fragment.appendChild(firstChildNode.childNodes[i]);
@@ -91,6 +101,7 @@ const pasteNodesToSelection = (
         range.insertNode(fragment);
       }
       break;
+    //div나 p안에들어있는 태그일 경우
     default:
       switch (!!parentP) {
         case true:
@@ -98,6 +109,7 @@ const pasteNodesToSelection = (
             const fragment = document.createDocumentFragment();
             for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
               if (i === firstChildNode.childNodes?.length - 1) {
+                //마지막 노드에 커서이동을 위한 클래스 부여
                 firstChildNode.childNodes[i].className = classNames.lastNode;
               }
               fragment.appendChild(firstChildNode.childNodes[i]);
@@ -117,6 +129,7 @@ const pasteNodesToSelection = (
               const fragment = document.createDocumentFragment();
               for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1) {
                 if (i === resultArray[0]?.childNodes?.length - 1)
+                  //마지막 노드에 커서이동을 위한 클래스 부여
                   resultArray[0].childNodes[i].className = classNames.lastNode;
                 fragment.appendChild(resultArray[0].childNodes[i]);
               }
@@ -134,8 +147,9 @@ const pasteNodesToSelection = (
           break;
       }
   }
+  //커서 이동후 마지막 노드를 가져옴
   const lastNode = moveCursorToClassName(selection, classNames.lastNode);
-
+  //첫번째노드 삽입 후  남아있는 노드들을 추가함
   insertRemainingNodes(lastNode, selection, resultArray);
 };
 
@@ -154,33 +168,37 @@ const insertRemainingNodes = (
     console.error("need lastTextNode");
     return;
   }
-  const range = new Range();
+  const postEndNodeRange = new Range();
   const firstLineParentP = searchParentNodeForNodeName(lastNode, "P");
   if (!firstLineParentP) {
     console.error("need firstLineParentP", lastNode.parentElement);
     return;
   }
-  //뒤에 남아있는 노드들 추출하기
-  range.setStartAfter(lastNode);
+  //뒤에 남아있는 노드들(selection한 후 endNode 뒤에 있는 노드들) 추출하기
+  //뒤에 노드가 남아있는 경우 마지막 줄(p)의 child로 추가해야함
+  //range로 선택
+  postEndNodeRange.setStartAfter(lastNode);
   if (firstLineParentP?.lastChild)
-    range.setEndAfter(firstLineParentP?.lastChild);
-  const remainingNodes = range.cloneContents();
-  range.deleteContents();
+    postEndNodeRange.setEndAfter(firstLineParentP?.lastChild);
+  const remainingNodes = postEndNodeRange.cloneContents();
+  postEndNodeRange.deleteContents();
   //p태그들 집어넣기
-  let nextPastePoint = new Range();
-  nextPastePoint.setEndAfter(firstLineParentP);
-  nextPastePoint.setStartAfter(firstLineParentP);
+  //p태그들을 집어넣을 커서 포인트
+  let nextPastePointRange = new Range();
+  nextPastePointRange.setEndAfter(firstLineParentP);
+  nextPastePointRange.setStartAfter(firstLineParentP);
   for (let i = 1; i < resultArray.length; i += 1) {
     const { node } = resultArray[i];
     if (!node) break;
     node.firstChild?.parentElement?.setAttribute("class", classNames.lastNode);
-    nextPastePoint.insertNode(node);
+    nextPastePointRange.insertNode(node);
     const lastAddedNode = moveCursorToClassName(selection, classNames.lastNode);
-
+    //추가한 노드의 p태그를 찾음
     const parentP = searchParentNodeForNodeName(node, "P");
     if (!parentP) break;
-    nextPastePoint.setStartAfter(parentP);
-    nextPastePoint.setEndAfter(parentP);
+    nextPastePointRange.setStartAfter(parentP);
+    nextPastePointRange.setEndAfter(parentP);
+    //추가한 p태그에 커서 이동을 위한 클래스 부여
     parentP.lastChild?.parentElement?.setAttribute(
       "class",
       classNames.lastNode
@@ -188,12 +206,13 @@ const insertRemainingNodes = (
     moveCursorToClassName(selection, classNames.lastNode);
     //마지막 p에 추출한 노드들 집어넣기
     if (i === resultArray.length - 1 && lastAddedNode?.lastChild) {
-      range.setStartAfter(lastAddedNode.lastChild);
-      range.setEndAfter(lastAddedNode.lastChild);
-      range.insertNode(remainingNodes);
+      postEndNodeRange.setStartAfter(lastAddedNode.lastChild);
+      postEndNodeRange.setEndAfter(lastAddedNode.lastChild);
+      postEndNodeRange.insertNode(remainingNodes);
     }
   }
 };
+//class를 찾아서 커서이동
 const moveCursorToClassName = (selection: Selection, className: string) => {
   const targetNode = document.getElementsByClassName(className)[0];
   selection.removeAllRanges();
@@ -207,16 +226,18 @@ const moveCursorToClassName = (selection: Selection, className: string) => {
     return null;
   }
   const textNode = searchTextNode(targetNode?.lastChild);
+  //텍스트 노드가 없으면 lastChild
   if (!textNode) {
     newRange.setStart(targetNode?.lastChild, 0);
     newRange.setEnd(targetNode?.lastChild, 1);
+    newRange.collapse(false);
+    //텍스트가 있으면 텍스트노드의 전체 길이
   } else if (textNode?.textContent) {
     newRange.setStart(textNode, 0);
     newRange.setEnd(textNode, textNode.textContent?.length);
     newRange.collapse(false);
-
-    selection.addRange(newRange);
   }
+  selection.addRange(newRange);
   targetNode.removeAttribute("class");
   return targetNode;
 };

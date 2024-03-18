@@ -77,6 +77,7 @@ const recomposeNode = (node: Node) => {
       case false:
       default:
         {
+          //br태그 일경우 새로운 p를 만듬
           if (flattendNodeName === "BR") {
             const newParent: FlattendNode = {
               isParent: true,
@@ -94,6 +95,7 @@ const recomposeNode = (node: Node) => {
             resultArray.push(newParent);
             resultArray[resultArray.length - 1].node?.appendChild(span);
             resultArray[resultArray.length - 1].childNodes?.push(span);
+            //parentNode가 존재할경우
           } else if (parentNodeIndex >= 0) {
             if (!text) continue;
             const span = initializeChildNode(flattendNode);
@@ -101,13 +103,16 @@ const recomposeNode = (node: Node) => {
             parentNode.node?.appendChild(span);
             parentNode.childNodes?.push(span);
           } else {
+            //아닐경우 새로운 p를 만든 후 그 p에 텍스트를 넣음 새로운 p는 nodeIndex의 length가 0임 (index를 부여하지 않음 )
             const isParentExist =
               resultArray[resultArray.length - 1]?.nodeIndex?.length === 0;
+            //새로만든 p가 존재할경우
             if (isParentExist) {
               const parentNode = resultArray[resultArray.length - 1];
               const span = initializeChildNode(flattendNode);
               parentNode?.node?.appendChild(span);
               parentNode.childNodes?.push(span);
+              //아닐 경우
             } else {
               const newParent: FlattendNode = {
                 isParent: true,
@@ -129,6 +134,7 @@ const recomposeNode = (node: Node) => {
         break;
     }
   }
+  //정리되지 않은 노드들이 있을 경우 후처리
   for (let i = 0; i < resultArray.length; i += 1) {
     const { nodeName, childNodes } = resultArray[i];
     switch (nodeName) {
