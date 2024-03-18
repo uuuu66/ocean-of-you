@@ -55,11 +55,17 @@ const pasteNodesToSelection = (
 
     endOffset = startOffset;
   }
+
   //셀렉션의 시작노드의 p태그를 찾음
   const parentP = searchParentNodeForNodeName(startNode, "P");
   //첫번째 줄은 기존에 존재하는 p태그의 child로 추가해야됨
   //따로 처리함
+
+  while (resultArray[0]?.nodeIndex[0] === -1) {
+    resultArray.splice(0, 1);
+  }
   const firstChildNode = resultArray[0];
+
   //셀렉션의 startNode의 경우의 수
   switch (startNode.nodeName) {
     //div일 경우는 p가 없거나 셀렉트가 잘못된 경우
@@ -114,6 +120,7 @@ const pasteNodesToSelection = (
               }
               fragment.appendChild(firstChildNode.childNodes[i]);
             }
+
             insertTagAtOffsets({
               node: startNode,
               startOffset,
