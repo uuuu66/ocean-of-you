@@ -31,7 +31,7 @@ const searchFlattenNodeIndex = (
   let right = array.length - 1;
   const newArray = array
     .map((value, index) => ({ ...value, originalIndex: index }))
-    .filter((node) => node.nodeIndex.length > 0);
+    .filter((node) => node.nodeIndex.length > 0 && node.nodeIndex[0] >= 0);
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     if (

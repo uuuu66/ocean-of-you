@@ -6,6 +6,7 @@ import {
   searchTextNode,
 } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
+import _ from "lodash";
 
 const pasteNodesToSelection = (
   resultArray: FlattendNode[],
@@ -206,15 +207,17 @@ const moveCursorToClassName = (selection: Selection, className: string) => {
     return null;
   }
   const textNode = searchTextNode(targetNode?.lastChild);
-  if (!textNode) return null;
-  if (textNode?.textContent) {
+  if (!textNode) {
+    newRange.setStart(targetNode?.lastChild, 0);
+    newRange.setEnd(targetNode?.lastChild, 1);
+  } else if (textNode?.textContent) {
     newRange.setStart(textNode, 0);
     newRange.setEnd(textNode, textNode.textContent?.length);
     newRange.collapse(false);
 
     selection.addRange(newRange);
-    targetNode.removeAttribute("class");
   }
+  targetNode.removeAttribute("class");
   return targetNode;
 };
 export { pasteNodesToSelection, moveCursorToClassName };

@@ -12,7 +12,7 @@ const flattenChildNodes = (
     case "BR":
       return [
         {
-          isParent: true,
+          isParent: false,
           nodeIndex: nodeIndex ?? [],
           style: null,
           node,
@@ -58,21 +58,25 @@ const flattenChildNodes = (
       break;
     case "SPAN":
       if (node.childNodes.length === 1) {
-        const span = document.createElement("span");
-        span.textContent = node.textContent;
-        return [
-          {
-            isParent: false,
-            style: node?.parentElement
-              ? window.getComputedStyle(node?.parentElement)
-              : null,
-            node: span,
-            text: span.textContent || "",
-            nodeIndex: nodeIndex ?? [],
-            nodeName: span.nodeName,
-            parentIndex,
-          },
-        ];
+        if ((node.firstChild as HTMLElement).nodeName === "BR") {
+        } else {
+          const span = document.createElement("span");
+          span.textContent = node.textContent;
+          return [
+            {
+              isParent: false,
+              style: node?.parentElement
+                ? window.getComputedStyle(node?.parentElement)
+                : null,
+              node: span,
+              text: span.textContent || "",
+              nodeIndex: nodeIndex ?? [],
+              nodeName: span.nodeName,
+              parentIndex,
+              childNodes: [node.firstChild as HTMLElement],
+            },
+          ];
+        }
       }
     default: {
       for (let i = 0; i < node.childNodes.length; i += 1) {
@@ -109,17 +113,19 @@ const postProcessAfterFlatten = (flattendNodes: FlattendNode[]) => {
   const searchResult = searchFlattenNodeIndex(flattendNodes, [0]);
   if (searchResult !== -1 && resultNodes[searchResult]?.nodeName === "META")
     resultNodes.splice(searchResult, 1);
-
+  console.log(resultNodes);
   return resultNodes;
 };
+
 const eliminateConsecutiveRepeatBr = (flattendNodes: FlattendNode[]) => {
   const newNodes = [...flattendNodes];
+
   for (let i = 1; i < newNodes.length; i += 1) {
     const node = newNodes[i];
     const prevNode = newNodes[i - 1];
     if (node?.nodeName === "BR" && node?.nodeName === prevNode.node?.nodeName) {
       newNodes.splice(i, 1);
-      i = i - 1;
+      i = i + 1;
     }
   }
   return newNodes;
@@ -128,6 +134,7 @@ const elminateEmptyTextNode = (flattendNodes: FlattendNode[]) => {
   const newNodes = [...flattendNodes];
   for (let i = 1; i < newNodes.length; i += 1) {
     const node = newNodes[i];
+    if (node.nodeName === "BR") continue;
     if (!notAllowedTagsInParagraph.includes(node.nodeName.toLowerCase()))
       if (!node.text) newNodes.splice(i, 1);
   }

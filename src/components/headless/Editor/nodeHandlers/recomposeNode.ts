@@ -38,7 +38,12 @@ const recomposeNode = (node: Node) => {
   const nodeArray = [...flattendNodes];
   for (let i = 0; i < nodeArray.length; i += 1) {
     const flattendNode = nodeArray[i];
-    const { isParent, parentIndex, text } = flattendNode;
+    const {
+      isParent,
+      parentIndex,
+      text,
+      nodeName: flattendNodeName,
+    } = flattendNode;
     let parentNodeIndex = -1;
     let targetIndex = parentIndex;
     while (true) {
@@ -72,7 +77,24 @@ const recomposeNode = (node: Node) => {
       case false:
       default:
         {
-          if (parentNodeIndex >= 0) {
+          if (flattendNodeName === "BR") {
+            const newParent: FlattendNode = {
+              isParent: true,
+              node: document.createElement("p"),
+              nodeIndex: [-1],
+              nodeName: "P",
+              parentIndex: [],
+              style: null,
+              text: "",
+              childNodes: [],
+            };
+            const span = document.createElement("span");
+            const br = initializeChildNode(flattendNode);
+            span.appendChild(br);
+            resultArray.push(newParent);
+            resultArray[resultArray.length - 1].node?.appendChild(span);
+            resultArray[resultArray.length - 1].childNodes?.push(span);
+          } else if (parentNodeIndex >= 0) {
             if (!text) continue;
             const span = initializeChildNode(flattendNode);
             const parentNode = resultArray[parentNodeIndex];

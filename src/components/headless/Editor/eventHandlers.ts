@@ -32,12 +32,21 @@ const handleEditorKeyDown = (
 
     switch (e.code) {
       case "KeyX":
+        if (!!window.getSelection()?.getRangeAt(0).collapsed) {
+          e.preventDefault();
+          break;
+        }
       case "MetaLeft":
       case "MetaRight":
       case "KeyD":
       case "KeyV":
       case "KeyC":
         if (e.ctrlKey || e.metaKey) break;
+      case "ArrowLeft":
+      case "ArrowRight":
+      case "ArrowDown":
+      case "ArrowUp":
+        break;
       case "Enter":
         if (!targetElement.innerHTML) {
           e.preventDefault();
@@ -127,6 +136,7 @@ const handleEditorKeyUp = (
       tag.parentNode?.replaceChild(span, tag);
     }
   });
+  removeEmptyNode(targetElement);
 };
 const handleEditorFocus = (
   e: React.FocusEvent,
@@ -209,7 +219,6 @@ const handleEditorCut = (
     );
     deletePostSelectionContent(selection);
     moveCursorToCutPoint(selection, startNode);
-    removeEmptyNode(targetElement);
   }
 };
 const makePostSelectionRange = (
@@ -222,17 +231,27 @@ const makePostSelectionRange = (
   postSelectionRange.setStart(endNode, endOffset);
   while (true) {
     if (!endNode) break;
-    if (!endNode?.parentElement) {
+    let parentSpan = searchParentNodeForNodeName(endNode, "SPAN")?.firstChild
+      ?.parentElement;
+    if (endNode.nodeName === "P") {
+      const textNode = searchTextNode(endNode);
+      if (textNode) {
+        parentSpan = searchParentNodeForNodeName(textNode, "SPAN")?.firstChild
+          ?.parentElement;
+      } else {
+        parentSpan = endNode.firstChild?.firstChild?.parentElement;
+      }
+    }
+    if (!parentSpan) {
       break;
     }
-    if (endNode?.parentElement)
-      postSelectionRange.setEndAfter(endNode?.parentElement);
+    if (parentSpan) postSelectionRange.setEndAfter(parentSpan);
 
-    if (!endNode?.parentElement?.nextElementSibling) {
-      endNode?.parentElement?.setAttribute("class", classNames.lastNode);
+    if (!parentSpan?.nextElementSibling) {
+      parentSpan.setAttribute("class", classNames.lastNode);
       break;
     }
-    endNode = endNode?.parentElement?.nextElementSibling?.firstChild || endNode;
+    endNode = parentSpan?.nextElementSibling?.firstChild || endNode;
   }
   return postSelectionRange;
 };
@@ -270,6 +289,7 @@ const deletePostSelectionContent = (selection: Selection) => {
   const deleteStartPoint = document.getElementsByClassName(
     classNames.lastNode
   )[0];
+  if (!deleteStartPoint) return;
   const deleteRange = new Range();
   deleteRange.setStartAfter(deleteStartPoint);
   deleteRange.setEndAfter(selection.getRangeAt(0).endContainer);
@@ -283,22 +303,20 @@ const moveCursorToCutPoint = (selection: Selection, startNode: Node) => {
   const cursorAfterCutPoint = document.getElementById(classNames.firstNode);
   if (!cursorAfterCutPoint) {
     const parentP = searchParentNodeForNodeName(startNode, "P");
-    if (!parentP?.lastChild) {
-      const span = document.createElement("span");
-      const br = document.createElement("br");
-      span.appendChild(br);
-      parentP?.appendChild(span);
-      cursorAfterCutRange.setStart(span, 0);
-      cursorAfterCutRange.setEnd(span, 1);
-    } else {
-      const textNode = searchTextNode(parentP.lastChild);
-      cursorAfterCutRange.setStart(textNode, textNode.data.length);
-      cursorAfterCutRange.setEnd(textNode, textNode.data.length);
-    }
+
+    const span = document.createElement("span");
+    const br = document.createElement("br");
+    span.appendChild(br);
+
+    parentP?.appendChild(span);
+    cursorAfterCutRange.setStart(span, 1);
+    cursorAfterCutRange.setEnd(span, 1);
+
     selection.removeAllRanges();
     selection.addRange(cursorAfterCutRange);
     return;
   }
+
   cursorAfterCutRange.setStart(searchTextNode(cursorAfterCutPoint), 0);
   cursorAfterCutRange.setEnd(searchTextNode(cursorAfterCutPoint), 0);
   selection.removeAllRanges();
