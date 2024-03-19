@@ -100,13 +100,15 @@ const flattenChildNodes = (
 };
 const postProcessAfterFlatten = (flattendNodes: FlattendNode[]) => {
   const newNodes = [...flattendNodes];
+
   let resultNodes = eliminateConsecutiveRepeatBr(newNodes);
   resultNodes = eliminateConsecutiveRepeatNewLine(resultNodes);
-  resultNodes = elminateEmptyTextNode(resultNodes);
-  resultNodes = elimiateEmptyChildNodes(resultNodes);
+  resultNodes = eliminateEmptyTextNode(resultNodes);
+  resultNodes = eliminateEmptyChildNodes(resultNodes);
   const searchResult = searchFlattenNodeIndex(flattendNodes, [0]);
   if (searchResult !== -1 && resultNodes[searchResult]?.nodeName === "META")
     resultNodes.splice(searchResult, 1);
+
   return resultNodes;
 };
 
@@ -123,13 +125,15 @@ const eliminateConsecutiveRepeatBr = (flattendNodes: FlattendNode[]) => {
   }
   return newNodes;
 };
-const elminateEmptyTextNode = (flattendNodes: FlattendNode[]) => {
+const eliminateEmptyTextNode = (flattendNodes: FlattendNode[]) => {
   const newNodes = [...flattendNodes];
-  for (let i = 1; i < newNodes.length; i += 1) {
+  for (let i = 0; i < newNodes.length; i += 1) {
     const node = newNodes[i];
+    node.text = node.text.replaceAll("\n", "");
     if (node.nodeName === "BR") continue;
-    if (!notAllowedTagsInParagraph.includes(node.nodeName.toLowerCase()))
+    if (!notAllowedTagsInParagraph.includes(node.nodeName.toLowerCase())) {
       if (!node.text) newNodes.splice(i, 1);
+    }
   }
   return newNodes;
 };
@@ -145,7 +149,7 @@ const eliminateConsecutiveRepeatNewLine = (flattendNodes: FlattendNode[]) => {
   }
   return newNodes;
 };
-const elimiateEmptyChildNodes = (flattendNodes: FlattendNode[]) => {
+const eliminateEmptyChildNodes = (flattendNodes: FlattendNode[]) => {
   const newNodes = [...flattendNodes];
   for (let i = 1; i < newNodes.length; i += 1) {
     const { node } = newNodes[i];

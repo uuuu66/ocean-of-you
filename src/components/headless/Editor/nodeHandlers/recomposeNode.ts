@@ -150,6 +150,7 @@ const recomposeNode = (node: Node) => {
         break;
     }
   }
+
   return resultArray;
 };
 export { recomposeNode };
