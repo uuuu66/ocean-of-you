@@ -1,5 +1,5 @@
 import { TagName } from "@/components/headless/Editor";
-import { copyAndPasteStyle } from "@/components/headless/Editor/addStyleToSelection";
+import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import { flags } from "@/components/headless/Editor/configs";
 import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import {

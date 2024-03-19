@@ -1,4 +1,4 @@
-import { copyAndPasteStyle } from "@/components/headless/Editor/addStyleToSelection";
+import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import { classNames } from "@/components/headless/Editor/configs";
 import {
   flattenChildNodes,

@@ -1,5 +1,5 @@
 import { CSSProperties } from "react";
-import { NodeName, TagName } from ".";
+import { NodeName, TagName } from "..";
 import {
   addIdToChildNodes,
   removeIdFromChildNodesBasedOnNodeName,
