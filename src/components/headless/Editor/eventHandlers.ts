@@ -1,9 +1,8 @@
 import { classNames } from "@/components/headless/Editor/configs";
 import { removeEmptyNode } from "@/components/headless/Editor/nodeHandlers/common";
 import {
-  makePostSelectionRange,
   copyAndPastePostSelectionContent,
-  deletePostSelectionContent,
+  deleteSelectionContent,
   moveCursorToCutPoint,
 } from "@/components/headless/Editor/nodeHandlers/cutNodes";
 import { pasteNodesToSelection } from "@/components/headless/Editor/nodeHandlers/pasteNodes";
@@ -204,12 +203,14 @@ const handleEditorCut = (
     const div = document.createElement("div");
     div.appendChild(data);
     e.clipboardData.setData("text/html", div.innerHTML);
+    //마우스 이동을 위한 클래스부여
     const startP = searchParentNodeForNodeName(startNode, "P");
     startP?.firstChild?.parentElement?.setAttribute("class", classNames.firstP);
-    const postSelectionRange = makePostSelectionRange();
-    if (postSelectionRange)
-      copyAndPastePostSelectionContent(postSelectionRange);
-    deletePostSelectionContent();
+    //선택한 영역 뒤에 있는 노드들을 복사한 후 커서 첫부분에 집어넣음
+    copyAndPastePostSelectionContent();
+    //선택한 영역을 삭제함
+    deleteSelectionContent();
+    //자른 후 커서 이동
     moveCursorToCutPoint();
     startP?.firstChild?.parentElement?.removeAttribute("class");
   }
