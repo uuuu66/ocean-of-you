@@ -4,6 +4,7 @@ import {
   addIdToChildNodes,
   removeIdFromChildNodesBasedOnNodeName,
   insertTagAtOffsets,
+  camelToKebab,
 } from "@/components/headless/Editor/nodeHandlers/common";
 
 interface CommonArgs {
@@ -36,7 +37,10 @@ const copyAndPasteStyle = (
   const style = source;
   const keys = Object.keys(style);
   for (let i = 0; i < keys.length; i += 1) {
-    targetElement?.style?.setProperty(keys[i], style.getPropertyValue(keys[i]));
+    targetElement?.style?.setProperty(
+      camelToKebab(keys[i]),
+      style.getPropertyValue(camelToKebab(keys[i]))
+    );
   }
 };
 //anchorNode와 focusNode 사이의 노드들 가공하는 로직
@@ -110,11 +114,10 @@ const addStyleBetweenNodes = ({
         const childNode = clonedContents.childNodes.item(i);
 
         if (childNode.firstChild?.parentElement) {
-          const clonedStyle = window.getComputedStyle(
-            childNode.firstChild?.parentElement
-          );
+          const clonedStyle = childNode.firstChild?.parentElement.style;
+          console.log(childNode);
           const newNode = document.createElement("span");
-          Object.assign(newNode.style, clonedStyle);
+          copyAndPasteStyle(newNode, clonedStyle);
           newNode.innerHTML = childNode.firstChild?.parentElement.innerHTML;
           if (styleKey && styleValue)
             newNode.style.setProperty(styleKey, styleValue);
@@ -129,6 +132,7 @@ const addStyleBetweenNodes = ({
     else
       for (let i = 0; i < clonedContents.childNodes.length; i += 1) {
         const childNode = clonedContents.childNodes.item(i);
+        console.log(childNode);
         if (childNode.firstChild) {
           const id = childNode.firstChild.parentElement?.getAttribute("id");
           const siblingOfAnchorNodeOrFocusNode = document.getElementById(
@@ -145,9 +149,8 @@ const addStyleBetweenNodes = ({
                 switch (grandChildNode.nodeName as NodeName) {
                   default:
                     if (grandChildNode.firstChild?.parentElement) {
-                      const grandChildNodeStyle = window.getComputedStyle(
-                        grandChildNode.firstChild?.parentElement
-                      );
+                      const grandChildNodeStyle =
+                        grandChildNode.firstChild?.parentElement.style;
                       const newNode = document.createElement("span");
                       copyAndPasteStyle(newNode, grandChildNodeStyle);
 
@@ -183,10 +186,8 @@ const addStyleBetweenNodes = ({
                 case "EM":
                 case "SPAN":
                   if (grandChildNode.firstChild?.parentElement) {
-                    const grandChildNodeStyle = window.getComputedStyle(
-                      grandChildNode.firstChild?.parentElement
-                    );
-
+                    const grandChildNodeStyle =
+                      grandChildNode.firstChild?.parentElement.style;
                     const newNode = document.createElement("span");
                     copyAndPasteStyle(newNode, grandChildNodeStyle);
                     if (styleKey && styleValue)

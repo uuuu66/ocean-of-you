@@ -28,9 +28,7 @@ const flattenChildNodes = (
       return [
         {
           isParent: false,
-          style: node?.parentElement
-            ? window.getComputedStyle(node?.parentElement)
-            : null,
+          style: node?.parentElement?.style || null,
           node: span,
           text: span.textContent || "",
           nodeIndex: nodeIndex ?? [],
@@ -46,7 +44,7 @@ const flattenChildNodes = (
           array.push([
             {
               isParent: true,
-              style: window.getComputedStyle(node?.parentElement),
+              style: node?.firstChild?.parentElement?.style || null,
               node,
               text: node.textContent || "",
               nodeIndex: nodeIndex ? [...nodeIndex] : [],
@@ -65,9 +63,7 @@ const flattenChildNodes = (
           return [
             {
               isParent: false,
-              style: node?.parentElement
-                ? window.getComputedStyle(node?.parentElement)
-                : null,
+              style: node?.firstChild?.parentElement?.style || null,
               node: span,
               text: span.textContent || "",
               nodeIndex: nodeIndex ?? [],
@@ -86,9 +82,7 @@ const flattenChildNodes = (
         ) {
           array.push({
             isParent: true,
-            style: childNode?.firstChild?.parentElement
-              ? window.getComputedStyle(childNode?.firstChild?.parentElement)
-              : null,
+            style: childNode?.firstChild?.parentElement?.style || null,
             node: childNode,
             text: "",
             nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],

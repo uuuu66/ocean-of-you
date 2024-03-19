@@ -8,6 +8,10 @@ import {
 } from "@/components/headless/Editor/nodeHandlers/types";
 import { CSSProperties, cloneElement } from "react";
 
+const camelToKebab = (target: string) => {
+  const result = target.replace(/([A-Z])/g, " $1");
+  return result.split(" ").join("-").toLowerCase();
+};
 //targetNode로 커서를 옮긴다
 const moveCursorToTargetNode = (targetNode: Node) => {
   const selection = window.getSelection();
@@ -112,9 +116,8 @@ const insertTagAtOffsets = ({
     followedNode.appendChild(followedContent);
 
     if (styleKey && styleValue && targetNode.firstChild?.parentElement) {
-      const style = window.getComputedStyle(
-        targetNode.firstChild?.parentElement
-      );
+      const style = targetNode.firstChild?.parentElement.style;
+
       copyAndPasteStyle(precededNode, style);
       if (selectedNode instanceof HTMLElement) {
         copyAndPasteStyle(selectedNode, style);
@@ -160,4 +163,5 @@ export {
   moveCursorToTargetNode,
   divideNodeIntoThreePart,
   removeEmptyNode,
+  camelToKebab,
 };

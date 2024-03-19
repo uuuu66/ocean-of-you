@@ -16,6 +16,7 @@ const pasteNodesToSelection = (
     console.error("need resultArray");
     return;
   }
+  console.log(resultArray);
   const selection = window.getSelection();
   if (!selection) {
     console.error("need selection");

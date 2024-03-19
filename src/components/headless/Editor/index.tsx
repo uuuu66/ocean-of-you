@@ -1,6 +1,6 @@
 import { theme } from "@/styles/theme";
 import React, { CSSProperties, useCallback, useRef, useState } from "react";
-import addStyleToSelection from "./addStyleToSelection";
+
 import {
   handleEditorAfterPaste,
   handleEditorCut,
@@ -8,6 +8,7 @@ import {
   handleEditorKeyDown,
   handleEditorKeyUp,
 } from "@/components/headless/Editor/eventHandlers";
+import addStyleToSelection from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 export type TagName = "span" | "strong" | "em";
 export type NodeName = Uppercase<TagName>;
 export default function Editor() {
@@ -53,11 +54,11 @@ export default function Editor() {
             <span>234</span>
           </p>
           <p>
-            <span>ddddddff</span>
+            <span>abcdefg5678</span>
           </p>
           <p>
-            <span>dd</span>
-            <span>5678</span>
+            <span style={{ fontSize: "36px" }}>감자</span>
+            <span> 고구마</span>
           </p>
         </div>
       </div>{" "}
