@@ -37,6 +37,7 @@ const copyAndPasteStyle = (
   source: CSSStyleDeclaration
 ) => {
   const style = source;
+  console.log(source, targetElement);
   const keys = Object.keys(style);
   for (let i = 0; i < keys.length; i += 1) {
     targetElement?.style?.setProperty(
@@ -287,7 +288,10 @@ const addStyleToSelection = ({
           searchParentNodeForNodeName(
             endNode,
             "SPAN"
-          )?.firstChild?.parentElement?.setAttribute("id", classNames.lastNode);
+          )?.firstChild?.parentElement?.setAttribute(
+            "class",
+            classNames.lastNode
+          );
           insertTagAtOffsets({
             styleKey,
             styleValue,
@@ -295,6 +299,7 @@ const addStyleToSelection = ({
             startOffset,
             endOffset: startNode.textContent?.length || 0,
             tagName,
+            className: classNames.firstSelectionPoint,
           });
           insertTagAtOffsets({
             styleKey,
@@ -303,26 +308,33 @@ const addStyleToSelection = ({
             startOffset: 0,
             endOffset,
             tagName,
+            className: classNames.secondSelectionPoint,
           });
         }
+        selection?.removeAllRanges();
+        const rangeAfterStyleChange = new Range();
+        const firstSelectionPoint = document.getElementsByClassName(
+          classNames.firstSelectionPoint
+        )[0];
+        const secondSelectionPoint = document.getElementsByClassName(
+          classNames.secondSelectionPoint
+        )[0];
+        if (firstSelectionPoint && secondSelectionPoint) {
+          rangeAfterStyleChange.setStart(
+            firstSelectionPoint.firstChild || firstSelectionPoint,
+            0
+          );
+          rangeAfterStyleChange.setEnd(
+            secondSelectionPoint.firstChild || secondSelectionPoint,
+            (secondSelectionPoint.firstChild as Text).data.length
+          );
+        }
+        document.getElementById(classNames.firstNode)?.removeAttribute("id");
+        selection?.addRange(rangeAfterStyleChange);
       }
     }
   } else {
   }
-  selection?.removeAllRanges();
-  const rangeAfterStyleChange = new Range();
-  const firstNode = document.getElementById(classNames.firstNode);
-  if (firstNode)
-    rangeAfterStyleChange.setStart(firstNode.firstChild || firstNode, 0);
-  const lastNode = document.getElementById(classNames.lastNode);
-  if (lastNode)
-    rangeAfterStyleChange.setEnd(
-      lastNode.firstChild || lastNode,
-      lastNode.firstChild?.textContent?.length || 0
-    );
-  selection?.addRange(rangeAfterStyleChange);
-  firstNode?.removeAttribute("id");
-  lastNode?.removeAttribute("id");
 };
 export default addStyleToSelection;
 
