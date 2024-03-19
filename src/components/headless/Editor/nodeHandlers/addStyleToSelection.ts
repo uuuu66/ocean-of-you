@@ -88,6 +88,7 @@ const addStyleBetweenNodes = ({
   range.setStartAfter(startNode);
   range.setEndBefore(endNode);
   //id들을 p node들에 임시적으로 부여하여 어디에 가공한 노드들을 넣을지 기억합니다.
+
   const ids = addIdToChildNodes(containerNode, "P");
   let firstId = ids[0];
   if (startNode.parentElement?.parentElement) {
@@ -140,29 +141,33 @@ const addStyleBetweenNodes = ({
           );
           const childNodes = parentNode.childNodes || [];
           //childNode가 startNode 혹은 endNode의 형제 요소일 경우
+          //childNode가 선택한부분의 첫째줄이나 마지막줄일 경우입니다.
           if (siblingOfAnchorNodeOrFocusNode) {
             //grandChildNode는 p의 자식으로 오는 tag들을 말합니다
             //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
+
+            let insertPoint = siblingOfAnchorNodeOrFocusNode.firstChild;
+
             for (let j = 0; j < childNodes.length; j += 1) {
-              const grandChildNode = childNodes[j];
+              const grandChildNode = childNodes[j].firstChild?.parentElement;
+
               if (grandChildNode)
                 switch (grandChildNode.nodeName as NodeName) {
                   default:
-                    if (grandChildNode.firstChild?.parentElement) {
-                      const grandChildNodeStyle =
-                        grandChildNode.firstChild?.parentElement.style;
+                    if (grandChildNode) {
+                      const grandChildNodeStyle = grandChildNode.style;
                       const newNode = document.createElement("span");
                       copyAndPasteStyle(newNode, grandChildNodeStyle);
                       if (styleKey && styleValue) {
                         newNode.style.setProperty(styleKey, styleValue);
-                        newNode.innerHTML =
-                          grandChildNode.firstChild?.parentElement.innerHTML;
+                        newNode.innerHTML = grandChildNode.innerHTML;
                         if (id === firstId)
                           siblingOfAnchorNodeOrFocusNode.appendChild(newNode);
+
                         if (id === lastId) {
                           siblingOfAnchorNodeOrFocusNode.insertBefore(
                             newNode,
-                            siblingOfAnchorNodeOrFocusNode.firstChild
+                            insertPoint
                           );
                         }
                       }
@@ -173,6 +178,7 @@ const addStyleBetweenNodes = ({
               }
             }
             //childNode가 startNode 혹은 endNode의 형제 요소가 아닐 경우
+            //childNode가 선택한부분의 첫째줄이나 마지막줄의 사이일 경우입니다.
           } else {
             //grandChildNode는 p의 자식으로 오는 node들을 말합니다
             //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
@@ -180,6 +186,7 @@ const addStyleBetweenNodes = ({
             const newP = document.createElement("p");
             for (let j = 0; j < childNodes.length; j += 1) {
               const childNode = childNodes[j];
+
               switch (childNode.nodeName as NodeName) {
                 case "STRONG":
                 case "EM":
