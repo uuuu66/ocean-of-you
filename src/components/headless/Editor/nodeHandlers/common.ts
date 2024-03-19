@@ -1,6 +1,6 @@
 import { TagName } from "@/components/headless/Editor";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
-import { flags } from "@/components/headless/Editor/configs";
+import { classNames, flags } from "@/components/headless/Editor/configs";
 import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import {
   FlattendNode,
@@ -76,6 +76,7 @@ const insertTagAtOffsets = ({
   startOffset = 0,
   endOffset = 0,
   content,
+  className,
 }: InsertTagNextToNodesArgs) => {
   if (!node) return null;
   if (!node?.parentElement) {
@@ -120,6 +121,8 @@ const insertTagAtOffsets = ({
       "SPAN"
     )?.firstChild?.parentElement?.getAttribute("id");
     if (id) selectedNode.firstChild?.parentElement?.setAttribute("id", id);
+    if (className)
+      selectedNode.firstChild?.parentElement?.setAttribute("class", className);
     if (styleKey && styleValue && targetNode.firstChild?.parentElement) {
       const style = targetNode.firstChild?.parentElement.style;
 
@@ -130,10 +133,12 @@ const insertTagAtOffsets = ({
       }
       copyAndPasteStyle(followedNode, style);
     }
+
     const fragment = document.createDocumentFragment();
     if (!!precededNode.textContent) fragment.appendChild(precededNode);
     if (!!selectedNode.textContent) fragment.appendChild(selectedNode);
     if (!!followedNode.textContent) fragment.appendChild(followedNode);
+    console.log(precededNode, fragment);
     ranges[1].deleteContents();
     targetNode.parentNode?.replaceChild(fragment, targetNode);
     return { node: selectedNode };

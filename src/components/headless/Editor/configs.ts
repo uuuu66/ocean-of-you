@@ -2,6 +2,8 @@ export const classNames = {
   firstNode: "first-node",
   lastNode: "m-editor-last-node",
   firstP: "first-p",
+  firstSelectionPoint: "first-selection-point",
+  secondSelectionPoint: "second-selection-point",
 };
 export const flags = {
   newLine: "new_line",
