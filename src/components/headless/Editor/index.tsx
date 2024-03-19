@@ -47,7 +47,7 @@ export default function Editor() {
           contentEditable
           ref={containerRef}
           id="m-editor-div-element"
-          className="border border-solid border-gray4  w-[800px] min-w-80 h-[900px] min-h-5 p-4 whitespace-pre-line"
+          className="border border-solid border-gray4  w-[400px] min-w-80 h-[300px] min-h-5 p-4 whitespace-pre-line"
         >
           <p>
             <span>1</span>

@@ -93,6 +93,7 @@ const insertTagAtOffsets = ({
 
   if (targetNode) {
     const ranges = divideNodeIntoThreePart(node, startOffset, endOffset);
+
     const precededContent = ranges[0].cloneContents();
     let selectedContent = ranges[1].cloneContents();
     const followedContent = ranges[2].cloneContents();
@@ -114,7 +115,11 @@ const insertTagAtOffsets = ({
     precededNode.appendChild(precededContent);
     selectedNode.appendChild(selectedContent);
     followedNode.appendChild(followedContent);
-
+    const id = searchParentNodeForNodeName(
+      node,
+      "SPAN"
+    )?.firstChild?.parentElement?.getAttribute("id");
+    if (id) selectedNode.firstChild?.parentElement?.setAttribute("id", id);
     if (styleKey && styleValue && targetNode.firstChild?.parentElement) {
       const style = targetNode.firstChild?.parentElement.style;
 

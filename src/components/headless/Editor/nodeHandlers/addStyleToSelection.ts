@@ -6,6 +6,8 @@ import {
   insertTagAtOffsets,
   camelToKebab,
 } from "@/components/headless/Editor/nodeHandlers/common";
+import { classNames } from "@/components/headless/Editor/configs";
+import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 
 interface CommonArgs {
   styleKey?: string;
@@ -112,10 +114,8 @@ const addStyleBetweenNodes = ({
       const fragment = document.createDocumentFragment();
       for (let i = 0; i < clonedContents.childNodes.length; i += 1) {
         const childNode = clonedContents.childNodes.item(i);
-
         if (childNode.firstChild?.parentElement) {
           const clonedStyle = childNode.firstChild?.parentElement.style;
-          console.log(childNode);
           const newNode = document.createElement("span");
           copyAndPasteStyle(newNode, clonedStyle);
           newNode.innerHTML = childNode.firstChild?.parentElement.innerHTML;
@@ -131,20 +131,20 @@ const addStyleBetweenNodes = ({
     } //줄바꿈이 있을경우
     else
       for (let i = 0; i < clonedContents.childNodes.length; i += 1) {
-        const childNode = clonedContents.childNodes.item(i);
-        console.log(childNode);
-        if (childNode.firstChild) {
-          const id = childNode.firstChild.parentElement?.getAttribute("id");
+        const parentNode = clonedContents.childNodes.item(i);
+
+        if (parentNode.firstChild) {
+          const id = parentNode.firstChild.parentElement?.getAttribute("id");
           const siblingOfAnchorNodeOrFocusNode = document.getElementById(
             id || ""
           );
-          const grandChildNodes = childNode.childNodes || [];
+          const childNodes = parentNode.childNodes || [];
           //childNode가 startNode 혹은 endNode의 형제 요소일 경우
           if (siblingOfAnchorNodeOrFocusNode) {
             //grandChildNode는 p의 자식으로 오는 tag들을 말합니다
             //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
-            for (let j = 0; j < grandChildNodes.length; j += 1) {
-              const grandChildNode = grandChildNodes[j];
+            for (let j = 0; j < childNodes.length; j += 1) {
+              const grandChildNode = childNodes[j];
               if (grandChildNode)
                 switch (grandChildNode.nodeName as NodeName) {
                   default:
@@ -153,7 +153,6 @@ const addStyleBetweenNodes = ({
                         grandChildNode.firstChild?.parentElement.style;
                       const newNode = document.createElement("span");
                       copyAndPasteStyle(newNode, grandChildNodeStyle);
-
                       if (styleKey && styleValue) {
                         newNode.style.setProperty(styleKey, styleValue);
                         newNode.innerHTML =
@@ -179,21 +178,21 @@ const addStyleBetweenNodes = ({
             //grandChildNode가 tag일 경우 새로 생성한 tag에 원본 tag의 child를 복사한 후  새로 만든  p에 넣습니다.
             //그 후 실제 document에 존재하는 p 중 lastId를 가지고 있는 p의 before에 추가합니다.
             const newP = document.createElement("p");
-            for (let j = 0; j < grandChildNodes.length; j += 1) {
-              const grandChildNode = grandChildNodes[j];
-              switch (grandChildNode.nodeName as NodeName) {
+            for (let j = 0; j < childNodes.length; j += 1) {
+              const childNode = childNodes[j];
+              switch (childNode.nodeName as NodeName) {
                 case "STRONG":
                 case "EM":
                 case "SPAN":
-                  if (grandChildNode.firstChild?.parentElement) {
-                    const grandChildNodeStyle =
-                      grandChildNode.firstChild?.parentElement.style;
+                  if (childNode.firstChild?.parentElement) {
+                    const childNodeStyle =
+                      childNode.firstChild?.parentElement.style;
                     const newNode = document.createElement("span");
-                    copyAndPasteStyle(newNode, grandChildNodeStyle);
+                    copyAndPasteStyle(newNode, childNodeStyle);
                     if (styleKey && styleValue)
                       newNode.style.setProperty(styleKey, styleValue);
                     newNode.innerHTML =
-                      grandChildNode.firstChild?.parentElement.innerHTML;
+                      childNode.firstChild?.parentElement.innerHTML;
                     newP.appendChild(newNode);
                   }
               }
@@ -271,6 +270,17 @@ const addStyleToSelection = ({
           //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
           //2 뒤에서 앞으로
 
+          searchParentNodeForNodeName(
+            startNode,
+            "SPAN"
+          )?.firstChild?.parentElement?.setAttribute(
+            "id",
+            classNames.firstNode
+          );
+          searchParentNodeForNodeName(
+            endNode,
+            "SPAN"
+          )?.firstChild?.parentElement?.setAttribute("id", classNames.lastNode);
           insertTagAtOffsets({
             styleKey,
             styleValue,
@@ -293,6 +303,19 @@ const addStyleToSelection = ({
   } else {
   }
   selection?.removeAllRanges();
+  const rangeAfterStyleChange = new Range();
+  const firstNode = document.getElementById(classNames.firstNode);
+  if (firstNode)
+    rangeAfterStyleChange.setStart(firstNode.firstChild || firstNode, 0);
+  const lastNode = document.getElementById(classNames.lastNode);
+  if (lastNode)
+    rangeAfterStyleChange.setEnd(
+      lastNode.firstChild || lastNode,
+      lastNode.firstChild?.textContent?.length || 0
+    );
+  selection?.addRange(rangeAfterStyleChange);
+  firstNode?.removeAttribute("id");
+  lastNode?.removeAttribute("id");
 };
 export default addStyleToSelection;
 
