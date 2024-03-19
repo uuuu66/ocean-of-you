@@ -183,7 +183,7 @@ const handleEditorCut = (
   if (!selection) return;
   const range = selection?.getRangeAt(0);
   if (!range) return;
-  const { anchorNode, focusNode, anchorOffset, focusOffset } = selection;
+  const { anchorNode, focusNode } = selection;
   if (anchorNode && focusNode) {
     let startNode = anchorNode;
 
@@ -207,12 +207,14 @@ const handleEditorCut = (
     const div = document.createElement("div");
     div.appendChild(data);
     e.clipboardData.setData("text/html", div.innerHTML);
-    range.deleteContents();
+    const startP = searchParentNodeForNodeName(startNode, "P");
+    startP?.firstChild?.parentElement?.setAttribute("class", classNames.firstP);
     const postSelectionRange = makePostSelectionRange();
     if (postSelectionRange)
       copyAndPastePostSelectionContent(postSelectionRange);
     deletePostSelectionContent();
     moveCursorToCutPoint();
+    startP?.firstChild?.parentElement?.removeAttribute("class");
   }
 };
 const makePostSelectionRange = () => {
@@ -222,27 +224,35 @@ const makePostSelectionRange = () => {
   if (!range) return;
   const { anchorNode, focusNode, anchorOffset, focusOffset } = selection;
   if (anchorNode && focusNode) {
-    let endNode = focusNode;
+    let startNode = anchorNode;
+    let endNode: Node | null = focusNode;
     let endOffset = focusOffset;
     const isAnchorNodeStart =
       anchorNode?.compareDocumentPosition(focusNode) === 4;
     if (!isAnchorNodeStart) {
+      startNode = focusNode;
       endNode = anchorNode;
       endOffset = anchorOffset;
     }
     const postSelectionRange = new Range();
     postSelectionRange.setStart(endNode, endOffset);
+    startNode.firstChild?.parentElement?.setAttribute(
+      "id",
+      classNames.firstNode
+    );
     while (true) {
       if (!endNode) break;
-      let parentSpan = searchParentNodeForNodeName(endNode, "SPAN")?.firstChild
-        ?.parentElement;
+      let parentSpan: HTMLElement | null =
+        searchParentNodeForNodeName(endNode, "SPAN")?.firstChild
+          ?.parentElement || null;
       if (endNode.nodeName === "P") {
         const textNode = searchTextNode(endNode);
         if (textNode) {
-          parentSpan = searchParentNodeForNodeName(textNode, "SPAN")?.firstChild
-            ?.parentElement;
+          parentSpan =
+            searchParentNodeForNodeName(textNode, "SPAN")?.firstChild
+              ?.parentElement || null;
         } else {
-          parentSpan = endNode.firstChild?.firstChild?.parentElement;
+          parentSpan = endNode.firstChild?.firstChild?.parentElement || null;
         }
       }
       if (!parentSpan) {
@@ -254,7 +264,7 @@ const makePostSelectionRange = () => {
         parentSpan.setAttribute("class", classNames.lastNode);
         break;
       }
-      endNode = parentSpan?.nextElementSibling?.firstChild || endNode;
+      endNode = parentSpan?.nextElementSibling?.firstChild;
     }
     return postSelectionRange;
   }
@@ -279,8 +289,9 @@ const copyAndPastePostSelectionContent = (postSelectionRange: Range) => {
       postSelectionContent.firstChild?.firstChild?.parentElement?.className ===
         classNames.lastNode &&
       !postSelectionContent.firstChild.textContent
-    )
+    ) {
       selection.deleteFromDocument();
+    }
     selection.removeAllRanges();
     selection.addRange(postSelectionRange);
     postSelectionContent.firstChild?.firstChild?.parentElement?.setAttribute(
@@ -291,12 +302,14 @@ const copyAndPastePostSelectionContent = (postSelectionRange: Range) => {
     insertPointRange.collapse(true);
 
     if (insertPointRange.commonAncestorContainer.nodeName === "DIV") return;
-    insertTagAtOffsets({
-      node: searchTextNode(startNode),
-      startOffset: insertPointRange.startOffset,
-      endOffset: insertPointRange.startOffset,
-      content: postSelectionContent,
-    });
+
+    if (postSelectionContent.childNodes.length > 0)
+      insertTagAtOffsets({
+        node: searchTextNode(startNode),
+        startOffset: insertPointRange.startOffset,
+        endOffset: insertPointRange.startOffset,
+        content: postSelectionContent,
+      });
   }
 };
 const deletePostSelectionContent = () => {
@@ -305,6 +318,7 @@ const deletePostSelectionContent = () => {
   const range = selection?.getRangeAt(0);
   if (!range) return;
   const { anchorNode, focusNode } = selection;
+
   if (anchorNode && focusNode) {
     let startNode = anchorNode;
 
@@ -360,11 +374,11 @@ const moveCursorToCutPoint = () => {
       console.error("need endnodeParent");
       return;
     }
-    console.log(startNode, endNode);
+
     const cursorAfterCutRange = new Range();
     const cursorAfterCutPoint = document.getElementById(classNames.firstNode);
     if (!cursorAfterCutPoint) {
-      const parentP = searchParentNodeForNodeName(startNode, "P");
+      const parentP = document.getElementsByClassName(classNames.firstP)[0];
       const span = document.createElement("span");
       const br = document.createElement("br");
       span.appendChild(br);
@@ -373,6 +387,7 @@ const moveCursorToCutPoint = () => {
       cursorAfterCutRange.setEnd(span, 1);
       selection.removeAllRanges();
       selection.addRange(cursorAfterCutRange);
+      parentP.removeAttribute("class");
       return;
     }
     cursorAfterCutRange.setStart(searchTextNode(cursorAfterCutPoint), 0);

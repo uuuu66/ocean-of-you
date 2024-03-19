@@ -106,6 +106,7 @@ const pasteNodesToSelection = (
         }
         range.insertNode(fragment);
       }
+
       break;
     //div나 p안에들어있는 태그일 경우
     default:
@@ -194,6 +195,10 @@ const insertRemainingNodes = (
   let nextPastePointRange = new Range();
   nextPastePointRange.setEndAfter(firstLineParentP);
   nextPastePointRange.setStartAfter(firstLineParentP);
+
+  const isLastNodeIsBr =
+    resultArray[resultArray?.length - 1].nodeIndex[0] === -1;
+
   for (let i = 1; i < resultArray.length; i += 1) {
     const { node } = resultArray[i];
     if (!node) break;
@@ -211,11 +216,23 @@ const insertRemainingNodes = (
       classNames.lastNode
     );
     moveCursorToClassName(selection, classNames.lastNode);
-    //마지막 p에 추출한 노드들 집어넣기
+    //마지막 p에 뒤에 남아있던 노드들 집어넣기
+    //마지막 p가 br태그일 경우 새로운 노드를 만듬
+
     if (i === resultArray.length - 1 && lastAddedNode?.lastChild) {
-      postEndNodeRange.setStartAfter(lastAddedNode.lastChild);
-      postEndNodeRange.setEndAfter(lastAddedNode.lastChild);
-      postEndNodeRange.insertNode(remainingNodes);
+      if (isLastNodeIsBr) {
+        const p = document.createElement("p");
+        p.appendChild(remainingNodes);
+        nextPastePointRange.insertNode(p);
+        nextPastePointRange.setStartAfter(lastAddedNode);
+        nextPastePointRange.setEndAfter(lastAddedNode);
+        selection.removeAllRanges();
+        selection.addRange(nextPastePointRange);
+      } else {
+        postEndNodeRange.setStartAfter(lastAddedNode.lastChild);
+        postEndNodeRange.setEndAfter(lastAddedNode.lastChild);
+        postEndNodeRange.insertNode(remainingNodes);
+      }
     }
   }
 };
@@ -232,6 +249,7 @@ const moveCursorToClassName = (selection: Selection, className: string) => {
     console.error("no lastChild", targetNode);
     return null;
   }
+
   const textNode = searchTextNode(targetNode?.lastChild);
   //텍스트 노드가 없으면 lastChild
   if (!textNode) {
