@@ -113,7 +113,6 @@ const postProcessAfterFlatten = (flattendNodes: FlattendNode[]) => {
   const searchResult = searchFlattenNodeIndex(flattendNodes, [0]);
   if (searchResult !== -1 && resultNodes[searchResult]?.nodeName === "META")
     resultNodes.splice(searchResult, 1);
-  console.log(resultNodes);
   return resultNodes;
 };
 
