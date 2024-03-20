@@ -36,6 +36,7 @@ const recomposeNode = (node: Node) => {
   const flattendNodes = postProcessAfterFlatten(flattenChildNodes(div));
   const resultArray: FlattendNode[] = [];
   const nodeArray = [...flattendNodes];
+
   for (let i = 0; i < nodeArray.length; i += 1) {
     const flattendNode = nodeArray[i];
     const {
@@ -77,58 +78,64 @@ const recomposeNode = (node: Node) => {
       case false:
       default:
         {
-          //br태그 일경우 새로운 p를 만듬
-          if (flattendNodeName === "BR") {
-            const newParent: FlattendNode = {
-              isParent: true,
-              node: document.createElement("p"),
-              nodeIndex: [-1],
-              nodeName: "P",
-              parentIndex: [],
-              style: null,
-              text: "",
-              childNodes: [],
-            };
-            const span = document.createElement("span");
-            const br = initializeChildNode(flattendNode);
-            span.appendChild(br);
-            resultArray.push(newParent);
-            resultArray[resultArray.length - 1].node?.appendChild(span);
-            resultArray[resultArray.length - 1].childNodes?.push(span);
-            //parentNode가 존재할경우
-          } else if (parentNodeIndex >= 0) {
-            if (!text) continue;
-            const span = initializeChildNode(flattendNode);
-            const parentNode = resultArray[parentNodeIndex];
-            parentNode.node?.appendChild(span);
-            parentNode.childNodes?.push(span);
-          } else {
-            //아닐경우 새로운 p를 만든 후 그 p에 텍스트를 넣음 새로운 p는 nodeIndex의 length가 0임 (index를 부여하지 않음 )
-            const isParentExist =
-              resultArray[resultArray.length - 1]?.nodeIndex?.length === 0;
-            //새로만든 p가 존재할경우
-            if (isParentExist) {
-              const parentNode = resultArray[resultArray.length - 1];
-              const span = initializeChildNode(flattendNode);
-              parentNode?.node?.appendChild(span);
-              parentNode.childNodes?.push(span);
-              //아닐 경우
-            } else {
-              const newParent: FlattendNode = {
-                isParent: true,
-                nodeIndex: [],
-                node: document.createElement("p"),
-                nodeName: "P",
-                parentIndex: [],
-                style: null,
-                text: "",
-                childNodes: [],
-              };
-              const span = initializeChildNode(flattendNode);
-              resultArray.push(newParent);
-              resultArray[resultArray.length - 1].node?.appendChild(span);
-              resultArray[resultArray.length - 1].childNodes?.push(span);
-            }
+          switch (flattendNodeName) {
+            case "BR":
+              {
+                const newParent: FlattendNode = {
+                  isParent: true,
+                  node: document.createElement("p"),
+                  nodeIndex: [-1],
+                  nodeName: "P",
+                  parentIndex: [],
+                  style: null,
+                  text: "",
+                  childNodes: [],
+                };
+                const span = document.createElement("span");
+                const br = initializeChildNode(flattendNode);
+                span.appendChild(br);
+                resultArray.push(newParent);
+                resultArray[resultArray.length - 1].node?.appendChild(span);
+                resultArray[resultArray.length - 1].childNodes?.push(span);
+              }
+              break;
+
+            default:
+              if (parentNodeIndex >= 0) {
+                if (!text) continue;
+                console.log("hi", flattendNode);
+                const span = initializeChildNode(flattendNode);
+                const parentNode = resultArray[parentNodeIndex];
+                parentNode.node?.appendChild(span);
+                parentNode.childNodes?.push(span);
+              } else {
+                //아닐경우 새로운 p를 만든 후 그 p에 텍스트를 넣음 새로운 p는 nodeIndex의 length가 0임 (index를 부여하지 않음 )
+                const isParentExist =
+                  resultArray[resultArray.length - 1]?.nodeIndex?.length === 0;
+                //새로만든 p가 존재할경우
+                if (isParentExist) {
+                  const parentNode = resultArray[resultArray.length - 1];
+                  const span = initializeChildNode(flattendNode);
+                  parentNode?.node?.appendChild(span);
+                  parentNode.childNodes?.push(span);
+                  //아닐 경우
+                } else {
+                  const newParent: FlattendNode = {
+                    isParent: true,
+                    nodeIndex: [],
+                    node: document.createElement("p"),
+                    nodeName: "P",
+                    parentIndex: [],
+                    style: null,
+                    text: "",
+                    childNodes: [],
+                  };
+                  const span = initializeChildNode(flattendNode);
+                  resultArray.push(newParent);
+                  resultArray[resultArray.length - 1].node?.appendChild(span);
+                  resultArray[resultArray.length - 1].childNodes?.push(span);
+                }
+              }
           }
         }
         break;
