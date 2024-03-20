@@ -85,6 +85,7 @@ const handleEditorKeyDown = (
           span.appendChild(br);
           targetElement.appendChild(p);
         }
+        if (targetElement.textContent?.length === 0) e.preventDefault();
         break;
       default:
         if (

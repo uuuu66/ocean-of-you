@@ -8,6 +8,7 @@ const flattenChildNodes = (
 ): FlattendNode[] => {
   const array: any[] = [];
   const parentIndex = nodeIndex ? nodeIndex.slice(0, -1) : [];
+
   switch (node.nodeName) {
     case "BR":
       return [
@@ -43,7 +44,7 @@ const flattenChildNodes = (
         if (node.parentElement)
           array.push([
             {
-              isParent: true,
+              isParent: false,
               style: node?.firstChild?.parentElement?.style || null,
               node,
               text: node.textContent || "",
@@ -83,7 +84,7 @@ const flattenChildNodes = (
         ) {
           array.push({
             isParent: true,
-            style: childNode?.firstChild?.parentElement?.style || null,
+            style: null,
             node: childNode,
             text: "",
             nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],
