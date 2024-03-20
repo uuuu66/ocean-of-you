@@ -37,7 +37,6 @@ const copyAndPasteStyle = (
   source: CSSStyleDeclaration
 ) => {
   const style = source;
-  console.log(source, targetElement);
   const keys = Object.keys(style);
   for (let i = 0; i < keys.length; i += 1) {
     targetElement?.style?.setProperty(
@@ -273,7 +272,27 @@ const addStyleToSelection = ({
             startOffset,
             endOffset,
             tagName,
+            className: classNames.firstSelectionPoint,
           });
+          selection?.removeAllRanges();
+          const rangeAfterStyleChange = new Range();
+          const firstSelectionPoint = document.getElementsByClassName(
+            classNames.firstSelectionPoint
+          )[0];
+
+          if (firstSelectionPoint) {
+            rangeAfterStyleChange.setStart(
+              firstSelectionPoint.firstChild || firstSelectionPoint,
+              0
+            );
+            rangeAfterStyleChange.setEnd(
+              firstSelectionPoint.firstChild || firstSelectionPoint,
+              (firstSelectionPoint.firstChild as Text).data.length
+            );
+          }
+          selection?.addRange(rangeAfterStyleChange);
+          document.getElementById(classNames.firstNode)?.removeAttribute("id");
+          firstSelectionPoint?.removeAttribute("class");
         } else {
           //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
           //2 뒤에서 앞으로
@@ -310,27 +329,29 @@ const addStyleToSelection = ({
             tagName,
             className: classNames.secondSelectionPoint,
           });
+          selection?.removeAllRanges();
+          const rangeAfterStyleChange = new Range();
+          const firstSelectionPoint = document.getElementsByClassName(
+            classNames.firstSelectionPoint
+          )[0];
+          const secondSelectionPoint = document.getElementsByClassName(
+            classNames.secondSelectionPoint
+          )[0];
+          if (firstSelectionPoint && secondSelectionPoint) {
+            rangeAfterStyleChange.setStart(
+              firstSelectionPoint.firstChild || firstSelectionPoint,
+              0
+            );
+            rangeAfterStyleChange.setEnd(
+              secondSelectionPoint.firstChild || secondSelectionPoint,
+              (secondSelectionPoint.firstChild as Text).data.length
+            );
+          }
+          document.getElementById(classNames.firstNode)?.removeAttribute("id");
+          selection?.addRange(rangeAfterStyleChange);
+          firstSelectionPoint.removeAttribute("class");
+          secondSelectionPoint.removeAttribute("class");
         }
-        selection?.removeAllRanges();
-        const rangeAfterStyleChange = new Range();
-        const firstSelectionPoint = document.getElementsByClassName(
-          classNames.firstSelectionPoint
-        )[0];
-        const secondSelectionPoint = document.getElementsByClassName(
-          classNames.secondSelectionPoint
-        )[0];
-        if (firstSelectionPoint && secondSelectionPoint) {
-          rangeAfterStyleChange.setStart(
-            firstSelectionPoint.firstChild || firstSelectionPoint,
-            0
-          );
-          rangeAfterStyleChange.setEnd(
-            secondSelectionPoint.firstChild || secondSelectionPoint,
-            (secondSelectionPoint.firstChild as Text).data.length
-          );
-        }
-        document.getElementById(classNames.firstNode)?.removeAttribute("id");
-        selection?.addRange(rangeAfterStyleChange);
       }
     }
   } else {

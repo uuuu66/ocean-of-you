@@ -1,4 +1,5 @@
 import { classNames } from "@/components/headless/Editor/configs";
+import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import { removeEmptyNode } from "@/components/headless/Editor/nodeHandlers/common";
 import {
   copyAndPastePostSelectionContent,
@@ -201,7 +202,20 @@ const handleEditorCut = (
     }
     const data = range?.cloneContents();
     const div = document.createElement("div");
-    div.appendChild(data);
+
+    const parentSpan = searchParentNodeForNodeName(
+      range.commonAncestorContainer,
+      "SPAN"
+    )?.firstChild?.parentElement;
+    if (parentSpan) {
+      const span = document.createElement("span");
+      copyAndPasteStyle(span, parentSpan.style);
+      span.appendChild(data);
+      div.appendChild(span);
+    } else {
+      div.appendChild(data);
+    }
+
     e.clipboardData.setData("text/html", div.innerHTML);
     //마우스 이동을 위한 클래스부여
     const startP = searchParentNodeForNodeName(startNode, "P");

@@ -102,6 +102,7 @@ const insertTagAtOffsets = ({
     let selectedNode: HTMLElement | DocumentFragment = document.createElement(
       targetNode.nodeName
     );
+
     if (content) {
       switch (content.nodeName) {
         default:
@@ -121,25 +122,29 @@ const insertTagAtOffsets = ({
       "SPAN"
     )?.firstChild?.parentElement?.getAttribute("id");
     if (id) selectedNode.firstChild?.parentElement?.setAttribute("id", id);
-    if (className)
+    if (className) {
       selectedNode.firstChild?.parentElement?.setAttribute("class", className);
-    if (styleKey && styleValue && targetNode.firstChild?.parentElement) {
-      const style = targetNode.firstChild?.parentElement.style;
-
-      copyAndPasteStyle(precededNode, style);
-      if (selectedNode instanceof HTMLElement) {
+    }
+    const style = searchParentNodeForNodeName(
+      ranges[1].commonAncestorContainer,
+      "SPAN"
+    )?.firstChild?.parentElement?.style;
+    if (style) {
+      if (selectedNode instanceof HTMLElement)
         copyAndPasteStyle(selectedNode, style);
+      copyAndPasteStyle(precededNode, style);
+      copyAndPasteStyle(followedNode, style);
+    }
+    if (styleKey && styleValue) {
+      if (selectedNode instanceof HTMLElement) {
         selectedNode.style.setProperty(styleKey, styleValue);
       }
-      copyAndPasteStyle(followedNode, style);
     }
 
     const fragment = document.createDocumentFragment();
     if (!!precededNode.textContent) fragment.appendChild(precededNode);
     if (!!selectedNode.textContent) fragment.appendChild(selectedNode);
     if (!!followedNode.textContent) fragment.appendChild(followedNode);
-    console.log(precededNode, fragment);
-    ranges[1].deleteContents();
     targetNode.parentNode?.replaceChild(fragment, targetNode);
     return { node: selectedNode };
   }

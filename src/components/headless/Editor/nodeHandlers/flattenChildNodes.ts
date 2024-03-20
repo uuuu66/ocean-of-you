@@ -60,6 +60,7 @@ const flattenChildNodes = (
         } else {
           const span = document.createElement("span");
           span.textContent = node.textContent;
+
           return [
             {
               isParent: false,
