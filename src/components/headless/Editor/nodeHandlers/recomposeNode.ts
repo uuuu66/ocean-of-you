@@ -1,5 +1,5 @@
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
-import { classNames } from "@/components/headless/Editor/configs";
+import { classNames, nodeNames } from "@/components/headless/Editor/configs";
 import {
   flattenChildNodes,
   postProcessAfterFlatten,
@@ -25,10 +25,10 @@ const initializeParentNode = (parentNode: FlattendNode) => {
 };
 const initializeChildNode = (node: FlattendNode): HTMLElement => {
   const { nodeName, style, text } = node;
-  const span = document.createElement(nodeName.toLowerCase());
-  span.textContent = text;
-  if (style) copyAndPasteStyle(span, style);
-  return span;
+  const childNode = document.createElement(nodeName.toLowerCase());
+  childNode.textContent = text;
+  if (style) copyAndPasteStyle(childNode, style);
+  return childNode;
 };
 const recomposeNode = (node: Node) => {
   const div = document.createElement("div");
@@ -71,11 +71,11 @@ const recomposeNode = (node: Node) => {
             nodeName: node.nodeName,
             childNodes: [],
           };
-
           resultArray.push(newFlattendNode);
         }
         break;
       case false:
+
       default:
         {
           switch (flattendNodeName) {
@@ -85,7 +85,7 @@ const recomposeNode = (node: Node) => {
                   isParent: true,
                   node: document.createElement("p"),
                   nodeIndex: [-1],
-                  nodeName: "P",
+                  nodeName: nodeNames.BR_P,
                   parentIndex: [],
                   style: null,
                   text: "",
@@ -99,15 +99,42 @@ const recomposeNode = (node: Node) => {
                 resultArray[resultArray.length - 1].childNodes?.push(span);
               }
               break;
+            case "LI":
+              {
+                if (!flattendNode.node) break;
+                const li = document.createElement("li");
+                const p = document.createElement("p");
+                let flattenedLi: FlattendNode[] = [];
+                flattendNode?.node.childNodes.forEach(
+                  (node) =>
+                    (flattenedLi = [...flattenedLi, ...flattenChildNodes(node)])
+                );
 
+                for (let i = 0; i < flattenedLi?.length; i += 1) {
+                  const childNode = flattenedLi[i];
+                  p.appendChild(initializeChildNode(childNode));
+                }
+                li.appendChild(p);
+
+                const parentNode = resultArray[parentNodeIndex];
+
+                if (parentNode) {
+                  parentNode.node?.appendChild(li);
+                  parentNode.childNodes?.push(li);
+                } else {
+                  console.log(parentNodeIndex, flattendNode.node.parentElement);
+                }
+              }
+              break;
             default:
               if (parentNodeIndex >= 0) {
                 if (!text) continue;
-                console.log("hi", flattendNode);
-                const span = initializeChildNode(flattendNode);
+
+                const childNode = initializeChildNode(flattendNode);
                 const parentNode = resultArray[parentNodeIndex];
-                parentNode.node?.appendChild(span);
-                parentNode.childNodes?.push(span);
+
+                parentNode.node?.appendChild(childNode);
+                parentNode.childNodes?.push(childNode);
               } else {
                 //아닐경우 새로운 p를 만든 후 그 p에 텍스트를 넣음 새로운 p는 nodeIndex의 length가 0임 (index를 부여하지 않음 )
                 const isParentExist =
@@ -157,7 +184,6 @@ const recomposeNode = (node: Node) => {
         break;
     }
   }
-
   return resultArray;
 };
 export { recomposeNode };
