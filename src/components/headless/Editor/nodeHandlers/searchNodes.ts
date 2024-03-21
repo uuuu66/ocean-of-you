@@ -1,3 +1,4 @@
+import { listTags } from "@/components/headless/Editor/configs";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
 
 const searchTextNode = (node: Node): Text => {
@@ -11,7 +12,7 @@ const searchTextNode = (node: Node): Text => {
   }
   return target as Text;
 };
-const searchParentNodeForNodeName = (node: Node, nodeName: string) => {
+const searchParentNodeForNodeName = (node: Node | null, nodeName: string) => {
   let target: Node | null = node;
   while (target?.parentElement) {
     if (!target) return target;
@@ -73,6 +74,29 @@ const searchTextNodeAtOffset = (node: Node, offset: number) => {
   }
   return { sum: 0, childNode: searchTextNode(node.firstChild as Node) };
 };
+const searchFirstChildForNodename = (node: Node | null, nodeName: string) => {
+  let target: Node | null = node;
+  while (target?.firstChild) {
+    if (!target) return target;
+
+    if (target.nodeName === nodeName) {
+      return target;
+    }
+    target = target.firstChild;
+  }
+  return null;
+};
+const searchParentListTag = (node: Node | null) => {
+  let target: Node | null = node;
+  while (target?.parentElement) {
+    if (!target) return target;
+    if (listTags.includes(target.nodeName.toLowerCase())) {
+      return target;
+    }
+    target = target.parentElement;
+  }
+  return null;
+};
 //targetA가 compareB보다 먼저오면 true
 const isLessThan = (targetA: number[], compareB: number[]) => {
   const length = Math.max(targetA?.length, compareB?.length);
@@ -103,5 +127,7 @@ export {
   searchTextNode,
   searchFlattenNodeIndex,
   searchTextNodeAtOffset,
+  searchFirstChildForNodename,
   findAllTextNodes,
+  searchParentListTag,
 };
