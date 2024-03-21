@@ -2,6 +2,7 @@ import { classNames, nodeNames } from "@/components/headless/Editor/configs";
 import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common";
 import {
   searchFirstChildForNodename,
+  searchParentListTag,
   searchParentNodeForNodeName,
   searchTextNode,
   searchTextNodeAtOffset,
@@ -44,12 +45,7 @@ const insertFirstNode = (
   switch (firstChildNode.nodeName) {
     case "UL":
     case "OL":
-      insertListAsFirstChild(
-        firstChildNode,
-        selection,
-        resultArray,
-        targetElement
-      );
+      insertListAsFirstChild(firstChildNode, selection);
       break;
     default:
       insertDefaultAsFirstChild(
@@ -62,11 +58,8 @@ const insertFirstNode = (
 };
 const insertListAsFirstChild = (
   firstChildNode: FlattendNode,
-  selection: Selection,
-  resultArray: FlattendNode[],
-  targetElement?: HTMLElement | null
+  selection: Selection
 ) => {
-  console.log("list");
   const range = selection.getRangeAt(0);
   if (!range) {
     console.error("need range");
@@ -97,20 +90,20 @@ const insertListAsFirstChild = (
     endOffset = startOffset;
   }
   //셀렉션의 시작노드의 p태그를 찾음
-  const parentP = searchParentNodeForNodeName(startNode, "P");
-  console.log(startNode.nodeName, "<<<< startNode.nodename");
+  const startNodeParentP = searchParentNodeForNodeName(startNode, "P");
+
   if (firstChildNode.node)
     switch (startNode.nodeName) {
       //div일 경우는 p가 없거나 셀렉트가 잘못된 경우
       case "DIV":
         if (firstChildNode?.childNodes) {
-          const parent = document.createElement(
+          const parentList = document.createElement(
             firstChildNode.nodeName.toLowerCase()
           );
           for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
-            parent.appendChild(firstChildNode.childNodes[i]);
+            parentList.appendChild(firstChildNode.childNodes[i]);
           }
-          const firstChildP = searchFirstChildForNodename(parent, "P");
+          const firstChildP = searchFirstChildForNodename(parentList, "P");
           if (!firstChildP) {
             console.error("li does not have p");
             return;
@@ -128,9 +121,9 @@ const insertListAsFirstChild = (
             const newRange = new Range();
             newRange.setEndAfter(targetP);
             newRange.setStartAfter(targetP);
-            newRange.insertNode(parent);
+            newRange.insertNode(parentList);
           } else {
-            range.insertNode(parent);
+            range.insertNode(parentList);
           }
         }
         break;
@@ -156,22 +149,32 @@ const insertListAsFirstChild = (
         }
         break;
       default:
-        switch (!!parentP) {
+        switch (!!startNodeParentP) {
           case true:
             if (firstChildNode?.childNodes) {
-              const parent = document.createElement(
+              const listTag = searchParentListTag(startNodeParentP);
+              const parentList = document.createElement(
                 firstChildNode.nodeName.toLowerCase()
               );
               for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
-                if (i === firstChildNode.childNodes?.length - 1) {
-                  //마지막 노드에 커서이동을 위한 클래스 부여
-                  firstChildNode.childNodes[i].className = classNames.lastNode;
-                }
-                parent.appendChild(firstChildNode.childNodes[i]);
+                parentList.appendChild(firstChildNode.childNodes[i]);
               }
-              range.setEndAfter(parentP as Node);
-              range.setEndAfter(parentP as Node);
-              range.insertNode(parent);
+              const firstChildP = searchFirstChildForNodename(parentList, "P");
+              if (!firstChildP) {
+                console.error("li does not have p");
+                return;
+              }
+              const lastSpan = searchTextNodeAtOffset(
+                firstChildP,
+                firstChildP?.textContent?.length || 0
+              );
+              lastSpan.childNode.parentElement?.setAttribute(
+                "class",
+                classNames.lastNode
+              );
+              range.setStartAfter(listTag as Node);
+              range.setEndAfter(listTag as Node);
+              range.insertNode(parentList);
             }
             break;
           case false:
@@ -186,8 +189,8 @@ const insertListAsFirstChild = (
                 }
                 parent.appendChild(firstChildNode.childNodes[i]);
               }
-              range.setEndAfter(parentP as Node);
-              range.setEndAfter(parentP as Node);
+              range.setEndAfter(startNodeParentP as Node);
+              range.setEndAfter(startNodeParentP as Node);
               range.insertNode(parent);
             }
             break;
