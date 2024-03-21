@@ -41,3 +41,4 @@ export const notAllowedTagsInParagraph = [
   "ul",
   "figure",
 ];
+export const listTags = ["ul", "ol"];
