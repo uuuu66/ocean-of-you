@@ -8,6 +8,10 @@ export const classNames = {
 export const flags = {
   newLine: "new_line",
 };
+export const nodeNames = {
+  BR_P: "BR_P",
+  LI_P: "LI_P",
+};
 export const notAllowedTagsInParagraph = [
   "address",
   "article",
