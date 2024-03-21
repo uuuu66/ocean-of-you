@@ -14,6 +14,15 @@ import {
   searchParentNodeForNodeName,
 } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 
+const handleEditorKeyDownCapture = (
+  e: React.KeyboardEvent,
+  targetElement?: HTMLElement | null
+) => {
+  if (!targetElement) {
+    console.error("need targetElement");
+    return;
+  }
+};
 const handleEditorKeyDown = (
   e: React.KeyboardEvent,
   targetElement?: HTMLElement | null
@@ -27,7 +36,6 @@ const handleEditorKeyDown = (
       span.appendChild(br);
       targetElement.appendChild(p);
     }
-
     switch (e.code) {
       case "KeyX":
         if (!!window.getSelection()?.getRangeAt(0).collapsed) {
@@ -74,34 +82,31 @@ const handleEditorKeyDown = (
               li &&
               !li.textContent?.length
             ) {
-              e.preventDefault();
-              const newSelectionRange = window
-                .getSelection()
-                ?.getRangeAt(0)
-                .cloneRange();
-              if (newSelectionRange?.commonAncestorContainer) {
-                const newSelectionLi = searchParentNodeForNodeName(
-                  newSelectionRange.commonAncestorContainer,
-                  "LI"
-                );
-
-                if (!newSelectionLi) {
-                  console.error("need liTag");
-                  break;
-                }
-                listTag?.removeChild(newSelectionLi);
-                const newCursorRange = new Range();
-                const p = document.createElement("p");
-                const span = document.createElement("span");
-                const br = document.createElement("br");
-                p.appendChild(span);
-                span.appendChild(br);
-                targetElement.appendChild(p);
-                newCursorRange.setStartAfter(p);
-                newCursorRange.setEndAfter(p);
-                selection.removeAllRanges();
-                selection.addRange(newCursorRange);
-              }
+              // e.preventDefault();
+              // const newSelectionRange = window
+              //   .getSelection()
+              //   ?.getRangeAt(0)
+              //   .cloneRange();
+              // if (newSelectionRange?.commonAncestorContainer) {
+              //   const newSelectionLi = searchParentNodeForNodeName(
+              //     newSelectionRange.commonAncestorContainer,
+              //     "LI"
+              //   );
+              //   if (!newSelectionLi) {
+              //     console.error("need liTag");
+              //     break;
+              //   }
+              //   listTag?.removeChild(newSelectionLi);
+              //   const newCursorRange = new Range();
+              //   const p = document.createElement("p");
+              //   const span = document.createElement("span");
+              //   p.appendChild(span);
+              //   targetElement.appendChild(p);
+              //   newCursorRange.setStartBefore(span);
+              //   newCursorRange.setEndBefore(span);
+              //   selection.removeAllRanges();
+              //   selection.addRange(newCursorRange);
+              // }
             }
           }
         break;
@@ -112,16 +117,60 @@ const handleEditorKeyDown = (
           range?.startContainer || null,
           "P"
         );
+        const listTag = searchParentListTag(selectionP);
+
         if (selectionP && (selectionP?.textContent?.length || 0) === 1) {
-          e.preventDefault();
-          selectionP.textContent = "";
-          const span = document.createElement("span");
-          const br = document.createElement("br");
-          span.appendChild(br);
-          selectionP.appendChild(span);
+          if (listTag) {
+            if (listTag.childNodes.length === 1) {
+              e.preventDefault();
+              targetElement.removeChild(listTag);
+            }
+          } else {
+            e.preventDefault();
+            selectionP.textContent = "";
+            const span = document.createElement("span");
+            const br = document.createElement("br");
+            span.appendChild(br);
+            selectionP.appendChild(span);
+          }
           break;
         }
+        if (
+          !!range?.cloneContents().textContent &&
+          selectionP?.textContent === range?.cloneContents().textContent
+        ) {
+          if (listTag) {
+            if (listTag.childNodes.length === 1) {
+              e.preventDefault();
+              targetElement.removeChild(listTag);
+            }
+          } else {
+            e.preventDefault();
+            selectionP.textContent = "";
+            const span = document.createElement("span");
+            const br = document.createElement("br");
+            span.appendChild(br);
+            selectionP.appendChild(span);
+          }
+          break;
+        }
+        if (targetElement.textContent?.length === 0 && selectionP) {
+          if (listTag) {
+            targetElement.removeChild(listTag);
+          } else {
+            targetElement.removeChild(selectionP);
+          }
+        }
+        break;
+      }
 
+      default: {
+        const selection = window.getSelection();
+        const range = selection?.getRangeAt(0);
+        const selectionP = searchParentNodeForNodeName(
+          range?.startContainer || null,
+          "P"
+        );
         if (
           !!range?.cloneContents().textContent &&
           selectionP?.textContent === range?.cloneContents().textContent
@@ -134,38 +183,7 @@ const handleEditorKeyDown = (
           selectionP.appendChild(span);
           break;
         }
-        if (targetElement.textContent?.length === 0) e.preventDefault();
-        break;
       }
-
-      default:
-        if (
-          !!window.getSelection()?.getRangeAt(0).cloneContents().textContent &&
-          !!targetElement.textContent &&
-          targetElement.textContent ===
-            window.getSelection()?.getRangeAt(0).cloneContents().textContent
-        ) {
-          e.preventDefault();
-          targetElement.textContent = "";
-          const p = document.createElement("p");
-          const span = document.createElement("span");
-          const br = document.createElement("br");
-          p.appendChild(span);
-          span.appendChild(br);
-          targetElement.appendChild(p);
-        }
-        if (
-          targetElement.firstChild?.firstChild &&
-          targetElement.firstChild.firstChild.nodeName === "BR"
-        ) {
-          const span = document.createElement("span");
-          const br = document.createElement("br");
-          span.appendChild(br);
-          targetElement.firstChild.replaceChild(
-            span,
-            targetElement.firstChild.firstChild
-          );
-        }
     }
   }
 };
@@ -176,10 +194,25 @@ const handleEditorKeyUp = (
   targetElement?: HTMLElement | null
 ) => {
   if (!targetElement) {
-    console.log("need targetElement");
+    console.error("need targetElement");
     return;
   }
-
+  const selection = window.getSelection();
+  if (selection)
+    if (selection.rangeCount > 0) {
+      const firstSelectionRange = selection.getRangeAt(0).cloneRange();
+      const selectionDiv = searchParentNodeForNodeName(
+        firstSelectionRange.startContainer,
+        "DIV"
+      );
+      if (targetElement.isSameNode(selectionDiv)) return;
+      const p = document.createElement("p");
+      const span = document.createElement("span");
+      const br = document.createElement("br");
+      p.appendChild(span);
+      span.appendChild(br);
+      if (selectionDiv) targetElement.replaceChild(p, selectionDiv);
+    }
   removeEmptyNode(targetElement);
 };
 const handleEditorFocus = (
@@ -283,4 +316,5 @@ export {
   handleEditorKeyDown,
   handleEditorKeyUp,
   handleEditorCut,
+  handleEditorKeyDownCapture,
 };
