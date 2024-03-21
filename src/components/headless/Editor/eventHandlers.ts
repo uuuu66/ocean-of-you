@@ -1,4 +1,4 @@
-import { classNames } from "@/components/headless/Editor/configs";
+import { classNames, listTags } from "@/components/headless/Editor/configs";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import { removeEmptyNode } from "@/components/headless/Editor/nodeHandlers/common";
 import {
@@ -10,6 +10,7 @@ import { pasteNodesToSelection } from "@/components/headless/Editor/nodeHandlers
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
 import {
   findAllTextNodes,
+  searchParentListTag,
   searchParentNodeForNodeName,
 } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 
@@ -53,40 +54,90 @@ const handleEditorKeyDown = (
           p.appendChild(span);
           span.appendChild(br);
           targetElement.appendChild(p);
+          break;
         }
-        break;
+        const selection = window.getSelection();
+        if (selection)
+          if (selection.rangeCount > 0) {
+            const firstSelectionRange = selection.getRangeAt(0).cloneRange();
+            const listTag = searchParentListTag(
+              firstSelectionRange.startContainer
+            );
+            const li = searchParentNodeForNodeName(
+              firstSelectionRange.startContainer,
+              "LI"
+            );
 
-      case "Backspace":
-        if (
-          (targetElement.textContent?.length || 0) === 1 ||
-          !targetElement.innerHTML
-        ) {
+            if (
+              firstSelectionRange &&
+              listTag &&
+              li &&
+              !li.textContent?.length
+            ) {
+              e.preventDefault();
+              const newSelectionRange = window
+                .getSelection()
+                ?.getRangeAt(0)
+                .cloneRange();
+              if (newSelectionRange?.commonAncestorContainer) {
+                const newSelectionLi = searchParentNodeForNodeName(
+                  newSelectionRange.commonAncestorContainer,
+                  "LI"
+                );
+
+                if (!newSelectionLi) {
+                  console.error("need liTag");
+                  break;
+                }
+                listTag?.removeChild(newSelectionLi);
+                const newCursorRange = new Range();
+                const p = document.createElement("p");
+                const span = document.createElement("span");
+                const br = document.createElement("br");
+                p.appendChild(span);
+                span.appendChild(br);
+                targetElement.appendChild(p);
+                newCursorRange.setStartAfter(p);
+                newCursorRange.setEndAfter(p);
+                selection.removeAllRanges();
+                selection.addRange(newCursorRange);
+              }
+            }
+          }
+        break;
+      case "Backspace": {
+        const selection = window.getSelection();
+        const range = selection?.getRangeAt(0);
+        const selectionP = searchParentNodeForNodeName(
+          range?.startContainer || null,
+          "P"
+        );
+        if (selectionP && (selectionP?.textContent?.length || 0) === 1) {
           e.preventDefault();
-          targetElement.textContent = "";
-          const p = document.createElement("p");
+          selectionP.textContent = "";
           const span = document.createElement("span");
           const br = document.createElement("br");
-          p.appendChild(span);
           span.appendChild(br);
-          targetElement.appendChild(p);
+          selectionP.appendChild(span);
+          break;
         }
+
         if (
-          !!window.getSelection()?.getRangeAt(0).cloneContents().textContent &&
-          !!targetElement.textContent &&
-          targetElement.textContent ===
-            window.getSelection()?.getRangeAt(0).cloneContents().textContent
+          !!range?.cloneContents().textContent &&
+          selectionP?.textContent === range?.cloneContents().textContent
         ) {
           e.preventDefault();
-          targetElement.textContent = "";
-          const p = document.createElement("p");
+          selectionP.textContent = "";
           const span = document.createElement("span");
           const br = document.createElement("br");
-          p.appendChild(span);
           span.appendChild(br);
-          targetElement.appendChild(p);
+          selectionP.appendChild(span);
+          break;
         }
         if (targetElement.textContent?.length === 0) e.preventDefault();
         break;
+      }
+
       default:
         if (
           !!window.getSelection()?.getRangeAt(0).cloneContents().textContent &&
@@ -118,6 +169,8 @@ const handleEditorKeyDown = (
     }
   }
 };
+//issue list 일 때 엔터 시 동작
+//p에서 글자를 없앤후 다시 입력하면 font 태그가 나옴
 const handleEditorKeyUp = (
   e: React.KeyboardEvent,
   targetElement?: HTMLElement | null
@@ -126,14 +179,7 @@ const handleEditorKeyUp = (
     console.log("need targetElement");
     return;
   }
-  const textTags = findAllTextNodes(targetElement);
-  textTags.forEach((tag) => {
-    if (tag.parentNode?.nodeName !== "SPAN") {
-      const span = document.createElement("span");
-      span.appendChild(tag.cloneNode());
-      tag.parentNode?.replaceChild(span, tag);
-    }
-  });
+
   removeEmptyNode(targetElement);
 };
 const handleEditorFocus = (
