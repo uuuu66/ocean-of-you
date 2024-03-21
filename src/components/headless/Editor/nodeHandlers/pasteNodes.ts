@@ -1,9 +1,10 @@
-import { classNames } from "@/components/headless/Editor/configs";
+import { classNames, nodeNames } from "@/components/headless/Editor/configs";
 import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common";
 import {
+  searchFirstChildForNodename,
   searchParentNodeForNodeName,
-  searchTextNodeAtOffset,
   searchTextNode,
+  searchTextNodeAtOffset,
 } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
 import _ from "lodash";
@@ -21,6 +22,184 @@ const pasteNodesToSelection = (
     console.error("need selection");
     return;
   }
+  //첫번째 줄은 기존에 존재하는 p태그의 child로 추가해야됨
+  //따로 처리함
+  insertFirstNode(selection, resultArray, targetElement);
+  //커서 이동후 마지막 노드를 가져옴
+  const lastNode = moveCursorToClassName(selection, classNames.lastNode);
+  //첫번째노드 삽입 후  남아있는 노드들을 추가함
+  insertRemainingNodes(lastNode, selection, resultArray);
+};
+const insertFirstNode = (
+  selection: Selection,
+  resultArray: FlattendNode[],
+  targetElement?: HTMLElement | null
+) => {
+  while (resultArray[0]?.nodeName === nodeNames.BR_P) {
+    resultArray.splice(0, 1);
+  }
+
+  const firstChildNode = resultArray[0];
+  //셀렉션의 startNode의 경우의 수
+  switch (firstChildNode.nodeName) {
+    case "UL":
+    case "OL":
+      insertListAsFirstChild(
+        firstChildNode,
+        selection,
+        resultArray,
+        targetElement
+      );
+      break;
+    default:
+      insertDefaultAsFirstChild(
+        firstChildNode,
+        selection,
+        resultArray,
+        targetElement
+      );
+  }
+};
+const insertListAsFirstChild = (
+  firstChildNode: FlattendNode,
+  selection: Selection,
+  resultArray: FlattendNode[],
+  targetElement?: HTMLElement | null
+) => {
+  console.log("list");
+  const range = selection.getRangeAt(0);
+  if (!range) {
+    console.error("need range");
+    return;
+  }
+  const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+  if (!anchorNode || !focusNode) {
+    console.error("need AnchorNode or FocusNode");
+    return;
+  }
+  let startNode = anchorNode;
+  let startOffset = anchorOffset || 0;
+  let endOffset = focusOffset || 0;
+  if (!range.collapsed) {
+    //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
+    //2 뒤에서 앞으로
+    if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+      startNode = focusNode;
+      startOffset = focusOffset;
+      endOffset = anchorOffset;
+    } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
+      startNode = focusNode;
+      startOffset = Math.min(anchorOffset, focusOffset);
+      endOffset = Math.max(anchorOffset, focusOffset);
+    }
+    //일단 선택한 부분을 없앰 없앤 후 flatten한 노드들을 재배치함
+    range.deleteContents();
+    endOffset = startOffset;
+  }
+  //셀렉션의 시작노드의 p태그를 찾음
+  const parentP = searchParentNodeForNodeName(startNode, "P");
+  console.log(startNode.nodeName, "<<<< startNode.nodename");
+  if (firstChildNode.node)
+    switch (startNode.nodeName) {
+      //div일 경우는 p가 없거나 셀렉트가 잘못된 경우
+      case "DIV":
+        if (firstChildNode?.childNodes) {
+          const parent = document.createElement(
+            firstChildNode.nodeName.toLowerCase()
+          );
+          for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
+            parent.appendChild(firstChildNode.childNodes[i]);
+          }
+          const firstChildP = searchFirstChildForNodename(parent, "P");
+          if (!firstChildP) {
+            console.error("li does not have p");
+            return;
+          }
+          const lastSpan = searchTextNodeAtOffset(
+            firstChildP,
+            firstChildP?.textContent?.length || 0
+          );
+          lastSpan.childNode.parentElement?.setAttribute(
+            "class",
+            classNames.lastNode
+          );
+          const targetP = startNode.childNodes.item(startOffset - 1);
+          if (targetP?.lastChild) {
+            const newRange = new Range();
+            newRange.setEndAfter(targetP);
+            newRange.setStartAfter(targetP);
+            newRange.insertNode(parent);
+          } else {
+            range.insertNode(parent);
+          }
+        }
+        break;
+      //p일 경우는 br태그이거나 셀렉트가 잘못된 경우
+      case "P":
+        {
+          if (firstChildNode?.childNodes) {
+            const parent = document.createElement(
+              firstChildNode.nodeName.toLowerCase()
+            );
+
+            for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
+              if (i === firstChildNode.childNodes?.length - 1) {
+                //마지막 노드에 커서이동을 위한 클래스 부여
+                firstChildNode.childNodes[i].className = classNames.lastNode;
+              }
+              parent.appendChild(firstChildNode.childNodes[i]);
+            }
+            range.setEndAfter(startNode);
+            range.setEndAfter(startNode);
+            range.insertNode(parent);
+          }
+        }
+        break;
+      default:
+        switch (!!parentP) {
+          case true:
+            if (firstChildNode?.childNodes) {
+              const parent = document.createElement(
+                firstChildNode.nodeName.toLowerCase()
+              );
+              for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
+                if (i === firstChildNode.childNodes?.length - 1) {
+                  //마지막 노드에 커서이동을 위한 클래스 부여
+                  firstChildNode.childNodes[i].className = classNames.lastNode;
+                }
+                parent.appendChild(firstChildNode.childNodes[i]);
+              }
+              range.setEndAfter(parentP as Node);
+              range.setEndAfter(parentP as Node);
+              range.insertNode(parent);
+            }
+            break;
+          case false:
+            if (firstChildNode?.childNodes) {
+              const parent = document.createElement(
+                firstChildNode.nodeName.toLowerCase()
+              );
+              for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
+                if (i === firstChildNode.childNodes?.length - 1) {
+                  //마지막 노드에 커서이동을 위한 클래스 부여
+                  firstChildNode.childNodes[i].className = classNames.lastNode;
+                }
+                parent.appendChild(firstChildNode.childNodes[i]);
+              }
+              range.setEndAfter(parentP as Node);
+              range.setEndAfter(parentP as Node);
+              range.insertNode(parent);
+            }
+            break;
+        }
+    }
+};
+const insertDefaultAsFirstChild = (
+  firstChildNode: FlattendNode,
+  selection: Selection,
+  resultArray: FlattendNode[],
+  targetElement?: HTMLElement | null
+) => {
   const range = selection.getRangeAt(0);
   if (!range) {
     console.error("need range");
@@ -41,7 +220,6 @@ const pasteNodesToSelection = (
     //2 뒤에서 앞으로
 
     if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
-      console.log("hi");
       startNode = focusNode;
       startOffset = focusOffset;
       endOffset = anchorOffset;
@@ -58,21 +236,11 @@ const pasteNodesToSelection = (
 
   //셀렉션의 시작노드의 p태그를 찾음
   const parentP = searchParentNodeForNodeName(startNode, "P");
-  //첫번째 줄은 기존에 존재하는 p태그의 child로 추가해야됨
-  //따로 처리함
-
-  while (resultArray[0]?.nodeIndex[0] === -1) {
-    resultArray.splice(0, 1);
-  }
-  const firstChildNode = resultArray[0];
-
-  //셀렉션의 startNode의 경우의 수
   switch (startNode.nodeName) {
     //div일 경우는 p가 없거나 셀렉트가 잘못된 경우
     case "DIV":
       if (firstChildNode?.childNodes) {
         const fragment = document.createDocumentFragment();
-
         for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
           if (i === firstChildNode.childNodes?.length - 1) {
             //마지막 노드에 커서이동을 위한 클래스 부여
@@ -80,6 +248,7 @@ const pasteNodesToSelection = (
           }
           fragment.appendChild(firstChildNode.childNodes[i]);
         }
+        //자식 p 가 있을 경우
         const targetP = startNode.childNodes.item(startOffset - 1);
         if (targetP?.lastChild) {
           const newRange = new Range();
@@ -106,9 +275,7 @@ const pasteNodesToSelection = (
         }
         range.insertNode(fragment);
       }
-
       break;
-    //div나 p안에들어있는 태그일 경우
     default:
       switch (!!parentP) {
         case true:
@@ -133,6 +300,7 @@ const pasteNodesToSelection = (
         case false:
           {
             const p = document.createElement("p");
+
             if (resultArray[0]?.childNodes) {
               const fragment = document.createDocumentFragment();
               for (let i = 0; i < resultArray[0]?.childNodes?.length; i += 1) {
@@ -155,12 +323,7 @@ const pasteNodesToSelection = (
           break;
       }
   }
-  //커서 이동후 마지막 노드를 가져옴
-  const lastNode = moveCursorToClassName(selection, classNames.lastNode);
-  //첫번째노드 삽입 후  남아있는 노드들을 추가함
-  insertRemainingNodes(lastNode, selection, resultArray);
 };
-
 const insertRemainingNodes = (
   lastNode: Node | null,
   selection: Selection,
@@ -195,10 +358,8 @@ const insertRemainingNodes = (
   let nextPastePointRange = new Range();
   nextPastePointRange.setEndAfter(firstLineParentP);
   nextPastePointRange.setStartAfter(firstLineParentP);
-
-  const isLastNodeIsBr =
-    resultArray[resultArray?.length - 1].nodeIndex[0] === -1;
-
+  const lastResultNode = resultArray[resultArray?.length - 1];
+  const isLastNodeIsBr = lastResultNode.nodeName === nodeNames.BR_P;
   for (let i = 1; i < resultArray.length; i += 1) {
     const { node } = resultArray[i];
     if (!node) break;
@@ -218,7 +379,6 @@ const insertRemainingNodes = (
     moveCursorToClassName(selection, classNames.lastNode);
     //마지막 p에 뒤에 남아있던 노드들 집어넣기
     //마지막 p가 br태그일 경우 새로운 노드를 만듬
-
     if (i === resultArray.length - 1 && lastAddedNode?.lastChild) {
       if (isLastNodeIsBr) {
         const p = document.createElement("p");
