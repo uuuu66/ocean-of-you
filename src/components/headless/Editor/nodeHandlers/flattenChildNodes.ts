@@ -55,6 +55,29 @@ const flattenChildNodes = (
           ]);
       }
       break;
+
+    case "OL":
+    case "UL":
+      for (let i = 0; i < node.childNodes.length; i += 1) {
+        const childNode = node.childNodes.item(i);
+        if (
+          notAllowedTagsInParagraph.includes(childNode.nodeName.toLowerCase())
+        ) {
+          array.push({
+            isParent: true,
+            style: node.firstChild?.parentElement?.style || null,
+            node: childNode,
+            text: "",
+            nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],
+            nodeName: childNode.nodeName,
+            parentIndex,
+          });
+        }
+        array.push(
+          flattenChildNodes(childNode, nodeIndex ? [...nodeIndex, i] : [i])
+        );
+      }
+      break;
     case "SPAN":
       if (node.childNodes.length === 1) {
         if ((node.firstChild as HTMLElement).nodeName === "BR") {
