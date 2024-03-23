@@ -6,6 +6,7 @@ import {
   handleEditorCut,
   handleEditorFocus,
   handleEditorKeyDown,
+  handleEditorKeyDownCapture,
   handleEditorKeyUp,
 } from "@/components/headless/Editor/eventHandlers";
 import addStyleToSelection from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
@@ -27,7 +28,20 @@ export default function Editor() {
     },
     []
   );
-
+  const handleChangeFontSize = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (containerRef.current)
+        addStyleToSelection({
+          styleKey: "font-size",
+          styleValue: e.target.value + "px",
+          containerRef: containerRef,
+          tagName: "span",
+        });
+      alert("글자크기 변경!");
+    },
+    []
+  );
+  const fontSizes = new Array(16).fill("sd");
   return (
     <section aria-label="edtior">
       <datalist id="list">
@@ -40,6 +54,9 @@ export default function Editor() {
       <div>
         <div
           onPaste={(e) => handleEditorAfterPaste(e, containerRef.current)}
+          onKeyDownCapture={(e) =>
+            handleEditorKeyDownCapture(e, containerRef.current)
+          }
           onKeyDown={(e) => handleEditorKeyDown(e, containerRef.current)}
           onKeyUp={(e) => handleEditorKeyUp(e, containerRef.current)}
           onFocus={(e) => handleEditorFocus(e, containerRef.current)}
@@ -47,19 +64,26 @@ export default function Editor() {
           contentEditable
           ref={containerRef}
           id="m-editor-div-element"
-          className="border border-solid border-gray4  w-[400px] min-w-80 h-[300px] min-h-5 p-4 whitespace-pre-line"
+          className="border border-solid border-gray4  w-[400px] min-w-80  min-h-5 p-4 whitespace-pre-line"
         >
-          <p>
-            <span>1</span>
-            <span>234</span>
-          </p>
-          <p>
-            <span>abcdefg5678</span>
-          </p>
-          <p>
-            <span style={{ fontSize: "36px" }}>감자</span>
-            <span> 고구마</span>
-          </p>
+          <ol style={{ listStyle: "decimal" }}>
+            <li>
+              <p>
+                <span>12345</span>
+                <span>67890</span>
+                <span>abcde</span>
+              </p>
+            </li>
+          </ol>{" "}
+          <ul style={{ listStyle: "initial" }}>
+            <li>
+              <p>
+                <span>12345</span>
+                <span>67890</span>
+                <span>abcde</span>
+              </p>
+            </li>
+          </ul>
         </div>
       </div>{" "}
       <input
@@ -68,6 +92,15 @@ export default function Editor() {
         className="w-14"
         onInput={handleChangeColorPicker}
       />
+      <select onChange={handleChangeFontSize}>
+        {fontSizes.map((_, index) => (
+          <option
+            key={index}
+            value={10 + 2 * index}
+            label={`${10 + 2 * index}`}
+          />
+        ))}
+      </select>
     </section>
   );
 }
