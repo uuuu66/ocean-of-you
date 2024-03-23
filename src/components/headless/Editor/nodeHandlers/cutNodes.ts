@@ -96,7 +96,8 @@ const copyAndPastePostSelectionContent = () => {
     insertPointRange.collapse(true);
     if (insertPointRange.commonAncestorContainer.nodeName === "DIV") return;
     //복사한 뒷부분 노드들을 삽입함
-    if (postSelectionContent.childNodes.length > 0)
+
+    if (postSelectionContent.textContent?.trim()?.length)
       insertTagAtOffsets({
         node: searchTextNode(startNode),
         startOffset: insertPointRange.startOffset,
