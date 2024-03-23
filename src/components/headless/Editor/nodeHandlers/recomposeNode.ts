@@ -6,6 +6,7 @@ import {
 } from "@/components/headless/Editor/nodeHandlers/flattenChildNodes";
 import { searchFlattenNodeIndex } from "@/components/headless/Editor/nodeHandlers/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
+import { camelToKebab } from "@/components/headless/Editor/nodeHandlers/common";
 
 const initializeParentNode = (parentNode: FlattendNode) => {
   const { nodeName, style } = parentNode;
@@ -14,9 +15,11 @@ const initializeParentNode = (parentNode: FlattendNode) => {
   switch (nodeName.toLowerCase()) {
     case "ol":
       newNode = document.createElement("ol");
+
       break;
     case "ul":
       newNode = document.createElement("ul");
+
       break;
     case "dl":
     case "pre":
@@ -26,7 +29,7 @@ const initializeParentNode = (parentNode: FlattendNode) => {
     default:
       newNode = document.createElement(nodeName.toLowerCase());
   }
-  console.log(style, nodeName);
+
   if (style) copyAndPasteStyle(newNode, style);
   return newNode;
 };
@@ -43,6 +46,7 @@ const recomposeNode = (node: Node) => {
   const flattendNodes = postProcessAfterFlatten(flattenChildNodes(div));
   const resultArray: FlattendNode[] = [];
   const nodeArray = [...flattendNodes];
+
   for (let i = 0; i < nodeArray.length; i += 1) {
     const flattendNode = nodeArray[i];
     const {

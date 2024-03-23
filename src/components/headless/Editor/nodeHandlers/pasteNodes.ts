@@ -1,4 +1,5 @@
 import { classNames, nodeNames } from "@/components/headless/Editor/configs";
+import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common";
 import {
   searchFirstChildForNodename,
@@ -98,13 +99,16 @@ const insertListNode = (
       //div일 경우는 p가 없거나 셀렉트가 잘못된 경우
       case "DIV":
         if (firstChildNode?.childNodes) {
-          const parentList = document.createElement(
+          const parentListNode = document.createElement(
             firstChildNode.nodeName.toLowerCase()
           );
+          if (firstChildNode.style)
+            copyAndPasteStyle(parentListNode, firstChildNode.style);
+
           for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
-            parentList.appendChild(firstChildNode.childNodes[i]);
+            parentListNode.appendChild(firstChildNode.childNodes[i]);
           }
-          const firstChildP = searchFirstChildForNodename(parentList, "P");
+          const firstChildP = searchFirstChildForNodename(parentListNode, "P");
           if (!firstChildP) {
             console.error("li does not have p");
             return;
@@ -118,9 +122,9 @@ const insertListNode = (
             const newRange = new Range();
             newRange.setEndAfter(targetP);
             newRange.setStartAfter(targetP);
-            newRange.insertNode(parentList);
+            newRange.insertNode(parentListNode);
           } else {
-            range.insertNode(parentList);
+            range.insertNode(parentListNode);
           }
         }
         break;
@@ -150,13 +154,18 @@ const insertListNode = (
           case true:
             if (firstChildNode?.childNodes) {
               const listTag = searchParentListTag(startNodeParentP);
-              const parentList = document.createElement(
+              const parentListNode = document.createElement(
                 firstChildNode.nodeName.toLowerCase()
               );
+              if (firstChildNode.style)
+                copyAndPasteStyle(parentListNode, firstChildNode.style);
               for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
-                parentList.appendChild(firstChildNode.childNodes[i]);
+                parentListNode.appendChild(firstChildNode.childNodes[i]);
               }
-              const firstChildP = searchFirstChildForNodename(parentList, "P");
+              const firstChildP = searchFirstChildForNodename(
+                parentListNode,
+                "P"
+              );
               if (!firstChildP) {
                 console.error("li does not have p");
                 return;
@@ -172,7 +181,7 @@ const insertListNode = (
                 range.setStartAfter(startNodeParentP as Node);
                 range.setEndAfter(startNodeParentP as Node);
               }
-              range.insertNode(parentList);
+              range.insertNode(parentListNode);
             }
             break;
           case false:

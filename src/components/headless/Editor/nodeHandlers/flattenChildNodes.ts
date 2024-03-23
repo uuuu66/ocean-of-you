@@ -65,7 +65,7 @@ const flattenChildNodes = (
         ) {
           array.push({
             isParent: true,
-            style: node.firstChild?.parentElement?.style || null,
+            style: childNode.firstChild?.parentElement?.style || null,
             node: childNode,
             text: "",
             nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],
@@ -107,7 +107,7 @@ const flattenChildNodes = (
         ) {
           array.push({
             isParent: true,
-            style: null,
+            style: childNode.firstChild?.parentElement?.style || null,
             node: childNode,
             text: "",
             nodeIndex: nodeIndex ? [...nodeIndex, i] : [i],
@@ -133,7 +133,7 @@ const postProcessAfterFlatten = (flattendNodes: FlattendNode[]) => {
   const searchResult = searchFlattenNodeIndex(flattendNodes, [0]);
   if (searchResult !== -1 && resultNodes[searchResult]?.nodeName === "META")
     resultNodes.splice(searchResult, 1);
-
+  console.log(resultNodes);
   return resultNodes;
 };
 
