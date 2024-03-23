@@ -12,6 +12,13 @@ const initializeParentNode = (parentNode: FlattendNode) => {
   let newNode = null;
 
   switch (nodeName.toLowerCase()) {
+    case "ol":
+      newNode = document.createElement("ol");
+      break;
+    case "ul":
+      newNode = document.createElement("ul");
+      break;
+    case "dl":
     case "pre":
     case "div":
       newNode = document.createElement("p");
@@ -19,7 +26,7 @@ const initializeParentNode = (parentNode: FlattendNode) => {
     default:
       newNode = document.createElement(nodeName.toLowerCase());
   }
-
+  console.log(style, nodeName);
   if (style) copyAndPasteStyle(newNode, style);
   return newNode;
 };
@@ -36,7 +43,6 @@ const recomposeNode = (node: Node) => {
   const flattendNodes = postProcessAfterFlatten(flattenChildNodes(div));
   const resultArray: FlattendNode[] = [];
   const nodeArray = [...flattendNodes];
-
   for (let i = 0; i < nodeArray.length; i += 1) {
     const flattendNode = nodeArray[i];
     const {
@@ -122,7 +128,6 @@ const recomposeNode = (node: Node) => {
                   parentNode.node?.appendChild(li);
                   parentNode.childNodes?.push(li);
                 } else {
-                  console.log(parentNodeIndex, flattendNode.node.parentElement);
                 }
               }
               break;
