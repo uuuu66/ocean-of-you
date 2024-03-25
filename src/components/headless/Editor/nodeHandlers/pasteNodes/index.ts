@@ -44,7 +44,7 @@ const pasteNode = (
   switch (firstChildNode.nodeName) {
     case "UL":
     case "OL":
-      pasteListNodes(firstChildNode, selection, resultArray);
+      pasteListNodes(firstChildNode, selection);
       break;
     default: {
       //첫번째 줄은 기존에 존재하는 p태그의 child로 추가해야됨
@@ -54,34 +54,4 @@ const pasteNode = (
   }
 };
 
-//class를 찾아서 커서이동
-const moveCursorToClassName = (selection: Selection, className: string) => {
-  const targetNode = document.getElementsByClassName(className)[0];
-  selection.removeAllRanges();
-  const newRange = new Range();
-  if (!targetNode) {
-    console.error("no targetNode");
-    return null;
-  }
-  if (!targetNode?.lastChild) {
-    console.error("no lastChild", targetNode);
-    return null;
-  }
-
-  const textNode = searchTextNode(targetNode?.lastChild);
-  //텍스트 노드가 없으면 lastChild
-  if (!textNode) {
-    newRange.setStart(targetNode?.lastChild, 0);
-    newRange.setEnd(targetNode?.lastChild, 1);
-    newRange.collapse(false);
-    //텍스트가 있으면 텍스트노드의 전체 길이
-  } else if (textNode?.textContent) {
-    newRange.setStart(textNode, 0);
-    newRange.setEnd(textNode, textNode.textContent?.length);
-    newRange.collapse(false);
-  }
-  selection.addRange(newRange);
-  targetNode.removeAttribute("class");
-  return targetNode;
-};
-export { pasteNodesToSelection, moveCursorToClassName };
+export { pasteNodesToSelection };

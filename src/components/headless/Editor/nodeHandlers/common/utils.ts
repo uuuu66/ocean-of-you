@@ -1,12 +1,9 @@
-import { TagName } from "@/components/headless/Editor";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
-import { classNames, flags } from "@/components/headless/Editor/configs";
-import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import {
-  FlattendNode,
-  InsertTagNextToNodesArgs,
-} from "@/components/headless/Editor/nodeHandlers/common/types";
-import { CSSProperties, cloneElement } from "react";
+  searchParentNodeForNodeName,
+  searchTextNode,
+} from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
+import { InsertTagNextToNodesArgs } from "@/components/headless/Editor/nodeHandlers/common/types";
 
 const camelToKebab = (target: string) => {
   const result = target.replace(/([A-Z])/g, " $1");
@@ -171,6 +168,36 @@ const removeEmptyNode = (targetElement: HTMLElement) => {
     (tag) => tag.nodeName !== "BR" && tag.parentNode?.removeChild(tag)
   );
 };
+//class를 찾아서 커서이동
+const moveCursorToClassName = (selection: Selection, className: string) => {
+  const targetNode = document.getElementsByClassName(className)[0];
+  selection.removeAllRanges();
+  const newRange = new Range();
+  if (!targetNode) {
+    console.error("no targetNode");
+    return null;
+  }
+  if (!targetNode?.lastChild) {
+    console.error("no lastChild", targetNode);
+    return null;
+  }
+
+  const textNode = searchTextNode(targetNode?.lastChild);
+  //텍스트 노드가 없으면 lastChild
+  if (!textNode) {
+    newRange.setStart(targetNode?.lastChild, 0);
+    newRange.setEnd(targetNode?.lastChild, 1);
+    newRange.collapse(false);
+    //텍스트가 있으면 텍스트노드의 전체 길이
+  } else if (textNode?.textContent) {
+    newRange.setStart(textNode, 0);
+    newRange.setEnd(textNode, textNode.textContent?.length);
+    newRange.collapse(false);
+  }
+  selection.addRange(newRange);
+  targetNode.removeAttribute("class");
+  return targetNode;
+};
 export {
   addIdToChildNodes,
   removeIdFromChildNodesBasedOnNodeName,
@@ -179,4 +206,5 @@ export {
   divideNodeIntoThreePart,
   removeEmptyNode,
   camelToKebab,
+  moveCursorToClassName,
 };

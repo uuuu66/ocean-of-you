@@ -1,18 +1,14 @@
 import { classNames } from "@/components/headless/Editor/configs";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
-import { moveCursorToClassName } from "@/components/headless/Editor/nodeHandlers/pasteNodes";
 import {
   searchParentNodeForNodeName,
   searchFirstChildForNodename,
   searchParentListTag,
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
+import { moveCursorToClassName } from "@/components/headless/Editor/nodeHandlers/common/utils";
 
-const pasteListNodes = (
-  firstChildNode: FlattendNode,
-  selection: Selection,
-  resultArray: FlattendNode[]
-) => {
+const pasteListNodes = (firstChildNode: FlattendNode, selection: Selection) => {
   const range = selection.getRangeAt(0);
   if (!range) {
     console.error("need range");

@@ -1,6 +1,8 @@
 import { classNames, nodeNames } from "@/components/headless/Editor/configs";
-import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common/utils";
-import { moveCursorToClassName } from "@/components/headless/Editor/nodeHandlers/pasteNodes";
+import {
+  insertTagAtOffsets,
+  moveCursorToClassName,
+} from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
   searchParentNodeForNodeName,
   searchTextNode,
