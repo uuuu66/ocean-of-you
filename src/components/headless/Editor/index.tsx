@@ -69,18 +69,18 @@ export default function Editor() {
           <ol style={{ listStyle: "decimal" }}>
             <li>
               <p>
-                <span>12345</span>
-                <span>67890</span>
-                <span>abcde</span>
+                <span>o</span>
+                <span>l</span>
+                <span>_</span>
               </p>
             </li>
           </ol>{" "}
           <ul style={{ listStyle: "initial" }}>
             <li>
               <p>
-                <span>12345</span>
-                <span>67890</span>
-                <span>abcde</span>
+                <span>u</span>
+                <span>l</span>
+                <span>_</span>
               </p>
             </li>
           </ul>

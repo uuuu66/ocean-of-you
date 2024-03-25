@@ -4,9 +4,9 @@ import {
   flattenChildNodes,
   postProcessAfterFlatten,
 } from "@/components/headless/Editor/nodeHandlers/flattenChildNodes";
-import { searchFlattenNodeIndex } from "@/components/headless/Editor/nodeHandlers/searchNodes";
-import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
-import { camelToKebab } from "@/components/headless/Editor/nodeHandlers/common";
+import { searchFlattenNodeIndex } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
+import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
+import { camelToKebab } from "@/components/headless/Editor/nodeHandlers/common/utils";
 
 const initializeParentNode = (parentNode: FlattendNode) => {
   const { nodeName, style } = parentNode;
@@ -19,7 +19,6 @@ const initializeParentNode = (parentNode: FlattendNode) => {
       break;
     case "ul":
       newNode = document.createElement("ul");
-
       break;
     case "dl":
     case "pre":
@@ -46,7 +45,6 @@ const recomposeNode = (node: Node) => {
   const flattendNodes = postProcessAfterFlatten(flattenChildNodes(div));
   const resultArray: FlattendNode[] = [];
   const nodeArray = [...flattendNodes];
-
   for (let i = 0; i < nodeArray.length; i += 1) {
     const flattendNode = nodeArray[i];
     const {

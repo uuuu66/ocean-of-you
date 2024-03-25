@@ -1,9 +1,9 @@
 import { classNames } from "@/components/headless/Editor/configs";
-import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common";
+import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
   searchParentNodeForNodeName,
   searchTextNode,
-} from "@/components/headless/Editor/nodeHandlers/searchNodes";
+} from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 
 const makePostSelectionRange = () => {
   const selection = window.getSelection();

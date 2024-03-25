@@ -1,6 +1,6 @@
 import { classNames, listTags } from "@/components/headless/Editor/configs";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
-import { removeEmptyNode } from "@/components/headless/Editor/nodeHandlers/common";
+import { removeEmptyNode } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
   copyAndPastePostSelectionContent,
   deleteSelectionContent,
@@ -12,7 +12,7 @@ import {
   findAllTextNodes,
   searchParentListTag,
   searchParentNodeForNodeName,
-} from "@/components/headless/Editor/nodeHandlers/searchNodes";
+} from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 
 const handleEditorKeyDownCapture = (
   e: React.KeyboardEvent,

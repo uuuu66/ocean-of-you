@@ -1,13 +1,13 @@
 import { CSSProperties } from "react";
-import { NodeName, TagName } from "..";
 import {
   addIdToChildNodes,
   removeIdFromChildNodesBasedOnNodeName,
   insertTagAtOffsets,
   camelToKebab,
-} from "@/components/headless/Editor/nodeHandlers/common";
+} from "@/components/headless/Editor/nodeHandlers/common/utils";
 import { classNames } from "@/components/headless/Editor/configs";
-import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
+import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
+import { NodeName, TagName } from "@/components/headless/Editor";
 
 interface CommonArgs {
   styleKey?: string;

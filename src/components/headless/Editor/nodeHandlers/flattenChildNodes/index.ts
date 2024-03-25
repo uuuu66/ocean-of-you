@@ -1,6 +1,6 @@
 import { notAllowedTagsInParagraph } from "@/components/headless/Editor/configs";
-import { searchFlattenNodeIndex } from "@/components/headless/Editor/nodeHandlers/searchNodes";
-import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/types";
+import { searchFlattenNodeIndex } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
+import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
 
 const flattenChildNodes = (
   node: Node,

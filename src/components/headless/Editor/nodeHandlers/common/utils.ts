@@ -1,11 +1,11 @@
 import { TagName } from "@/components/headless/Editor";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import { classNames, flags } from "@/components/headless/Editor/configs";
-import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/searchNodes";
+import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import {
   FlattendNode,
   InsertTagNextToNodesArgs,
-} from "@/components/headless/Editor/nodeHandlers/types";
+} from "@/components/headless/Editor/nodeHandlers/common/types";
 import { CSSProperties, cloneElement } from "react";
 
 const camelToKebab = (target: string) => {
