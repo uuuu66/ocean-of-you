@@ -3,7 +3,7 @@ import React, { CSSProperties, useCallback, useRef, useState } from "react";
 
 import addStyleToSelection from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import {
-  handleEditorAfterPaste,
+  handleEditorPaste,
   handleEditorKeyDownCapture,
   handleEditorKeyDown,
   handleEditorKeyUp,
@@ -53,7 +53,7 @@ export default function Editor() {
       <datalist id="select"></datalist>
       <div>
         <div
-          onPaste={(e) => handleEditorAfterPaste(e, containerRef.current)}
+          onPaste={(e) => handleEditorPaste(e, containerRef.current)}
           onKeyDownCapture={(e) =>
             handleEditorKeyDownCapture(e, containerRef.current)
           }
@@ -71,7 +71,7 @@ export default function Editor() {
               <p>
                 <span>o</span>
                 <span>l</span>
-                <span>_</span>
+                <span>_</span> <span>list</span>
               </p>
             </li>
           </ol>{" "}
@@ -81,6 +81,17 @@ export default function Editor() {
                 <span>u</span>
                 <span>l</span>
                 <span>_</span>
+                <span>list</span>
+              </p>
+            </li>
+          </ul>
+          <ul style={{ listStyle: "initial" }}>
+            <li>
+              <p>
+                <span>u</span>
+                <span>l</span>
+                <span>_</span>
+                <span>list</span>
               </p>
             </li>
           </ul>

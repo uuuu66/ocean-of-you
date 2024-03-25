@@ -2,19 +2,12 @@ import {
   classNames,
   nodeNames,
 } from "@/components/headless/Editor/nodeHandlers/common/configs";
-import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
-import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common/utils";
-import insertDefaultNode from "@/components/headless/Editor/nodeHandlers/pasteNodes/pasteDefaultNodes";
-import pasteListNodes from "@/components/headless/Editor/nodeHandlers/pasteNodes/pasteListNodes";
-import {
-  searchFirstChildForNodename,
-  searchParentListTag,
-  searchParentNodeForNodeName,
-  searchTextNode,
-  searchTextNodeAtOffset,
-} from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
 import _ from "lodash";
+import pasteFirstDefaultNode from "@/components/headless/Editor/nodeHandlers/pasteNodes/pasteFirstDefaultNode";
+import pasteFirstListNode from "@/components/headless/Editor/nodeHandlers/pasteNodes/pasteFirstListNode";
+import { moveCursorToClassName } from "@/components/headless/Editor/nodeHandlers/common/utils";
+import pasteRemainingNodes from "@/components/headless/Editor/nodeHandlers/pasteNodes/pasteRemainingNodes";
 
 const pasteNodesToSelection = (
   resultArray: FlattendNode[],
@@ -30,9 +23,9 @@ const pasteNodesToSelection = (
     return;
   }
   if (!resultArray[0]) return;
-  console.log(resultArray);
   pasteNode(selection, resultArray, targetElement);
 };
+
 const pasteNode = (
   selection: Selection,
   resultArray: FlattendNode[],
@@ -41,18 +34,30 @@ const pasteNode = (
   while (resultArray[0]?.nodeName === nodeNames.BR_P) {
     resultArray.splice(0, 1);
   }
-
   const firstChildNode = resultArray[0];
-
+  //첫번째 노드를 검사 후 따로 처리
   switch (firstChildNode.nodeName) {
     case "UL":
     case "OL":
-      pasteListNodes(firstChildNode, selection);
+      //첫번째 노드를 검사 후 따로 처리
+      const nodesBehindCursor = pasteFirstListNode(firstChildNode, selection);
+      //커서 이동후 마지막 노드를 가져옴
+      const lastNode = moveCursorToClassName(selection, classNames.lastNode);
+      //첫번째노드 삽입 후  남아있는 노드들을 추가함
+      pasteRemainingNodes(lastNode, selection, resultArray, nodesBehindCursor);
       break;
     default: {
-      //첫번째 줄은 기존에 존재하는 p태그의 child로 추가해야됨
-      //따로 처리함
-      insertDefaultNode(firstChildNode, selection, resultArray, targetElement);
+      //첫번째 노드를 검사 후 따로 처리
+      pasteFirstDefaultNode(
+        firstChildNode,
+        selection,
+        resultArray,
+        targetElement
+      );
+      //커서 이동후 마지막 노드를 가져옴
+      const lastNode = moveCursorToClassName(selection, classNames.lastNode);
+      //첫번째노드 삽입 후  남아있는 노드들을 추가함
+      pasteRemainingNodes(lastNode, selection, resultArray, nodesBehindCursor);
     }
   }
 };

@@ -1,5 +1,6 @@
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import {
+  searchParentListTag,
   searchParentNodeForNodeName,
   searchTextNode,
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
@@ -198,6 +199,16 @@ const moveCursorToClassName = (selection: Selection, className: string) => {
   targetNode.removeAttribute("class");
   return targetNode;
 };
+const removeRangeContent = (range?: Range) => {
+  if (!range) return;
+  if (range.collapsed) return;
+  const startListTag = searchParentListTag(range.startContainer);
+  if (startListTag) startListTag?.parentElement?.removeChild(startListTag);
+  const endListTag = searchParentListTag(range.endContainer);
+  if (endListTag) endListTag?.parentElement?.removeChild(endListTag);
+
+  range.deleteContents();
+};
 export {
   addIdToChildNodes,
   removeIdFromChildNodesBasedOnNodeName,
@@ -205,6 +216,7 @@ export {
   moveCursorToTargetNode,
   divideNodeIntoThreePart,
   removeEmptyNode,
+  removeRangeContent,
   camelToKebab,
   moveCursorToClassName,
 };

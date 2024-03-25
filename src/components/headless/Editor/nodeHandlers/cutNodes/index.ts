@@ -1,5 +1,8 @@
 import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
-import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common/utils";
+import {
+  insertTagAtOffsets,
+  removeRangeContent,
+} from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
   searchParentNodeForNodeName,
   searchTextNode,
@@ -140,6 +143,7 @@ const deleteSelectionContent = () => {
     selection.removeAllRanges();
     selection.addRange(deleteRange);
     deleteStartPoint.removeAttribute("class");
+
     selection.deleteFromDocument();
   }
 };

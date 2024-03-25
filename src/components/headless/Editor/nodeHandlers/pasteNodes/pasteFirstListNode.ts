@@ -6,9 +6,12 @@ import {
   searchParentListTag,
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
-import { moveCursorToClassName } from "@/components/headless/Editor/nodeHandlers/common/utils";
+import { removeRangeContent } from "@/components/headless/Editor/nodeHandlers/common/utils";
 
-const pasteListNodes = (firstChildNode: FlattendNode, selection: Selection) => {
+const pasteFirstListNode = (
+  firstChildNode: FlattendNode,
+  selection: Selection
+) => {
   const range = selection.getRangeAt(0);
   if (!range) {
     console.error("need range");
@@ -46,18 +49,18 @@ const pasteListNodes = (firstChildNode: FlattendNode, selection: Selection) => {
   const remainingNodes = newRange.cloneContents();
   //셀렉션의 시작노드의 p태그를 찾음
   const startNodeParentP = searchParentNodeForNodeName(startNode, "P");
-  range.deleteContents();
+  removeRangeContent(range);
+  const parentListNode = document.createElement(
+    firstChildNode.nodeName.toLowerCase()
+  );
   if (firstChildNode.node)
     switch (startNode.nodeName) {
       //div일 경우는 p가 없거나 셀렉트가 잘못된 경우
+      case "P":
       case "DIV":
         if (firstChildNode?.childNodes) {
-          const parentListNode = document.createElement(
-            firstChildNode.nodeName.toLowerCase()
-          );
           if (firstChildNode.style)
             copyAndPasteStyle(parentListNode, firstChildNode.style);
-
           for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
             parentListNode.appendChild(firstChildNode.childNodes[i]);
           }
@@ -66,10 +69,6 @@ const pasteListNodes = (firstChildNode: FlattendNode, selection: Selection) => {
             console.error("li does not have p");
             return;
           }
-          const lastSpan =
-            startNodeParentP?.lastChild?.firstChild?.parentElement;
-          lastSpan?.setAttribute("class", classNames.lastNode);
-
           const targetP = startNode.childNodes.item(startOffset - 1);
           if (targetP?.lastChild) {
             const newRange = new Range();
@@ -81,35 +80,13 @@ const pasteListNodes = (firstChildNode: FlattendNode, selection: Selection) => {
           }
         }
         break;
-      //p일 경우는 br태그이거나 셀렉트가 잘못된 경우
-      case "P":
-        {
-          if (firstChildNode?.childNodes) {
-            const parent = document.createElement(
-              firstChildNode.nodeName.toLowerCase()
-            );
 
-            for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
-              if (i === firstChildNode.childNodes?.length - 1) {
-                //마지막 노드에 커서이동을 위한 클래스 부여
-                firstChildNode.childNodes[i].className = classNames.lastNode;
-              }
-              parent.appendChild(firstChildNode.childNodes[i]);
-            }
-            range.setEndAfter(startNode);
-            range.setEndAfter(startNode);
-            range.insertNode(parent);
-          }
-        }
-        break;
       default:
         switch (!!startNodeParentP) {
           case true:
             if (firstChildNode?.childNodes) {
               const listTag = searchParentListTag(startNodeParentP);
-              const parentListNode = document.createElement(
-                firstChildNode.nodeName.toLowerCase()
-              );
+
               if (firstChildNode.style)
                 copyAndPasteStyle(parentListNode, firstChildNode.style);
               for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
@@ -123,10 +100,6 @@ const pasteListNodes = (firstChildNode: FlattendNode, selection: Selection) => {
                 console.error("li does not have p");
                 return;
               }
-              const lastSpan =
-                startNodeParentP?.lastChild?.firstChild?.parentElement;
-              lastSpan?.setAttribute("class", classNames.lastNode);
-
               if (listTag) {
                 range.setStartAfter(listTag);
                 range.setEndAfter(listTag);
@@ -139,24 +112,39 @@ const pasteListNodes = (firstChildNode: FlattendNode, selection: Selection) => {
             break;
           case false:
             if (firstChildNode?.childNodes) {
-              const parent = document.createElement(
-                firstChildNode.nodeName.toLowerCase()
-              );
+              if (firstChildNode.style)
+                copyAndPasteStyle(parentListNode, firstChildNode.style);
               for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
-                if (i === firstChildNode.childNodes?.length - 1) {
-                  //마지막 노드에 커서이동을 위한 클래스 부여
-                  firstChildNode.childNodes[i].className = classNames.lastNode;
-                }
-                parent.appendChild(firstChildNode.childNodes[i]);
+                parentListNode.appendChild(firstChildNode.childNodes[i]);
               }
-              range.setEndAfter(startNodeParentP as Node);
-              range.setEndAfter(startNodeParentP as Node);
-              range.insertNode(parent);
+              const firstChildP = searchFirstChildForNodename(
+                parentListNode,
+                "P"
+              );
+              if (!firstChildP) {
+                console.error("li does not have p");
+                return;
+              }
+              range.insertNode(parentListNode);
             }
             break;
         }
     }
-  const lastNode = moveCursorToClassName(selection, classNames.lastNode);
-  // insertRemainingNodes(lastNode, selection, resultArray, remainingNodes);
+  range.collapse(false);
+  if (parentListNode.lastChild?.nodeName === "LI") {
+    const p = searchFirstChildForNodename(parentListNode.lastChild, "P");
+    if (p)
+      p.lastChild?.firstChild?.parentElement?.setAttribute(
+        "class",
+        classNames.lastNode
+      );
+  } else {
+    parentListNode.lastChild?.firstChild?.parentElement?.setAttribute(
+      "class",
+      classNames.lastNode
+    );
+  }
+  return remainingNodes;
 };
-export default pasteListNodes;
+
+export default pasteFirstListNode;

@@ -1,6 +1,9 @@
 import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
-import { removeEmptyNode } from "@/components/headless/Editor/nodeHandlers/common/utils";
+import {
+  removeEmptyNode,
+  removeRangeContent,
+} from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
   copyAndPastePostSelectionContent,
   deleteSelectionContent,
@@ -27,14 +30,6 @@ const handleEditorKeyDown = (
   targetElement?: HTMLElement | null
 ) => {
   if (targetElement) {
-    if (!targetElement.innerHTML) {
-      const p = document.createElement("p");
-      const span = document.createElement("span");
-      const br = document.createElement("br");
-      p.appendChild(span);
-      span.appendChild(br);
-      targetElement.appendChild(p);
-    }
     switch (e.code) {
       case "KeyX":
         if (!!window.getSelection()?.getRangeAt(0).collapsed) {
@@ -43,6 +38,7 @@ const handleEditorKeyDown = (
         }
       case "MetaLeft":
       case "MetaRight":
+      case "KeyF":
       case "KeyD":
       case "KeyV":
       case "KeyC":
@@ -63,51 +59,7 @@ const handleEditorKeyDown = (
           targetElement.appendChild(p);
           break;
         }
-        const selection = window.getSelection();
-        if (selection)
-          if (selection.rangeCount > 0) {
-            const firstSelectionRange = selection.getRangeAt(0).cloneRange();
-            const listTag = searchParentListTag(
-              firstSelectionRange.startContainer
-            );
-            const li = searchParentNodeForNodeName(
-              firstSelectionRange.startContainer,
-              "LI"
-            );
 
-            if (
-              firstSelectionRange &&
-              listTag &&
-              li &&
-              !li.textContent?.length
-            ) {
-              // e.preventDefault();
-              // const newSelectionRange = window
-              //   .getSelection()
-              //   ?.getRangeAt(0)
-              //   .cloneRange();
-              // if (newSelectionRange?.commonAncestorContainer) {
-              //   const newSelectionLi = searchParentNodeForNodeName(
-              //     newSelectionRange.commonAncestorContainer,
-              //     "LI"
-              //   );
-              //   if (!newSelectionLi) {
-              //     console.error("need liTag");
-              //     break;
-              //   }
-              //   listTag?.removeChild(newSelectionLi);
-              //   const newCursorRange = new Range();
-              //   const p = document.createElement("p");
-              //   const span = document.createElement("span");
-              //   p.appendChild(span);
-              //   targetElement.appendChild(p);
-              //   newCursorRange.setStartBefore(span);
-              //   newCursorRange.setEndBefore(span);
-              //   selection.removeAllRanges();
-              //   selection.addRange(newCursorRange);
-              // }
-            }
-          }
         break;
       case "Backspace": {
         const selection = window.getSelection();
@@ -117,12 +69,17 @@ const handleEditorKeyDown = (
           "P"
         );
         const listTag = searchParentListTag(selectionP);
-
+        //지우려는 글자가 1개일 경우
         if (selectionP && (selectionP?.textContent?.length || 0) === 1) {
           if (listTag) {
             if (listTag.childNodes.length === 1) {
               e.preventDefault();
-              targetElement.removeChild(listTag);
+              const p = document.createElement("p");
+              const span = document.createElement("span");
+              const br = document.createElement("br");
+              span.appendChild(br);
+              p.appendChild(span);
+              targetElement.replaceChild(p, listTag);
             }
           } else {
             e.preventDefault();
@@ -134,6 +91,7 @@ const handleEditorKeyDown = (
           }
           break;
         }
+        // 전체를 블록한 후 타이핑 시
         if (
           !!range?.cloneContents().textContent &&
           selectionP?.textContent === range?.cloneContents().textContent
@@ -170,6 +128,16 @@ const handleEditorKeyDown = (
           range?.startContainer || null,
           "P"
         );
+        //안에 아무것도 없을 시
+        if (!targetElement.innerHTML) {
+          const p = document.createElement("p");
+          const span = document.createElement("span");
+          const br = document.createElement("br");
+          p.appendChild(span);
+          span.appendChild(br);
+          targetElement.appendChild(p);
+        }
+        // 전체를 블록한 후 타이핑 시
         if (
           !!range?.cloneContents().textContent &&
           selectionP?.textContent === range?.cloneContents().textContent
@@ -229,7 +197,7 @@ const handleEditorFocus = (
     }
   }
 };
-const handleEditorAfterPaste = (
+const handleEditorPaste = (
   e: React.ClipboardEvent<HTMLElement>,
   targetElement?: HTMLElement | null
 ) => {
@@ -311,7 +279,7 @@ const handleEditorCut = (
 
 export {
   handleEditorFocus,
-  handleEditorAfterPaste,
+  handleEditorPaste,
   handleEditorKeyDown,
   handleEditorKeyUp,
   handleEditorCut,
