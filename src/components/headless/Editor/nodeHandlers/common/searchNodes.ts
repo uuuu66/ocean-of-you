@@ -1,4 +1,4 @@
-import { listTags } from "@/components/headless/Editor/configs";
+import { listTags } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
 
 const searchTextNode = (node: Node): Text => {

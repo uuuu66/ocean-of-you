@@ -5,7 +5,7 @@ import {
   insertTagAtOffsets,
   camelToKebab,
 } from "@/components/headless/Editor/nodeHandlers/common/utils";
-import { classNames } from "@/components/headless/Editor/configs";
+import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { NodeName, TagName } from "@/components/headless/Editor";
 

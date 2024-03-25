@@ -1,4 +1,4 @@
-import { classNames } from "@/components/headless/Editor/configs";
+import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import {
   searchParentNodeForNodeName,

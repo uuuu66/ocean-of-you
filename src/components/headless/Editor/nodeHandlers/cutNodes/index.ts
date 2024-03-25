@@ -1,4 +1,4 @@
-import { classNames } from "@/components/headless/Editor/configs";
+import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
   searchParentNodeForNodeName,

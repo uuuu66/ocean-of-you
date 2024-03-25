@@ -1,15 +1,15 @@
 import { theme } from "@/styles/theme";
 import React, { CSSProperties, useCallback, useRef, useState } from "react";
 
+import addStyleToSelection from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import {
   handleEditorAfterPaste,
-  handleEditorCut,
-  handleEditorFocus,
-  handleEditorKeyDown,
   handleEditorKeyDownCapture,
+  handleEditorKeyDown,
   handleEditorKeyUp,
-} from "@/components/headless/Editor/eventHandlers";
-import addStyleToSelection from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
+  handleEditorFocus,
+  handleEditorCut,
+} from "@/components/headless/Editor/nodeHandlers/eventHandlers";
 export type TagName = "span" | "strong" | "em";
 export type NodeName = Uppercase<TagName>;
 export default function Editor() {

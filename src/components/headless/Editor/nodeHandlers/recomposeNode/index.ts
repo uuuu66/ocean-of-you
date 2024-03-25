@@ -1,5 +1,8 @@
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
-import { classNames, nodeNames } from "@/components/headless/Editor/configs";
+import {
+  classNames,
+  nodeNames,
+} from "@/components/headless/Editor/nodeHandlers/common/configs";
 import {
   flattenChildNodes,
   postProcessAfterFlatten,

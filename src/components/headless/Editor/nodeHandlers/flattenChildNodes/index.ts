@@ -1,4 +1,4 @@
-import { notAllowedTagsInParagraph } from "@/components/headless/Editor/configs";
+import { notAllowedTagsInParagraph } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import { searchFlattenNodeIndex } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
 

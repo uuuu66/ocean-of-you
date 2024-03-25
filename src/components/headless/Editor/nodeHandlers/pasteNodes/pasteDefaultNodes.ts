@@ -1,4 +1,7 @@
-import { classNames, nodeNames } from "@/components/headless/Editor/configs";
+import {
+  classNames,
+  nodeNames,
+} from "@/components/headless/Editor/nodeHandlers/common/configs";
 import {
   insertTagAtOffsets,
   moveCursorToClassName,

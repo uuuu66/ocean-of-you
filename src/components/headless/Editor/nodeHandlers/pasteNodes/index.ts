@@ -1,4 +1,7 @@
-import { classNames, nodeNames } from "@/components/headless/Editor/configs";
+import {
+  classNames,
+  nodeNames,
+} from "@/components/headless/Editor/nodeHandlers/common/configs";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import { insertTagAtOffsets } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import insertDefaultNode from "@/components/headless/Editor/nodeHandlers/pasteNodes/pasteDefaultNodes";

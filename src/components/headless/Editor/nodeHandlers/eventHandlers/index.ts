@@ -1,4 +1,4 @@
-import { classNames, listTags } from "@/components/headless/Editor/configs";
+import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import { removeEmptyNode } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
@@ -9,7 +9,6 @@ import {
 import { pasteNodesToSelection } from "@/components/headless/Editor/nodeHandlers/pasteNodes";
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
 import {
-  findAllTextNodes,
   searchParentListTag,
   searchParentNodeForNodeName,
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
