@@ -51,52 +51,64 @@ export default function Editor() {
         )}
       </datalist>
       <datalist id="select"></datalist>
-      <div>
-        <div
-          onPaste={(e) => handleEditorPaste(e, containerRef.current)}
-          onKeyDownCapture={(e) =>
-            handleEditorKeyDownCapture(e, containerRef.current)
-          }
-          onKeyDown={(e) => handleEditorKeyDown(e, containerRef.current)}
-          onKeyUp={(e) => handleEditorKeyUp(e, containerRef.current)}
-          onFocus={(e) => handleEditorFocus(e, containerRef.current)}
-          onCut={(e) => handleEditorCut(e, containerRef.current)}
-          contentEditable
-          ref={containerRef}
-          id="m-editor-div-element"
-          className="border border-solid border-gray4  w-[400px] min-w-80  min-h-5 p-4 whitespace-pre-line"
-        >
-          <ol style={{ listStyle: "decimal" }}>
-            <li>
-              <p>
-                <span>o</span>
-                <span>l</span>
-                <span>_</span> <span>list</span>
-              </p>
-            </li>
-          </ol>{" "}
-          <ul style={{ listStyle: "initial" }}>
-            <li>
-              <p>
-                <span>u</span>
-                <span>l</span>
-                <span>_</span>
-                <span>list</span>
-              </p>
-            </li>
-          </ul>
-          <ul style={{ listStyle: "initial" }}>
-            <li>
-              <p>
-                <span>u</span>
-                <span>l</span>
-                <span>_</span>
-                <span>list</span>
-              </p>
-            </li>
-          </ul>
-        </div>
-      </div>{" "}
+
+      <div
+        onPaste={(e) => handleEditorPaste(e, containerRef.current)}
+        onKeyDownCapture={(e) =>
+          handleEditorKeyDownCapture(e, containerRef.current)
+        }
+        onKeyDown={(e) => handleEditorKeyDown(e, containerRef.current)}
+        onKeyUp={(e) => handleEditorKeyUp(e, containerRef.current)}
+        onFocus={(e) => handleEditorFocus(e, containerRef.current)}
+        onCut={(e) => handleEditorCut(e, containerRef.current)}
+        contentEditable
+        ref={containerRef}
+        id="m-editor-div-element"
+        className="border border-solid border-gray4  w-[400px] min-w-80  min-h-5 p-4 whitespace-pre-line"
+      >
+        <p>
+          <span>{"<"}</span>
+          <span>l</span>
+          <span>_</span>
+          <span>{">"}</span>
+        </p>
+        <ol style={{ listStyle: "decimal" }}>
+          <li>
+            <p>
+              <span>o</span>
+              <span>l</span>
+              <span>_</span> <span>list1</span>
+            </p>{" "}
+          </li>
+        </ol>
+        <ol style={{ listStyle: "initial" }}>
+          <li>
+            <p>
+              <span>o</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list2</span>
+            </p>
+          </li>
+        </ol>
+        <ul style={{ listStyle: "initial" }}>
+          <li>
+            <p>
+              <span>u</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list</span>
+            </p>
+          </li>
+        </ul>
+        <p>
+          <span>{"</"}</span>
+          <span>l</span>
+          <span>_</span>
+          <span>{">"}</span>
+        </p>
+      </div>
+      <div contentEditable></div>
       <input
         type="color"
         list={"list"}

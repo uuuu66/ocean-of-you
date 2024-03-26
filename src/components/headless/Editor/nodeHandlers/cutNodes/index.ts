@@ -78,21 +78,21 @@ const copyAndPastePostSelectionContent = () => {
       startNode = focusNode;
     }
     const postSelectionContent = postSelectionRange.extractContents();
-    //노드가 잘못된 가공될 경우 에러처리
+
+    //뒤에 있는 노드들 중 첫번째 노드
+    const postSelectionFirstElement =
+      postSelectionContent.firstChild?.firstChild?.parentElement;
+    //뒤에 노드가 없을 경우
     if (
-      postSelectionContent.firstChild?.firstChild?.parentElement?.className ===
-        classNames.lastNode &&
-      !postSelectionContent.firstChild.textContent
+      postSelectionFirstElement?.className === classNames.lastNode &&
+      !postSelectionFirstElement.textContent
     ) {
-      selection.deleteFromDocument();
+      removeRangeContent(range);
     }
     selection.removeAllRanges();
     selection.addRange(postSelectionRange);
     //첫번째 노드에 커서이동을 위한 아이디를 부여함
-    postSelectionContent.firstChild?.firstChild?.parentElement?.setAttribute(
-      "id",
-      classNames.firstNode
-    );
+    postSelectionFirstElement?.setAttribute("id", classNames.firstNode);
     //현재 커서위치 복사
     const insertPointRange = range.cloneRange();
     //첫번째 포인트로 접음
@@ -124,6 +124,7 @@ const deleteSelectionContent = () => {
       startNode = focusNode;
       endNode = anchorNode;
     }
+
     if (!startNode?.parentElement) {
       console.error("need startnodeParent");
       return;
@@ -132,6 +133,7 @@ const deleteSelectionContent = () => {
       console.error("need endnodeParent");
       return;
     }
+
     //makePostContent에서 마지막 노드에 부여한 클래스명을 찾아서 다음 노드 부터 삭제함
     const deleteStartPoint = document.getElementsByClassName(
       classNames.lastNode
@@ -143,8 +145,7 @@ const deleteSelectionContent = () => {
     selection.removeAllRanges();
     selection.addRange(deleteRange);
     deleteStartPoint.removeAttribute("class");
-
-    selection.deleteFromDocument();
+    removeRangeContent(selection.getRangeAt(0));
   }
 };
 const moveCursorToCutPoint = () => {
@@ -196,6 +197,7 @@ const moveCursorToCutPoint = () => {
     cursorAfterCutPoint.removeAttribute("id");
   }
 };
+
 export {
   makePostSelectionRange,
   moveCursorToCutPoint,

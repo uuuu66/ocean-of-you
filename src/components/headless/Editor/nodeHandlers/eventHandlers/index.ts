@@ -206,7 +206,6 @@ const handleEditorPaste = (
     return;
   }
   e.preventDefault();
-
   const div = document.createElement("div");
   div.innerHTML = e.clipboardData.getData("text/html");
   const recomposedNode = recomposeNode(div);
@@ -222,7 +221,6 @@ const handleEditorCut = (
     return;
   }
   e.preventDefault();
-
   const selection = window.getSelection();
   if (!selection) return;
   const range = selection?.getRangeAt(0);
@@ -230,9 +228,7 @@ const handleEditorCut = (
   const { anchorNode, focusNode } = selection;
   if (anchorNode && focusNode) {
     let startNode = anchorNode;
-
     let endNode = focusNode;
-
     const isAnchorNodeStart =
       anchorNode?.compareDocumentPosition(focusNode) === 4;
     if (!isAnchorNodeStart) {
@@ -249,7 +245,6 @@ const handleEditorCut = (
     }
     const data = range?.cloneContents();
     const div = document.createElement("div");
-
     const parentSpan = searchParentNodeForNodeName(
       range.commonAncestorContainer,
       "SPAN"
@@ -262,7 +257,6 @@ const handleEditorCut = (
     } else {
       div.appendChild(data);
     }
-
     e.clipboardData.setData("text/html", div.innerHTML);
     //마우스 이동을 위한 클래스부여
     const startP = searchParentNodeForNodeName(startNode, "P");
@@ -273,6 +267,12 @@ const handleEditorCut = (
     deleteSelectionContent();
     //자른 후 커서 이동
     moveCursorToCutPoint();
+    //남은 노드 비어있을 경우 처리
+    if (startP?.firstChild && !startP?.firstChild?.textContent)
+      startP?.replaceChild(
+        document.createDocumentFragment(),
+        startP?.firstChild
+      );
     startP?.firstChild?.parentElement?.removeAttribute("class");
   }
 };

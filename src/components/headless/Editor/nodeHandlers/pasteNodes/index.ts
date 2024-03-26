@@ -23,6 +23,7 @@ const pasteNodesToSelection = (
     return;
   }
   if (!resultArray[0]) return;
+  console.log(resultArray);
   pasteNode(selection, resultArray, targetElement);
 };
 
@@ -39,26 +40,41 @@ const pasteNode = (
   switch (firstChildNode.nodeName) {
     case "UL":
     case "OL":
-      //첫번째 노드를 검사 후 따로 처리
-      const nodesBehindCursor = pasteFirstListNode(firstChildNode, selection);
-      //커서 이동후 마지막 노드를 가져옴
-      const lastNode = moveCursorToClassName(selection, classNames.lastNode);
-      //첫번째노드 삽입 후  남아있는 노드들을 추가함
-      pasteRemainingNodes(lastNode, selection, resultArray, nodesBehindCursor);
+      {
+        //첫번째 노드를 검사 후 따로 처리
+        const nodesBehindCursor = pasteFirstListNode(firstChildNode, selection);
+        //커서 이동후 마지막 노드를 가져옴
+        const lastNode = moveCursorToClassName(selection, classNames.lastNode);
+        //첫번째노드 삽입 후  남아있는 노드들을 추가함
+        pasteRemainingNodes(
+          lastNode,
+          selection,
+          resultArray,
+          nodesBehindCursor
+        );
+      }
       break;
-    default: {
-      //첫번째 노드를 검사 후 따로 처리
-      pasteFirstDefaultNode(
-        firstChildNode,
-        selection,
-        resultArray,
-        targetElement
-      );
-      //커서 이동후 마지막 노드를 가져옴
-      const lastNode = moveCursorToClassName(selection, classNames.lastNode);
-      //첫번째노드 삽입 후  남아있는 노드들을 추가함
-      pasteRemainingNodes(lastNode, selection, resultArray, nodesBehindCursor);
-    }
+    default:
+      {
+        //첫번째 노드를 검사 후 따로 처리
+        const nodesBehindCursor = pasteFirstDefaultNode(
+          firstChildNode,
+          selection,
+          resultArray,
+          targetElement
+        );
+        //커서 이동후 마지막 노드를 가져옴
+        const lastNode = moveCursorToClassName(selection, classNames.lastNode); //커서 이동후 마지막 노드를 가져옴
+
+        //첫번째노드 삽입 후  남아있는 노드들을 추가함
+        pasteRemainingNodes(
+          lastNode,
+          selection,
+          resultArray,
+          nodesBehindCursor
+        );
+      }
+      break;
   }
 };
 
