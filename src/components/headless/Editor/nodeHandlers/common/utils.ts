@@ -164,7 +164,6 @@ const divideNodeIntoThreePart = (
 const removeEmptyNode = (targetElement: HTMLElement) => {
   const root = targetElement;
   const emptyTags = (root as HTMLElement).querySelectorAll(":empty");
-  console.log(emptyTags);
   emptyTags.forEach(
     (tag) => tag.nodeName !== "BR" && tag.parentNode?.removeChild(tag)
   );
@@ -202,9 +201,10 @@ const moveCursorToClassName = (selection: Selection, className: string) => {
 const removeRangeContent = (range?: Range) => {
   if (!range) return;
   if (range.collapsed) return;
-
+  const startListTag = searchParentListTag(range.startContainer);
   const endListTag = searchParentListTag(range.endContainer);
-  if (endListTag) endListTag?.parentElement?.removeChild(endListTag);
+  if (endListTag && startListTag?.nodeName !== endListTag.nodeName)
+    endListTag?.parentElement?.removeChild(endListTag);
 
   range.deleteContents();
 };

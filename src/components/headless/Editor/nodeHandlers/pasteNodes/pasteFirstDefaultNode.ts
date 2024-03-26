@@ -5,6 +5,7 @@ import {
 } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import { searchParentNodeForNodeName } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
+import getNodesAfterSelection from "@/components/headless/Editor/nodeHandlers/pasteNodes/getNodesAfterSelection";
 
 const pasteFirstDefaultNode = (
   firstChildNode: FlattendNode,
@@ -40,18 +41,16 @@ const pasteFirstDefaultNode = (
       startOffset = Math.min(anchorOffset, focusOffset);
       endOffset = Math.max(anchorOffset, focusOffset);
     }
-    //일단 선택한 부분을 없앰 없앤 후 flatten한 노드들을 재배치함
-
-    endOffset = startOffset;
   }
-  const newRange = new Range();
-  newRange.setStart(endNode, endOffset);
-  const lastRangePoint = searchParentNodeForNodeName(endNode, "P")?.lastChild;
-  if (lastRangePoint) newRange.setEnd(lastRangePoint, 1);
-  const remainingNodes = newRange.cloneContents();
+  //선택된 범위 뒤에오는 노드
+  const nodesAfterSelection = getNodesAfterSelection(endNode, endOffset);
+
+  removeRangeContent(range);
   //셀렉션의 시작노드의 p태그를 찾음
   const parentP = searchParentNodeForNodeName(startNode, "P");
-  removeRangeContent(range);
+  endOffset = startOffset;
+
+  // removeRangeContent(range);
   switch (startNode.nodeName) {
     //div일 경우는 p가 없거나 셀렉트가 잘못된 경우
     case "DIV":
@@ -60,7 +59,10 @@ const pasteFirstDefaultNode = (
         for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
           if (i === firstChildNode.childNodes?.length - 1) {
             //마지막 노드에 커서이동을 위한 클래스 부여
-            firstChildNode.childNodes[i].className = classNames.lastNode;
+            firstChildNode.childNodes[i].setAttribute(
+              "class",
+              classNames.lastNode
+            );
           }
           fragment.appendChild(firstChildNode.childNodes[i]);
         }
@@ -79,7 +81,10 @@ const pasteFirstDefaultNode = (
         for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
           if (i === firstChildNode.childNodes?.length - 1) {
             //마지막 노드에 커서이동을 위한 클래스 부여
-            firstChildNode.childNodes[i].className = classNames.lastNode;
+            firstChildNode.childNodes[i].setAttribute(
+              "class",
+              classNames.lastNode
+            );
           }
           fragment.appendChild(firstChildNode.childNodes[i]);
         }
@@ -94,7 +99,10 @@ const pasteFirstDefaultNode = (
             for (let i = 0; i < firstChildNode.childNodes?.length; i += 1) {
               if (i === firstChildNode.childNodes?.length - 1) {
                 //마지막 노드에 커서이동을 위한 클래스 부여
-                firstChildNode.childNodes[i].className = classNames.lastNode;
+                firstChildNode.childNodes[i].setAttribute(
+                  "class",
+                  classNames.lastNode
+                );
               }
               fragment.appendChild(firstChildNode.childNodes[i]);
             }
@@ -115,7 +123,10 @@ const pasteFirstDefaultNode = (
               for (let i = 0; i < firstChildNode?.childNodes?.length; i += 1) {
                 if (i === firstChildNode?.childNodes?.length - 1)
                   //마지막 노드에 커서이동을 위한 클래스 부여
-                  firstChildNode.childNodes[i].className = classNames.lastNode;
+                  firstChildNode.childNodes[i].setAttribute(
+                    "class",
+                    classNames.lastNode
+                  );
                 fragment.appendChild(firstChildNode.childNodes[i]);
               }
               p.appendChild(fragment);
@@ -131,7 +142,7 @@ const pasteFirstDefaultNode = (
           break;
       }
   }
-  return remainingNodes;
+  return nodesAfterSelection;
 };
 
 export default pasteFirstDefaultNode;

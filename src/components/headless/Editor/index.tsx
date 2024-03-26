@@ -81,17 +81,25 @@ export default function Editor() {
             </p>{" "}
           </li>
         </ol>
-        <ol style={{ listStyle: "initial" }}>
+        <ul style={{ listStyle: "initial" }}>
           <li>
             <p>
-              <span>o</span>
+              <span>u</span>
               <span>l</span>
               <span>_</span>
               <span>list2</span>
             </p>
           </li>
-        </ol>
-        <ul style={{ listStyle: "initial" }}>
+          <li>
+            <p>
+              <span>u</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list3</span>
+            </p>
+          </li>
+        </ul>
+        <ol style={{ listStyle: "arabic-indic" }}>
           <li>
             <p>
               <span>u</span>
@@ -100,7 +108,7 @@ export default function Editor() {
               <span>list</span>
             </p>
           </li>
-        </ul>
+        </ol>
         <p>
           <span>{"</"}</span>
           <span>l</span>

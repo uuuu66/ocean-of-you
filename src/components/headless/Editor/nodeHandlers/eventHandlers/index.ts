@@ -12,6 +12,7 @@ import {
 import { pasteNodesToSelection } from "@/components/headless/Editor/nodeHandlers/pasteNodes";
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
 import {
+  searchFirstChildForNodename,
   searchParentListTag,
   searchParentNodeForNodeName,
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
@@ -69,6 +70,7 @@ const handleEditorKeyDown = (
           "P"
         );
         const listTag = searchParentListTag(selectionP);
+
         //지우려는 글자가 1개일 경우
         if (selectionP && (selectionP?.textContent?.length || 0) === 1) {
           if (listTag) {
@@ -91,25 +93,39 @@ const handleEditorKeyDown = (
           }
           break;
         }
+
         // 전체를 블록한 후 타이핑 시
-        if (
-          !!range?.cloneContents().textContent &&
-          selectionP?.textContent === range?.cloneContents().textContent
-        ) {
-          if (listTag) {
-            if (listTag.childNodes.length === 1) {
+        if (listTag) {
+          const isSelectEntireList =
+            selectionP &&
+            selectionP?.textContent === range?.cloneContents().textContent;
+          {
+            if (!!range?.cloneContents().textContent && isSelectEntireList) {
               e.preventDefault();
-              targetElement.removeChild(listTag);
+              const p = document.createElement("p");
+              const span = document.createElement("span");
+              const br = document.createElement("br");
+              span.appendChild(br);
+              p.appendChild(span);
+              listTag.parentElement?.replaceChild(p, listTag);
+              break;
             }
-          } else {
-            e.preventDefault();
-            selectionP.textContent = "";
-            const span = document.createElement("span");
-            const br = document.createElement("br");
-            span.appendChild(br);
-            selectionP.appendChild(span);
           }
-          break;
+        } else {
+          const isSelectEntireParent =
+            selectionP &&
+            selectionP?.textContent === range?.cloneContents().textContent;
+          {
+            if (!!range?.cloneContents().textContent && isSelectEntireParent) {
+              e.preventDefault();
+              selectionP.textContent = "";
+              const span = document.createElement("span");
+              const br = document.createElement("br");
+              span.appendChild(br);
+              selectionP?.appendChild(span);
+              break;
+            }
+          }
         }
         if (targetElement.textContent?.length === 0 && selectionP) {
           if (listTag) {
@@ -128,6 +144,20 @@ const handleEditorKeyDown = (
           range?.startContainer || null,
           "P"
         );
+
+        //p태그 안에 span이 없을 시
+        if (!searchFirstChildForNodename(selectionP, "SPAN")) {
+          const span = document.createElement("span");
+          const br = document.createElement("br");
+          span.appendChild(br);
+
+          if (selectionP?.firstChild)
+            selectionP?.replaceChild(span, selectionP.firstChild);
+          else {
+            selectionP?.appendChild(span);
+          }
+          break;
+        }
         //안에 아무것도 없을 시
         if (!targetElement.innerHTML) {
           const p = document.createElement("p");
@@ -167,9 +197,9 @@ const handleEditorKeyUp = (
   const selection = window.getSelection();
   if (selection)
     if (selection.rangeCount > 0) {
-      const firstSelectionRange = selection.getRangeAt(0).cloneRange();
+      const range = selection.getRangeAt(0).cloneRange();
       const selectionDiv = searchParentNodeForNodeName(
-        firstSelectionRange.startContainer,
+        range.startContainer,
         "DIV"
       );
       if (targetElement.isSameNode(selectionDiv)) return;
@@ -180,6 +210,7 @@ const handleEditorKeyUp = (
       span.appendChild(br);
       if (selectionDiv) targetElement.replaceChild(p, selectionDiv);
     }
+
   removeEmptyNode(targetElement);
 };
 const handleEditorFocus = (

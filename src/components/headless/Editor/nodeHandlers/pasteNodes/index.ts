@@ -13,6 +13,7 @@ const pasteNodesToSelection = (
   resultArray: FlattendNode[],
   targetElement?: HTMLElement | null
 ) => {
+  console.log(resultArray);
   if (!resultArray) {
     console.error("need resultArray");
     return;
@@ -23,7 +24,7 @@ const pasteNodesToSelection = (
     return;
   }
   if (!resultArray[0]) return;
-  console.log(resultArray);
+
   pasteNode(selection, resultArray, targetElement);
 };
 
@@ -36,6 +37,7 @@ const pasteNode = (
     resultArray.splice(0, 1);
   }
   const firstChildNode = resultArray[0];
+
   //첫번째 노드를 검사 후 따로 처리
   switch (firstChildNode.nodeName) {
     case "UL":
@@ -43,15 +45,12 @@ const pasteNode = (
       {
         //첫번째 노드를 검사 후 따로 처리
         const nodesBehindCursor = pasteFirstListNode(firstChildNode, selection);
+        console.log(firstChildNode, ">>", nodesBehindCursor);
         //커서 이동후 마지막 노드를 가져옴
         const lastNode = moveCursorToClassName(selection, classNames.lastNode);
         //첫번째노드 삽입 후  남아있는 노드들을 추가함
-        pasteRemainingNodes(
-          lastNode,
-          selection,
-          resultArray,
-          nodesBehindCursor
-        );
+        if (nodesBehindCursor?.textContent)
+          pasteRemainingNodes(lastNode, 1, resultArray, nodesBehindCursor);
       }
       break;
     default:
@@ -65,14 +64,9 @@ const pasteNode = (
         );
         //커서 이동후 마지막 노드를 가져옴
         const lastNode = moveCursorToClassName(selection, classNames.lastNode); //커서 이동후 마지막 노드를 가져옴
-
         //첫번째노드 삽입 후  남아있는 노드들을 추가함
-        pasteRemainingNodes(
-          lastNode,
-          selection,
-          resultArray,
-          nodesBehindCursor
-        );
+        if (nodesBehindCursor?.textContent)
+          pasteRemainingNodes(lastNode, 1, resultArray, nodesBehindCursor);
       }
       break;
   }

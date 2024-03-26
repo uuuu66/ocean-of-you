@@ -86,6 +86,18 @@ const searchFirstChildForNodename = (node: Node | null, nodeName: string) => {
   }
   return null;
 };
+const searchLastChildForNodename = (node: Node | null, nodeName: string) => {
+  let target: Node | null = node;
+  while (target?.lastChild) {
+    if (!target) return target;
+
+    if (target.nodeName === nodeName) {
+      return target;
+    }
+    target = target.lastChild;
+  }
+  return null;
+};
 const searchParentListTag = (node: Node | null) => {
   let target: Node | null = node;
   while (target?.parentElement) {
@@ -128,6 +140,7 @@ export {
   searchFlattenNodeIndex,
   searchTextNodeAtOffset,
   searchFirstChildForNodename,
+  searchLastChildForNodename,
   findAllTextNodes,
   searchParentListTag,
 };
