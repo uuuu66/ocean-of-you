@@ -4,10 +4,15 @@ import {
   searchParentNodeForNodeName,
   searchFirstChildForNodename,
   searchParentListTag,
+  searchLastChildForNodename,
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
 import { removeRangeContent } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import getNodesAfterSelection from "@/components/headless/Editor/nodeHandlers/pasteNodes/getNodesAfterSelection";
+import {
+  flattenChildNodes,
+  postProcessAfterFlatten,
+} from "@/components/headless/Editor/nodeHandlers/flattenChildNodes";
 
 const pasteFirstListNode = (
   firstChildNode: FlattendNode,
@@ -71,13 +76,16 @@ const pasteFirstListNode = (
           const listTag =
             searchParentListTag(startNode)?.firstChild?.parentElement;
           const targetP = startNode.childNodes.item(startOffset - 1);
+          //넣을부분이 list tag
           if (listTag) {
-            pasteFirstNodeToListTag(listTag, parentListNode);
+            pasteFirstNodeToListTag(firstChildNode, startNodeParentP);
+            //p태그
           } else if (targetP?.lastChild) {
             const newRange = new Range();
             newRange.setEndAfter(targetP);
             newRange.setStartAfter(targetP);
             newRange.insertNode(parentListNode);
+            //그외
           } else {
             range.insertNode(parentListNode);
           }
@@ -101,9 +109,10 @@ const pasteFirstListNode = (
               if (!firstChildP) {
                 console.error("li does not have p");
                 return;
-              }
+              } //넣을부분이 list tag
               if (listTag) {
-                pasteFirstNodeToListTag(listTag, parentListNode);
+                pasteFirstNodeToListTag(firstChildNode, startNodeParentP);
+                //p태그
               } else {
                 range.setStartAfter(startNodeParentP as Node);
                 range.setEndAfter(startNodeParentP as Node);
@@ -132,17 +141,6 @@ const pasteFirstListNode = (
         }
     }
   range.collapse(false);
-
-  return nodesAfterSelection;
-};
-
-const pasteFirstNodeToListTag = (
-  targetListTag: HTMLElement,
-  parentListNode: HTMLElement
-) => {
-  const isFisrtNodeIsSameListNode =
-    targetListTag.nodeName === parentListNode.nodeName;
-  // 커서이동을 위한 클래스명 부여
   if (parentListNode.lastChild?.nodeName === "LI") {
     const p = searchFirstChildForNodename(parentListNode.lastChild, "P");
     if (p)
@@ -156,46 +154,51 @@ const pasteFirstNodeToListTag = (
       classNames.lastNode
     );
   }
-  const targetListFirstP = searchFirstChildForNodename(targetListTag, "P");
-  const listFirstP = searchFirstChildForNodename(parentListNode, "P");
-  if (targetListFirstP) {
-    for (let i = 0; i < (listFirstP?.childNodes || []).length; i += 1) {
-      if (listFirstP?.childNodes?.item(i))
-        targetListFirstP.appendChild(listFirstP?.childNodes?.item(i));
+  return nodesAfterSelection;
+};
+
+const pasteFirstNodeToListTag = (
+  firstChildNode: FlattendNode,
+  startNodeParentP: Node | null
+) => {
+  const firstP = searchFirstChildForNodename(
+    firstChildNode?.childNodes?.[0] || null,
+    "P"
+  );
+  if (!firstP) return;
+  const flattenPChildNodes = postProcessAfterFlatten(flattenChildNodes(firstP));
+  for (let i = 0; i < flattenPChildNodes.length; i += 1) {
+    const childNode = flattenPChildNodes[i];
+    if (childNode.node) startNodeParentP?.appendChild(childNode.node);
+    if (i === flattenPChildNodes.length - 1) {
+      childNode.node?.firstChild?.parentElement?.setAttribute(
+        "class",
+        classNames.lastNode
+      );
     }
   }
-  // if (isFisrtNodeIsSameListNode) {
-  //   const firstP = searchFirstChildForNodename(listTag, "P");
-  //   if (firstP) {
-  //     searchFirstChildForNodename(parentListNode, "P")?.childNodes.forEach(
-  //       (node) => {
-  //         console.log(node, firstP);
-  //         firstP.appendChild(node);
-  //       }
-  //     );
-  //     for (
-  //       let i = 1;
-  //       i < (parentListNode?.childNodes || []).length || 0;
-  //       i += 1
-  //     ) {
-  //       if (parentListNode?.childNodes?.item(i))
-  //         listTag.appendChild(parentListNode?.childNodes?.item(i));
-  //     }
-  //   } else {
-  //     for (
-  //       let i = 0;
-  //       i < (parentListNode?.childNodes || []).length || 0;
-  //       i += 1
-  //     ) {
-  //       if (parentListNode?.childNodes?.item(i))
-  //         listTag.appendChild(parentListNode?.childNodes?.item(i));
-  //     }
-  //   }
-  // } else {
-  //   const newRange = new Range();
-  //   newRange.setStartAfter(listTag);
-  //   newRange.setEndAfter(listTag);
-  //   if (parentListNode) newRange.insertNode(parentListNode);
-  // }
+  const listTag = searchParentListTag(startNodeParentP);
+  if (!listTag) {
+    console.error("no listTag");
+    return;
+  }
+  const lastNode = document.getElementsByClassName(classNames.lastNode)[0];
+
+  for (let i = 1; i < (firstChildNode?.childNodes || [])?.length; i += 1) {
+    const childNode = firstChildNode?.childNodes?.[i];
+    if (childNode) {
+      listTag.appendChild(childNode);
+      if (i === (firstChildNode?.childNodes || [])?.length - 1) {
+        const span = searchLastChildForNodename(childNode, "SPAN");
+        if (span) {
+          lastNode?.removeAttribute("class");
+          span?.firstChild?.parentElement?.setAttribute(
+            "class",
+            classNames.lastNode
+          );
+        }
+      }
+    }
+  }
 };
 export default pasteFirstListNode;

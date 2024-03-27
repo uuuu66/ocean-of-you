@@ -178,6 +178,8 @@ const eliminateEmptyChildNodes = (flattendNodes: FlattendNode[]) => {
   for (let i = 1; i < newNodes.length; i += 1) {
     const { node } = newNodes[i];
     switch (node?.nodeName) {
+      case "UL":
+      case "OL":
       case "P":
         if (node?.childNodes?.length === 0) newNodes.splice(i, 1);
         if (

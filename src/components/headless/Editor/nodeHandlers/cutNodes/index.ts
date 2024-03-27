@@ -63,6 +63,7 @@ const makePostSelectionRange = () => {
 };
 const copyAndPastePostSelectionContent = () => {
   //선택한 부분 뒤에 있는 노드들 선택
+  console.log("delete");
   const postSelectionRange = makePostSelectionRange();
   if (!postSelectionRange) return;
   const selection = window.getSelection();
@@ -178,15 +179,21 @@ const moveCursorToCutPoint = () => {
     //노드가 존재하지않을 경우 endNode가 firstNode 였다거나 예외
     if (!cursorAfterCutPoint) {
       //startNode의 p태그를 찾아서 마지막 노드로 커서를 보냄
-      const parentP = document.getElementsByClassName(classNames.firstP)[0];
       const span = document.createElement("span");
-      const br = document.createElement("br");
-      span.appendChild(br);
-      parentP?.appendChild(span);
-      cursorAfterCutRange.setStart(span, 1);
-      cursorAfterCutRange.setEnd(span, 1);
+      const parentP = document.getElementsByClassName(classNames.firstP)[0];
+      if (!parentP.textContent || !parentP.lastChild) {
+        const br = document.createElement("br");
+        span.appendChild(br);
+        parentP?.appendChild(span);
+        cursorAfterCutRange.setStart(span, 0);
+        cursorAfterCutRange.setEnd(span, 1);
+      } else {
+        cursorAfterCutRange.setStart(parentP?.lastChild, 1);
+        cursorAfterCutRange.setEnd(parentP?.lastChild, 1);
+      }
       selection.removeAllRanges();
       selection.addRange(cursorAfterCutRange);
+
       parentP.removeAttribute("class");
       return;
     }

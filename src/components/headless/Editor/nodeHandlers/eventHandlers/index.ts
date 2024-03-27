@@ -12,6 +12,7 @@ import {
 import { pasteNodesToSelection } from "@/components/headless/Editor/nodeHandlers/pasteNodes";
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
 import {
+  searchEmptyNodes,
   searchFirstChildForNodename,
   searchParentListTag,
   searchParentNodeForNodeName,
@@ -181,6 +182,7 @@ const handleEditorKeyDown = (
           const br = document.createElement("br");
           span.appendChild(br);
           selectionP.appendChild(span);
+
           break;
         }
       }
@@ -309,6 +311,8 @@ const handleEditorCut = (
       );
     startP?.firstChild?.parentElement?.removeAttribute("class");
   }
+
+  removeEmptyNode(targetElement);
 };
 
 export {

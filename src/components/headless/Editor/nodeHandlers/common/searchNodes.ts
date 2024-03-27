@@ -109,6 +109,33 @@ const searchParentListTag = (node: Node | null) => {
   }
   return null;
 };
+const searchEmptyNodes = (node: Node | null) => {
+  const nodesWithoutChildren: Node[] = [];
+  function traverse(targetNode: Node | null) {
+    if (!targetNode) return null;
+    // 텍스트 노드인 경우 무시합니다.
+    if (targetNode.nodeType === Node.TEXT_NODE) {
+      return;
+    }
+
+    // childNodes를 가지지 않는 노드인 경우, 배열에 추가합니다.
+    if (!targetNode.hasChildNodes()) {
+      nodesWithoutChildren.push(targetNode);
+    }
+
+    // 자식 노드가 있는 경우 재귀적으로 호출합니다.
+    if (targetNode.childNodes && targetNode.childNodes.length > 0) {
+      for (var i = 0; i < targetNode.childNodes.length; i++) {
+        traverse(targetNode.childNodes[i]);
+      }
+    }
+  }
+
+  // 문서 전체를 시작점으로 탐색합니다.
+  traverse(node);
+
+  return nodesWithoutChildren;
+};
 //targetA가 compareB보다 먼저오면 true
 const isLessThan = (targetA: number[], compareB: number[]) => {
   const length = Math.max(targetA?.length, compareB?.length);
@@ -143,4 +170,5 @@ export {
   searchLastChildForNodename,
   findAllTextNodes,
   searchParentListTag,
+  searchEmptyNodes,
 };

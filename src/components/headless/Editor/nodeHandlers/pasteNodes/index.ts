@@ -49,8 +49,8 @@ const pasteNode = (
         //커서 이동후 마지막 노드를 가져옴
         const lastNode = moveCursorToClassName(selection, classNames.lastNode);
         //첫번째노드 삽입 후  남아있는 노드들을 추가함
-        if (nodesBehindCursor?.textContent)
-          pasteRemainingNodes(lastNode, 1, resultArray, nodesBehindCursor);
+
+        pasteRemainingNodes(lastNode, 1, resultArray, nodesBehindCursor);
       }
       break;
     default:
@@ -65,8 +65,8 @@ const pasteNode = (
         //커서 이동후 마지막 노드를 가져옴
         const lastNode = moveCursorToClassName(selection, classNames.lastNode); //커서 이동후 마지막 노드를 가져옴
         //첫번째노드 삽입 후  남아있는 노드들을 추가함
-        if (nodesBehindCursor?.textContent)
-          pasteRemainingNodes(lastNode, 1, resultArray, nodesBehindCursor);
+
+        pasteRemainingNodes(lastNode, 1, resultArray, nodesBehindCursor);
       }
       break;
   }

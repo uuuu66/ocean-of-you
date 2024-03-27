@@ -1,5 +1,6 @@
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import {
+  searchEmptyNodes,
   searchParentListTag,
   searchParentNodeForNodeName,
   searchTextNode,
@@ -163,10 +164,11 @@ const divideNodeIntoThreePart = (
 };
 const removeEmptyNode = (targetElement: HTMLElement) => {
   const root = targetElement;
-  const emptyTags = (root as HTMLElement).querySelectorAll(":empty");
-  emptyTags.forEach(
-    (tag) => tag.nodeName !== "BR" && tag.parentNode?.removeChild(tag)
-  );
+  const emptyNodes = searchEmptyNodes(root);
+  for (const node of emptyNodes) {
+    if (node.nodeName === "BR") continue;
+    node.parentElement?.removeChild(node);
+  }
 };
 //class를 찾아서 커서이동
 const moveCursorToClassName = (selection: Selection, className: string) => {
@@ -204,7 +206,6 @@ const removeRangeContent = (selection?: Selection) => {
   const { anchorNode, focusNode } = selection;
   let startNode = anchorNode;
   let endNode = focusNode;
-
   const range = selection?.getRangeAt(0);
   if (!range) return;
   if (range.collapsed) return;
@@ -218,15 +219,16 @@ const removeRangeContent = (selection?: Selection) => {
     startNode = focusNode;
     endNode = anchorNode;
   }
-
   const startListTag = searchParentListTag(startNode);
   const endListTag = searchParentListTag(endNode);
-
-  if (endListTag && startListTag?.nodeName !== endListTag.nodeName)
+  if (
+    endListTag &&
+    startListTag?.nodeName !== endListTag.nodeName &&
+    !endListTag?.textContent
+  )
     endListTag?.parentElement?.removeChild(endListTag);
   const startLiTag = searchParentNodeForNodeName(startNode, "LI");
   const endLiTag = searchParentNodeForNodeName(endNode, "LI");
-
   if (!endLiTag?.isSameNode(startLiTag))
     endLiTag?.parentElement?.removeChild(endLiTag);
   selection.deleteFromDocument();

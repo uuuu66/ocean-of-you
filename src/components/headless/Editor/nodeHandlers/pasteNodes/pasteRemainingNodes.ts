@@ -1,3 +1,4 @@
+import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import {
   nodeNames,
   classNames,
@@ -10,6 +11,10 @@ import {
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
 import { moveCursorToClassName } from "@/components/headless/Editor/nodeHandlers/common/utils";
+import {
+  flattenChildNodes,
+  postProcessAfterFlatten,
+} from "@/components/headless/Editor/nodeHandlers/flattenChildNodes";
 
 const pasteRemainingNodes = (
   pasteStartNode: Node | null,
@@ -100,7 +105,21 @@ const insertNodesBehildCursor = (
     const lastSpan = searchParentNodeForNodeName(lastNode, "SPAN");
     if (lastSpan) newRange.selectNode(lastSpan);
     newRange.collapse(false);
-    newRange.insertNode(nodesBehindCursor);
+    const flattenNodes = postProcessAfterFlatten(
+      flattenChildNodes(nodesBehindCursor)
+    );
+    const fragment = document.createDocumentFragment();
+    for (const node of flattenNodes) {
+      const newNode = node.node?.firstChild?.parentElement;
+      if (newNode) {
+        if (node.style) {
+          copyAndPasteStyle(newNode, node.style);
+        }
+        fragment.appendChild(newNode);
+      }
+    }
+
+    newRange.insertNode(fragment);
   }
 };
 export default pasteRemainingNodes;
