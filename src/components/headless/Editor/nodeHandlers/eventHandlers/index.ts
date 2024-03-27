@@ -70,19 +70,9 @@ const handleEditorKeyDown = (
           "P"
         );
         const listTag = searchParentListTag(selectionP);
-
         //지우려는 글자가 1개일 경우
         if (selectionP && (selectionP?.textContent?.length || 0) === 1) {
           if (listTag) {
-            if (listTag.childNodes.length === 1) {
-              e.preventDefault();
-              const p = document.createElement("p");
-              const span = document.createElement("span");
-              const br = document.createElement("br");
-              span.appendChild(br);
-              p.appendChild(span);
-              targetElement.replaceChild(p, listTag);
-            }
           } else {
             e.preventDefault();
             selectionP.textContent = "";
@@ -93,7 +83,20 @@ const handleEditorKeyDown = (
           }
           break;
         }
-
+        if (
+          listTag &&
+          listTag.childNodes.length === 1 &&
+          selectionP &&
+          (selectionP?.textContent?.length || 0) === 0
+        ) {
+          e.preventDefault();
+          const p = document.createElement("p");
+          const span = document.createElement("span");
+          const br = document.createElement("br");
+          span.appendChild(br);
+          p.appendChild(span);
+          targetElement.replaceChild(p, listTag);
+        }
         // 전체를 블록한 후 타이핑 시
         if (listTag) {
           const isSelectEntireList =

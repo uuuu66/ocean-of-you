@@ -45,7 +45,7 @@ const pasteFirstDefaultNode = (
   //선택된 범위 뒤에오는 노드
   const nodesAfterSelection = getNodesAfterSelection(endNode, endOffset);
 
-  removeRangeContent(range);
+  removeRangeContent(selection);
   //셀렉션의 시작노드의 p태그를 찾음
   const parentP = searchParentNodeForNodeName(startNode, "P");
   endOffset = startOffset;

@@ -40,8 +40,6 @@ const pasteFirstListNode = (
       startOffset = Math.min(anchorOffset, focusOffset);
       endOffset = Math.max(anchorOffset, focusOffset);
     }
-
-    //일단 선택한 부분을 없앰 없앤 후 flatten한 노드들을 재배치함
   }
 
   //셀렉션의 시작노드의 p태그를 찾음
@@ -52,7 +50,7 @@ const pasteFirstListNode = (
   const parentListNode = document.createElement(
     firstChildNode.nodeName.toLowerCase()
   );
-  removeRangeContent(range);
+  removeRangeContent(selection);
   endOffset = startOffset;
   if (firstChildNode.node)
     switch (startNode.nodeName) {
@@ -160,10 +158,8 @@ const pasteFirstNodeToListTag = (
   }
   const targetListFirstP = searchFirstChildForNodename(targetListTag, "P");
   const listFirstP = searchFirstChildForNodename(parentListNode, "P");
-  console.log(listFirstP?.childNodes);
   if (targetListFirstP) {
     for (let i = 0; i < (listFirstP?.childNodes || []).length; i += 1) {
-      console.log(listFirstP?.childNodes?.item(i));
       if (listFirstP?.childNodes?.item(i))
         targetListFirstP.appendChild(listFirstP?.childNodes?.item(i));
     }

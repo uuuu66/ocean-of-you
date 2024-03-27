@@ -198,15 +198,38 @@ const moveCursorToClassName = (selection: Selection, className: string) => {
   targetNode.removeAttribute("class");
   return targetNode;
 };
-const removeRangeContent = (range?: Range) => {
+const removeRangeContent = (selection?: Selection) => {
+  if (!selection) return;
+
+  const { anchorNode, focusNode } = selection;
+  let startNode = anchorNode;
+  let endNode = focusNode;
+
+  const range = selection?.getRangeAt(0);
   if (!range) return;
   if (range.collapsed) return;
-  const startListTag = searchParentListTag(range.startContainer);
-  const endListTag = searchParentListTag(range.endContainer);
+  if (!anchorNode || !focusNode) return;
+  //anchorNode,focusNode간의 위치 선후 관계를 비교한 후 분기
+  //2 뒤에서 앞으로
+  if (anchorNode?.compareDocumentPosition(focusNode) === 2) {
+    startNode = focusNode;
+    endNode = anchorNode;
+  } else if (anchorNode?.compareDocumentPosition(focusNode) === 0) {
+    startNode = focusNode;
+    endNode = anchorNode;
+  }
+
+  const startListTag = searchParentListTag(startNode);
+  const endListTag = searchParentListTag(endNode);
+
   if (endListTag && startListTag?.nodeName !== endListTag.nodeName)
     endListTag?.parentElement?.removeChild(endListTag);
+  const startLiTag = searchParentNodeForNodeName(startNode, "LI");
+  const endLiTag = searchParentNodeForNodeName(endNode, "LI");
 
-  range.deleteContents();
+  if (!endLiTag?.isSameNode(startLiTag))
+    endLiTag?.parentElement?.removeChild(endLiTag);
+  selection.deleteFromDocument();
 };
 export {
   addIdToChildNodes,

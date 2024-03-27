@@ -58,6 +58,7 @@ const recomposeNode = (node: Node) => {
     } = flattendNode;
     let parentNodeIndex = -1;
     let targetIndex = parentIndex;
+
     while (true) {
       parentNodeIndex = searchFlattenNodeIndex(resultArray, targetIndex);
       targetIndex = targetIndex.slice(0, -1);
@@ -126,13 +127,39 @@ const recomposeNode = (node: Node) => {
                   p.appendChild(initializeChildNode(childNode));
                 }
                 li.appendChild(p);
-
-                const parentNode = resultArray[parentNodeIndex];
-
-                if (parentNode) {
+                if (parentNodeIndex >= 0) {
+                  if (!text) continue;
+                  const parentNode = resultArray[parentNodeIndex];
                   parentNode.node?.appendChild(li);
                   parentNode.childNodes?.push(li);
                 } else {
+                  const isParentExist =
+                    resultArray[resultArray.length - 1]?.nodeIndex?.length ===
+                    0;
+                  if (isParentExist) {
+                    const parentNode = resultArray[resultArray.length - 1];
+
+                    parentNode?.node?.appendChild(li);
+                    parentNode.childNodes?.push(li);
+                    //아닐 경우
+                  } else {
+                    const ul = document.createElement("ul");
+                    ul.style.setProperty("list-style", "initial");
+                    const newParent: FlattendNode = {
+                      isParent: true,
+                      nodeIndex: [],
+                      node: ul,
+                      nodeName: "UL",
+                      parentIndex: [],
+                      style: ul.style,
+                      text: "",
+                      childNodes: [],
+                    };
+
+                    resultArray.push(newParent);
+                    resultArray[resultArray.length - 1].node?.appendChild(li);
+                    resultArray[resultArray.length - 1].childNodes?.push(li);
+                  }
                 }
               }
               break;

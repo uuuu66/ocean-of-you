@@ -87,7 +87,7 @@ const copyAndPastePostSelectionContent = () => {
       postSelectionFirstElement?.className === classNames.lastNode &&
       !postSelectionFirstElement.textContent
     ) {
-      removeRangeContent(range);
+      removeRangeContent(selection);
     }
     selection.removeAllRanges();
     selection.addRange(postSelectionRange);
@@ -145,7 +145,7 @@ const deleteSelectionContent = () => {
     selection.removeAllRanges();
     selection.addRange(deleteRange);
     deleteStartPoint.removeAttribute("class");
-    removeRangeContent(selection.getRangeAt(0));
+    removeRangeContent(selection);
   }
 };
 const moveCursorToCutPoint = () => {
