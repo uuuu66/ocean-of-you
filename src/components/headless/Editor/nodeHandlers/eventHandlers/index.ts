@@ -2,18 +2,12 @@ import { classNames } from "@/components/headless/Editor/nodeHandlers/common/con
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
 import {
   removeEmptyNode,
-  removeRangeContent,
   removeSelection,
 } from "@/components/headless/Editor/nodeHandlers/common/utils";
-import {
-  copyAndPastePostSelectionContent,
-  deleteSelectionContent,
-  moveCursorToCutPoint,
-} from "@/components/headless/Editor/nodeHandlers/cutNodes";
+
 import { pasteNodesToSelection } from "@/components/headless/Editor/nodeHandlers/pasteNodes";
 import { recomposeNode } from "@/components/headless/Editor/nodeHandlers/recomposeNode";
 import {
-  searchEmptyNodes,
   searchFirstChildForNodename,
   searchParentListTag,
   searchParentNodeForNodeName,
@@ -101,6 +95,7 @@ const handleEditorKeyDown = (
           span.appendChild(br);
           p.appendChild(span);
           targetElement.replaceChild(p, listTag);
+          break;
         }
         // 전체를 블록한 후 타이핑 시
         if (listTag) {
@@ -135,7 +130,7 @@ const handleEditorKeyDown = (
             }
           }
         }
-
+        //text가 0일 경우
         if (targetElement.textContent?.length === 0 && selectionP) {
           if (listTag) {
             targetElement.removeChild(listTag);
@@ -144,8 +139,11 @@ const handleEditorKeyDown = (
           }
           break;
         }
-        e.preventDefault();
-        removeSelection(targetElement);
+        if (!range?.collapsed) {
+          e.preventDefault();
+          removeSelection();
+          removeEmptyNode(targetElement);
+        }
       }
 
       default: {
@@ -192,7 +190,10 @@ const handleEditorKeyDown = (
 
           break;
         }
-        if (!range?.collapsed) removeSelection(targetElement);
+        if (!range?.collapsed) {
+          removeSelection();
+          removeEmptyNode(targetElement);
+        }
       }
     }
   }
@@ -304,7 +305,8 @@ const handleEditorCut = (
     }
     e.clipboardData.setData("text/html", div.innerHTML);
 
-    removeSelection(targetElement);
+    removeSelection();
+    removeEmptyNode(targetElement);
   }
 };
 

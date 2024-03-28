@@ -136,6 +136,29 @@ const searchEmptyNodes = (node: Node | null) => {
 
   return nodesWithoutChildren;
 };
+const searchEmptyTextNodes = (targetElement: Node) => {
+  const nodesWithoutChildren: Node[] = [];
+
+  for (let i = 0; i < targetElement.childNodes.length; i += 1) {
+    const targetNode = targetElement.childNodes[i];
+    if (!targetNode) return null;
+
+    if (
+      searchFirstChildForNodename(targetNode, "BR") &&
+      searchFirstChildForNodename(targetNode, "P")?.childNodes?.length === 1
+    ) {
+      return;
+    }
+    // childNodes를 가지지 않는 노드인 경우, 배열에 추가합니다.
+    if (!targetNode.textContent) {
+      nodesWithoutChildren.push(targetNode);
+    }
+  }
+
+  // 문서 전체를 시작점으로 탐색합니다.
+
+  return nodesWithoutChildren;
+};
 //targetA가 compareB보다 먼저오면 true
 const isLessThan = (targetA: number[], compareB: number[]) => {
   const length = Math.max(targetA?.length, compareB?.length);
@@ -171,4 +194,5 @@ export {
   findAllTextNodes,
   searchParentListTag,
   searchEmptyNodes,
+  searchEmptyTextNodes,
 };

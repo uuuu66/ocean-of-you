@@ -2,6 +2,7 @@ import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/add
 import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import {
   searchEmptyNodes,
+  searchEmptyTextNodes,
   searchParentListTag,
   searchParentNodeForNodeName,
   searchTextNode,
@@ -74,12 +75,7 @@ const removeIdFromChildNodesBasedOnNodeName = (
   }
 };
 //선택한 부분을 제거하는 로직
-const removeSelection = (targetElement: HTMLElement) => {
-  if (!targetElement) {
-    console.error("need targetElement");
-    return;
-  }
-
+const removeSelection = () => {
   const selection = window.getSelection();
   const range = selection?.getRangeAt(0);
   if (!selection) return;
@@ -118,7 +114,6 @@ const removeSelection = (targetElement: HTMLElement) => {
         startP?.firstChild
       );
     startP?.firstChild?.parentElement?.removeAttribute("class");
-    removeEmptyNode(targetElement);
   }
 };
 //selection의 offset에 노드를 삽입하는 함수
@@ -219,13 +214,22 @@ const divideNodeIntoThreePart = (
   ranges[2].setEnd(node, node.textContent ? node.textContent?.length : 0);
   return ranges;
 };
-const removeEmptyNode = (targetElement: HTMLElement) => {
+const removeEmptyNode = (targetElement: Node) => {
   const root = targetElement;
   const emptyNodes = searchEmptyNodes(root);
   for (const node of emptyNodes) {
     if (node.nodeName === "BR") continue;
     node.parentElement?.removeChild(node);
   }
+};
+const removeEmptyTextNode = (targetElement: Node) => {
+  const emptyNodes = searchEmptyTextNodes(targetElement);
+  if (emptyNodes)
+    for (const node of emptyNodes) {
+      if (node.nodeName === "BR") continue;
+
+      node.parentElement?.removeChild(node);
+    }
 };
 //class를 찾아서 커서이동
 const moveCursorToClassName = (selection: Selection, className: string) => {
@@ -257,7 +261,7 @@ const moveCursorToClassName = (selection: Selection, className: string) => {
   targetNode.removeAttribute("class");
   return targetNode;
 };
-const removeRangeContent = (selection?: Selection) => {
+const removeListContent = (selection?: Selection) => {
   if (!selection) return;
 
   const { anchorNode, focusNode } = selection;
@@ -297,7 +301,8 @@ export {
   moveCursorToTargetNode,
   divideNodeIntoThreePart,
   removeEmptyNode,
-  removeRangeContent,
+  removeEmptyTextNode,
+  removeListContent,
   camelToKebab,
   moveCursorToClassName,
   removeSelection,

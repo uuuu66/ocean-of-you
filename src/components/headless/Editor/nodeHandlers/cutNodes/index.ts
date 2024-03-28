@@ -1,7 +1,7 @@
 import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import {
   insertTagAtOffsets,
-  removeRangeContent,
+  removeListContent,
 } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
   searchParentNodeForNodeName,
@@ -88,7 +88,7 @@ const copyAndPastePostSelectionContent = () => {
       postSelectionFirstElement?.className === classNames.lastNode &&
       !postSelectionFirstElement.textContent
     ) {
-      removeRangeContent(selection);
+      removeListContent(selection);
     }
     selection.removeAllRanges();
     selection.addRange(postSelectionRange);
@@ -146,7 +146,7 @@ const deleteSelectionContent = () => {
     selection.removeAllRanges();
     selection.addRange(deleteRange);
     deleteStartPoint.removeAttribute("class");
-    removeRangeContent(selection);
+    removeListContent(selection);
   }
 };
 const moveCursorToCutPoint = () => {

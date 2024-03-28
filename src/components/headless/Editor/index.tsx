@@ -10,6 +10,7 @@ import {
   handleEditorFocus,
   handleEditorCut,
 } from "@/components/headless/Editor/nodeHandlers/eventHandlers";
+import addListTagToSelection from "@/components/headless/Editor/nodeHandlers/addListTagToSelection";
 export type TagName = "span" | "strong" | "em";
 export type NodeName = Uppercase<TagName>;
 export default function Editor() {
@@ -42,6 +43,7 @@ export default function Editor() {
     []
   );
   const fontSizes = new Array(16).fill("sd");
+  const now = "s";
   return (
     <section aria-label="edtior">
       <datalist id="list">
@@ -77,11 +79,66 @@ export default function Editor() {
             <p>
               <span>o</span>
               <span>l</span>
-              <span>_</span> <span>list1</span>
+              <span>_</span>
+              <span>list1</span>
             </p>{" "}
           </li>
         </ol>
-        <ul style={{ listStyle: "initial" }}>
+        <ol style={{ listStyle: "decimal" }}>
+          <li>
+            <p>
+              <span>u</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list2</span>
+            </p>
+          </li>
+          <li>
+            <p>
+              <span>u</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list3</span>
+            </p>
+          </li>{" "}
+          <li>
+            <p>
+              <span>u</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list4</span>
+            </p>
+          </li>{" "}
+          <li>
+            <p>
+              <span>u</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list5</span>
+            </p>
+          </li>{" "}
+          <li>
+            <p>
+              <span>u</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list6</span>
+            </p>
+          </li>
+        </ol>
+        <p>
+          <span>not list</span>
+          <span style={{ color: "red" }}>{"it's p"}</span>
+        </p>
+        <ol style={{ listStyle: "arabic-indic" }}>
+          <li>
+            <p>
+              <span>u</span>
+              <span>l</span>
+              <span>_</span>
+              <span>list1</span>
+            </p>
+          </li>
           <li>
             <p>
               <span>u</span>
@@ -98,14 +155,12 @@ export default function Editor() {
               <span>list3</span>
             </p>
           </li>
-        </ul>
-        <ol style={{ listStyle: "arabic-indic" }}>
           <li>
             <p>
               <span>u</span>
               <span>l</span>
               <span>_</span>
-              <span>list</span>
+              <span>list4</span>
             </p>
           </li>
         </ol>
@@ -132,6 +187,24 @@ export default function Editor() {
           />
         ))}
       </select>
+      <button
+        className="w-10 border border-primary1"
+        onClick={() => addListTagToSelection("OL", "")}
+      >
+        ol
+      </button>
+      <button
+        className="w-10 border border-primary1"
+        onClick={() => addListTagToSelection("UL", "")}
+      >
+        ul
+      </button>
+      <button
+        className="w-10 border border-primary1"
+        onClick={() => addListTagToSelection("NONE", now)}
+      >
+        none
+      </button>
     </section>
   );
 }

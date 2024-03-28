@@ -22,3 +22,4 @@ export interface FlattendNode {
   nodeName: string;
   childNodes?: HTMLElement[];
 }
+export type ListType = "UL" | "OL" | "NONE";

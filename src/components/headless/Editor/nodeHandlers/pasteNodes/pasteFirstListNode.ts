@@ -7,7 +7,7 @@ import {
   searchLastChildForNodename,
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { FlattendNode } from "@/components/headless/Editor/nodeHandlers/common/types";
-import { removeRangeContent } from "@/components/headless/Editor/nodeHandlers/common/utils";
+import { removeListContent } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import getNodesAfterSelection from "@/components/headless/Editor/nodeHandlers/pasteNodes/getNodesAfterSelection";
 import {
   flattenChildNodes,
@@ -55,7 +55,7 @@ const pasteFirstListNode = (
   const parentListNode = document.createElement(
     firstChildNode.nodeName.toLowerCase()
   );
-  removeRangeContent(selection);
+  removeListContent(selection);
   endOffset = startOffset;
   if (firstChildNode.node)
     switch (startNode.nodeName) {

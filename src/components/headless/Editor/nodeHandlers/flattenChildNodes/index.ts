@@ -41,18 +41,17 @@ const flattenChildNodes = (
 
     case "LI":
       {
-        if (node.parentElement)
-          array.push([
-            {
-              isParent: false,
-              style: node?.firstChild?.parentElement?.style || null,
-              node,
-              text: node.textContent || "",
-              nodeIndex: nodeIndex ? [...nodeIndex] : [],
-              nodeName: node.nodeName,
-              parentIndex,
-            },
-          ]);
+        array.push([
+          {
+            isParent: false,
+            style: node?.firstChild?.parentElement?.style || null,
+            node,
+            text: node.textContent || "",
+            nodeIndex: nodeIndex ? [...nodeIndex] : [],
+            nodeName: node.nodeName,
+            parentIndex,
+          },
+        ]);
       }
       break;
 
@@ -84,7 +83,8 @@ const flattenChildNodes = (
         } else {
           const span = document.createElement("span");
           span.textContent = node.textContent;
-
+          if (node.firstChild?.parentElement?.id)
+            span.setAttribute("id", node.firstChild?.parentElement?.id);
           return [
             {
               isParent: false,
