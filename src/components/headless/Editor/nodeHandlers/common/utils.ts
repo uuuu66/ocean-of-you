@@ -1,4 +1,5 @@
 import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/addStyleToSelection";
+import { classNames } from "@/components/headless/Editor/nodeHandlers/common/configs";
 import {
   searchEmptyNodes,
   searchParentListTag,
@@ -6,6 +7,11 @@ import {
   searchTextNode,
 } from "@/components/headless/Editor/nodeHandlers/common/searchNodes";
 import { InsertTagNextToNodesArgs } from "@/components/headless/Editor/nodeHandlers/common/types";
+import {
+  copyAndPastePostSelectionContent,
+  deleteSelectionContent,
+  moveCursorToCutPoint,
+} from "@/components/headless/Editor/nodeHandlers/cutNodes";
 
 const camelToKebab = (target: string) => {
   const result = target.replace(/([A-Z])/g, " $1");
@@ -67,6 +73,54 @@ const removeIdFromChildNodesBasedOnNodeName = (
     }
   }
 };
+//선택한 부분을 제거하는 로직
+const removeSelection = (targetElement: HTMLElement) => {
+  if (!targetElement) {
+    console.error("need targetElement");
+    return;
+  }
+
+  const selection = window.getSelection();
+  const range = selection?.getRangeAt(0);
+  if (!selection) return;
+  if (!range) return;
+  const { anchorNode, focusNode } = selection;
+  if (anchorNode && focusNode) {
+    let startNode = anchorNode;
+    let endNode = focusNode;
+    const isAnchorNodeStart =
+      anchorNode?.compareDocumentPosition(focusNode) === 4;
+    if (!isAnchorNodeStart) {
+      startNode = focusNode;
+      endNode = anchorNode;
+    }
+    if (!startNode?.parentElement) {
+      console.error("need startnodeParent");
+      return;
+    }
+    if (!endNode?.parentElement) {
+      console.error("need endnodeParent");
+      return;
+    }
+    //마우스 이동을 위한 클래스부여
+    const startP = searchParentNodeForNodeName(startNode, "P");
+    startP?.firstChild?.parentElement?.setAttribute("class", classNames.firstP);
+    //선택한 영역 뒤에 있는 노드들을 복사한 후 커서 첫부분에 집어넣음
+    copyAndPastePostSelectionContent();
+    //선택한 영역을 삭제함
+    deleteSelectionContent();
+    //자른 후 커서 이동
+    moveCursorToCutPoint();
+    //남은 노드 비어있을 경우 처리
+    if (startP?.firstChild && !startP?.firstChild?.textContent)
+      startP?.replaceChild(
+        document.createDocumentFragment(),
+        startP?.firstChild
+      );
+    startP?.firstChild?.parentElement?.removeAttribute("class");
+    removeEmptyNode(targetElement);
+  }
+};
 //selection의 offset에 노드를 삽입하는 함수
 const insertTagAtOffsets = ({
   styleKey,
@@ -81,6 +135,7 @@ const insertTagAtOffsets = ({
   if (!node?.parentElement) {
     return null;
   }
+
   let targetNode = node;
 
   switch (targetNode.nodeName) {
@@ -143,7 +198,9 @@ const insertTagAtOffsets = ({
     const fragment = document.createDocumentFragment();
     if (!!precededNode.textContent) fragment.appendChild(precededNode);
     if (!!selectedNode.textContent) fragment.appendChild(selectedNode);
+
     if (!!followedNode.textContent) fragment.appendChild(followedNode);
+    console.log(targetNode.parentNode, node);
     targetNode.parentNode?.replaceChild(fragment, targetNode);
     return { node: selectedNode };
   }
@@ -243,4 +300,5 @@ export {
   removeRangeContent,
   camelToKebab,
   moveCursorToClassName,
+  removeSelection,
 };

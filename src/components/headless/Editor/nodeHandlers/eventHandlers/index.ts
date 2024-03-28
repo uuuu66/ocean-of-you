@@ -3,6 +3,7 @@ import { copyAndPasteStyle } from "@/components/headless/Editor/nodeHandlers/add
 import {
   removeEmptyNode,
   removeRangeContent,
+  removeSelection,
 } from "@/components/headless/Editor/nodeHandlers/common/utils";
 import {
   copyAndPastePostSelectionContent,
@@ -70,7 +71,9 @@ const handleEditorKeyDown = (
           range?.startContainer || null,
           "P"
         );
+
         const listTag = searchParentListTag(selectionP);
+
         //지우려는 글자가 1개일 경우
         if (selectionP && (selectionP?.textContent?.length || 0) === 1) {
           if (listTag) {
@@ -84,6 +87,7 @@ const handleEditorKeyDown = (
           }
           break;
         }
+        //리스트일 경우 다 지울 때
         if (
           listTag &&
           listTag.childNodes.length === 1 &&
@@ -131,14 +135,17 @@ const handleEditorKeyDown = (
             }
           }
         }
+
         if (targetElement.textContent?.length === 0 && selectionP) {
           if (listTag) {
             targetElement.removeChild(listTag);
           } else {
             targetElement.removeChild(selectionP);
           }
+          break;
         }
-        break;
+        e.preventDefault();
+        removeSelection(targetElement);
       }
 
       default: {
@@ -185,6 +192,7 @@ const handleEditorKeyDown = (
 
           break;
         }
+        if (!range?.collapsed) removeSelection(targetElement);
       }
     }
   }
@@ -257,6 +265,7 @@ const handleEditorCut = (
     return;
   }
   e.preventDefault();
+
   const selection = window.getSelection();
   if (!selection) return;
   const range = selection?.getRangeAt(0);
@@ -294,25 +303,9 @@ const handleEditorCut = (
       div.appendChild(data);
     }
     e.clipboardData.setData("text/html", div.innerHTML);
-    //마우스 이동을 위한 클래스부여
-    const startP = searchParentNodeForNodeName(startNode, "P");
-    startP?.firstChild?.parentElement?.setAttribute("class", classNames.firstP);
-    //선택한 영역 뒤에 있는 노드들을 복사한 후 커서 첫부분에 집어넣음
-    copyAndPastePostSelectionContent();
-    //선택한 영역을 삭제함
-    deleteSelectionContent();
-    //자른 후 커서 이동
-    moveCursorToCutPoint();
-    //남은 노드 비어있을 경우 처리
-    if (startP?.firstChild && !startP?.firstChild?.textContent)
-      startP?.replaceChild(
-        document.createDocumentFragment(),
-        startP?.firstChild
-      );
-    startP?.firstChild?.parentElement?.removeAttribute("class");
-  }
 
-  removeEmptyNode(targetElement);
+    removeSelection(targetElement);
+  }
 };
 
 export {
